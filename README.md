@@ -10,3 +10,10 @@ You must have the following installed:
 ## Install Dependencies
 
 Run `npm install` to install all dependencies from NPM.
+
+## Start an application
+
+```bash
+# start API
+$ npm run start:dev
+```
