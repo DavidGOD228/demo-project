@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: wilson
+      POSTGRES_USER: Admin
+      POSTGRES_DB: wilson
+    container_name: wilson-db
+    ports:
+      - 5432:5432
