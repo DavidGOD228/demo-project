@@ -1,0 +1,37 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../entities/user.entity';
+import { updateProfileDto } from '../interfaces/user.dto';
+
+@Injectable()
+export class UserService {
+  constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
+
+  public async updateProfile(body: updateProfileDto, userId: number): Promise<User> {
+    const { firstName, lastName, email } = body;
+
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const updatedUser = user;
+
+    if (firstName) {
+      updatedUser.firstName = firstName;
+    }
+
+    if (lastName) {
+      updatedUser.lastName = lastName;
+    }
+
+    if (email) {
+      updatedUser.email = email;
+    }
+
+    await this.usersRepository.update(user.id, updatedUser);
+    return updatedUser;
+  }
+}
