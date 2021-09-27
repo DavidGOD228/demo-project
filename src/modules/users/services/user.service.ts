@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { updateProfileDto, updateUserInterestsDto } from '../interfaces/user.dto';
+import { ChangeUserOnBoardedStatusDto, UpdateUserInterestsDto, UpdateProfileDto } from '../interfaces/user.dto';
+import { SuccessResponseMessage } from 'src/common/interfaces';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,7 @@ export class UserService {
     @InjectRepository(Interest) private readonly interestsRepository: Repository<Interest>,
   ) {}
 
-  public async updateProfile(body: updateProfileDto, userId: string): Promise<User> {
+  public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
@@ -24,10 +25,22 @@ export class UserService {
     return updatedUser;
   }
 
-  public async updateUserInterests(body: updateUserInterestsDto, userId: string): Promise<User> {
+  public async updateUserInterests(body: UpdateUserInterestsDto, userId: string): Promise<User> {
     const interests = await this.interestsRepository.find({ where: { id: In(body.interestsIds) } });
     const user = await this.usersRepository.findOne(userId);
     user.interests = interests;
     return await this.usersRepository.save(user);
+  }
+
+  public async changeUserOnBoardedStatus(
+    body: ChangeUserOnBoardedStatusDto,
+    userId: string,
+  ): Promise<SuccessResponseMessage> {
+    const user = await this.usersRepository.findOne(userId);
+    if (!user) {
+      throw new NotFoundException();
+    }
+    await this.usersRepository.update(user.id, { onboarded: body.onboarded });
+    return { message: 'User on-boarded status successfully updated!' };
   }
 }

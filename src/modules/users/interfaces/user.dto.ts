@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
 
-export class updateProfileDto {
+export class UpdateProfileDto {
   @ApiProperty()
   @IsString()
   @IsOptional()
@@ -18,7 +18,13 @@ export class updateProfileDto {
   email?: string;
 }
 
-export class updateUserInterestsDto {
+export class UpdateUserInterestsDto {
   @ApiProperty()
   interestsIds: string[];
+}
+
+export class ChangeUserOnBoardedStatusDto {
+  @ApiProperty()
+  @IsBoolean()
+  onboarded: boolean;
 }
