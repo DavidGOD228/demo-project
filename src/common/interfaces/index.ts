@@ -3,6 +3,6 @@ import { Request } from 'express';
 
 export interface RequestWithUserParams extends Request {
   user?: {
-    id: number;
+    id: string;
   };
 }

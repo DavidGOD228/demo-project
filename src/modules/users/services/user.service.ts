@@ -8,7 +8,7 @@ import { updateProfileDto } from '../interfaces/user.dto';
 export class UserService {
   constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
 
-  public async updateProfile(body: updateProfileDto, userId: number): Promise<User> {
+  public async updateProfile(body: updateProfileDto, userId: string): Promise<User> {
     const { firstName, lastName, email } = body;
     const user = await this.usersRepository.findOne(userId);
 
