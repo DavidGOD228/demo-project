@@ -17,3 +17,8 @@ export class updateProfileDto {
   @IsOptional()
   email?: string;
 }
+
+export class updateUserInterestsDto {
+  @ApiProperty()
+  interestsIds: string[];
+}
