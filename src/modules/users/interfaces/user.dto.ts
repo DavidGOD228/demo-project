@@ -18,6 +18,11 @@ export class UpdateProfileDto {
   email?: string;
 }
 
+export class UpdateUserInterestsDto {
+  @ApiProperty()
+  interestsIds: string[];
+}
+
 export class ChangeUserOnBoardedStatusDto {
   @ApiProperty()
   @IsBoolean()

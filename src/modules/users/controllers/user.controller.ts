@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthor
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
-import { ChangeUserOnBoardedStatusDto, UpdateProfileDto } from '../interfaces/user.dto';
+import { ChangeUserOnBoardedStatusDto, UpdateProfileDto, UpdateUserInterestsDto } from '../interfaces/user.dto';
 import { UserService } from '../services/user.service';
 
 @UseGuards(JwtAuthGuard)
@@ -22,6 +22,20 @@ export class UserController {
       return await this.usersService.updateProfile(body, req.user.id);
     } catch (error) {
       console.log(error.message);
+    }
+  }
+
+  @ApiTags('Users')
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Patch('interests')
+  async updateUserInterests(@Body() body: UpdateUserInterestsDto, @Req() req: RequestWithUserParams): Promise<User> {
+    try {
+      return await this.usersService.updateUserInterests(body, req.user.id);
+    } catch (error) {
+      console.log(error.message)
     }
   }
 
