@@ -9,7 +9,6 @@ export class UserService {
   constructor(@InjectRepository(User) private readonly usersRepository: Repository<User>) {}
 
   public async updateProfile(body: updateProfileDto, userId: string): Promise<User> {
-    const { firstName, lastName, email } = body;
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
@@ -17,19 +16,6 @@ export class UserService {
     }
 
     const updatedUser = { ...user, ...body };
-
-    if (firstName) {
-      updatedUser.firstName = firstName;
-    }
-
-    if (lastName) {
-      updatedUser.lastName = lastName;
-    }
-
-    if (email) {
-      updatedUser.email = email;
-    }
-
     await this.usersRepository.update(user.id, updatedUser);
     return updatedUser;
   }
