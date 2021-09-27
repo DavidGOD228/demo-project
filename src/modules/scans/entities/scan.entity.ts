@@ -9,8 +9,8 @@ export class Scan {
   @Column()
   number: number;
 
-  @Column()
-  objectId: number;
+  @Column('uuid')
+  objectId: string;
 
   @ManyToOne(() => Channel, channel => channel.scans)
   @JoinColumn({ name: 'channel_id' })

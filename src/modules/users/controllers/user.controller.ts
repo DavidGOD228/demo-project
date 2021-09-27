@@ -35,7 +35,7 @@ export class UserController {
     try {
       return await this.usersService.updateUserInterests(body, req.user.id);
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
   }
 

@@ -19,7 +19,7 @@ export class Widget {
   type: string;
 
   @Column({ nullable: true })
-  parentId?: number;
+  parentId?: string;
 
   // general info
   @Column()
