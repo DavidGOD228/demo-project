@@ -4,6 +4,9 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as morgan from 'morgan';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/interceptors';
+import { config } from 'dotenv';
+
+config({ path: `.env.${process.env.NODE_ENV}` });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
