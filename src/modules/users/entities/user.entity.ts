@@ -62,7 +62,7 @@ export class User {
   @JoinTable({ name: 'favorites' })
   widgets: Widget[];
 
-  @OneToMany(() => Scan, scan => scan.objectId)
+  @OneToMany(() => Scan, scan => scan.user)
   @JoinColumn({ name: 'object_id' })
   scans: Scan[];
 }
