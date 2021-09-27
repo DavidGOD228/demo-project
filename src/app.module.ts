@@ -4,6 +4,7 @@ import { TypeOrmModule, TypeOrmModuleAsyncOptions } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ormconfig } from './common/ormconfig';
+import { AwsModule } from './modules/aws/aws.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ChannelModule } from './modules/channels/channel.module';
 import { InterestModule } from './modules/interests/interest.module';
@@ -23,6 +24,7 @@ import { WidgetModule } from './modules/widgets/widget.module';
     TypeOrmModule.forRootAsync(ormconfig as TypeOrmModuleAsyncOptions),
     TypeOrmModule.forFeature([]),
     AuthModule,
+    AwsModule,
     ChannelModule,
     InterestModule,
     PromotionModule,
