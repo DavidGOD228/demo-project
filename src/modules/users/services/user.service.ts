@@ -10,14 +10,13 @@ export class UserService {
 
   public async updateProfile(body: updateProfileDto, userId: number): Promise<User> {
     const { firstName, lastName, email } = body;
-
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    const updatedUser = user;
+    const updatedUser = { ...user, ...body };
 
     if (firstName) {
       updatedUser.firstName = firstName;
