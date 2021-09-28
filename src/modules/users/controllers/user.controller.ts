@@ -3,15 +3,20 @@ import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthor
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
-import { ChangeUserOnBoardedStatusDto, UpdateProfileDto, UpdateUserInterestsDto } from '../interfaces/user.dto';
+import {
+  AddUserFavoriteDto,
+  ChangeUserOnBoardedStatusDto,
+  UpdateProfileDto,
+  UpdateUserInterestsDto,
+} from '../interfaces/user.dto';
 import { UserService } from '../services/user.service';
 
 @UseGuards(JwtAuthGuard)
+@ApiTags('Users')
 @Controller('users')
 export class UserController {
   constructor(private readonly usersService: UserService) {}
 
-  @ApiTags('Users')
   @ApiBearerAuth()
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiOkResponse({ description: 'OK' })
@@ -25,7 +30,6 @@ export class UserController {
     }
   }
 
-  @ApiTags('Users')
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not Found' })
@@ -35,11 +39,10 @@ export class UserController {
     try {
       return await this.usersService.updateUserInterests(body, req.user.id);
     } catch (error) {
-      console.log(error.message)
+      console.log(error.message);
     }
   }
 
-  @ApiTags('Users')
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not Found' })
@@ -51,6 +54,19 @@ export class UserController {
   ): Promise<SuccessResponseMessage> {
     try {
       return await this.usersService.changeUserOnBoardedStatus(body, req.user.id);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @Patch('likes')
+  async addUserFavorite(@Body() body: AddUserFavoriteDto, @Req() req: RequestWithUserParams): Promise<User> {
+    try {
+      return await this.usersService.addUserFavorite(body, req.user.id);
     } catch (error) {
       console.log(error.message);
     }

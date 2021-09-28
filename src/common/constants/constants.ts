@@ -1,4 +1,4 @@
-export const phoneNumberRegex = /^\+[1-9]\d{1,14}$/;
+export const phoneNumberRegex = /^\+?[1-9]\d{1,14}$/;
 
 // ENVIRONMENT VARIABLES KEYS
 export const WILSON_BE_PORT = 'WILSON_BE_PORT';
