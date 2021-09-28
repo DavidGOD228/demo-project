@@ -35,7 +35,7 @@ export class TermsOfUseController {
   @ApiCreatedResponse({ description: 'Created' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('/addTerms')
-  async createTerm(@Body() body: CreateTermDto) {
+  async createTerm(@Body() body: CreateTermDto): Promise<TermsOfUse> {
     try {
       return await this.termsService.createTerm(body);
     } catch (error) {

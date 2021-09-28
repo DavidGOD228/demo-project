@@ -17,7 +17,7 @@ export class TermsOfUseService {
     return term;
   }
 
-  public async createTerm(body: CreateTermDto) {
+  public async createTerm(body: CreateTermDto): Promise<TermsOfUse> {
     const { title, mainText } = body;
     const term = this.termsRepository.create({ title: title, mainText: mainText });
     return await this.termsRepository.save(term);
