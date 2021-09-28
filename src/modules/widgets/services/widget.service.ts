@@ -8,7 +8,7 @@ export class WidgetService {
   constructor(@InjectRepository(Widget) private readonly widgetsRepository: Repository<Widget>) {}
 
   public async getWidgetById(id: string): Promise<Widget> {
-    const widget = await this.widgetsRepository.findOne({ where: { id } });
+    const widget = await this.widgetsRepository.findOne({ where: { id }, relations: ['scans'] });
     if (!widget) {
       throw new NotFoundException();
     }
