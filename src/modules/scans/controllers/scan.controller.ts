@@ -19,7 +19,7 @@ export class ScanController {
     try {
       return await this.scansService.getScansByObjectId(objectId);
     } catch (error) {
-      errorHandle(error, 'getWidgetById');
+      errorHandle(error, 'getScansByObjectId');
     }
   }
 }
