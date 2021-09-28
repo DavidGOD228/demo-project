@@ -50,6 +50,9 @@ export class User {
   @Column({ nullable: true })
   lastLoginAt?: Date;
 
+  @Column({ nullable: true })
+  imageUrl?: string;
+
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];
