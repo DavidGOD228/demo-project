@@ -1,13 +1,32 @@
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Query, Req, UseGuards, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { WidgetService } from '../services/widget.service';
+import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
+import { RequestWithUserParams } from '../../../common/interfaces';
+import { errorHandle } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Widgets')
 @Controller('widgets')
 export class WidgetController {
   constructor(private readonly widgetsService: WidgetService) {}
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @Get('feed')
+  async getWidgetFeed(
+    @Req() req: RequestWithUserParams,
+    @Query(new ValidationPipe({ transform: true })) params: GetWidgetFeedDto,
+  ) {
+    try {
+      return this.widgetsService.generateWidgetFeed(req.user.id, params.tags);
+    } catch (error) {
+      errorHandle(error, 'getWidgetFeed');
+    }
+  }
 
   @ApiBearerAuth()
   @Get(':id')
@@ -18,7 +37,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.getWidgetById(id);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'getWidgetById');
     }
   }
 }

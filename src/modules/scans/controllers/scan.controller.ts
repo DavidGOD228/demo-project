@@ -2,6 +2,7 @@ import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { ScanService } from '../services/scan.service';
+import { errorHandle } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Scans')
@@ -18,7 +19,7 @@ export class ScanController {
     try {
       return await this.scansService.getScansByObjectId(objectId);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'getWidgetById');
     }
   }
 }

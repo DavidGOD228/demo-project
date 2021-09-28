@@ -1,9 +1,18 @@
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Scan } from 'src/modules/scans/entities/scan.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from './storyBlock.entity';
 
@@ -18,8 +27,8 @@ export class Widget {
   @Column({ name: 'type', enum: WidgetTypeEnum })
   type: string;
 
-  @Column({ nullable: true })
-  parentId?: string;
+  @ManyToOne(() => Widget, widget => widget.childWidgets)
+  parent: Widget;
 
   // general info
   @Column()
@@ -38,7 +47,7 @@ export class Widget {
   promotion: Promotion;
 
   @OneToMany(() => StoryBlock, storyBlock => storyBlock.widget)
-  storyBlock: StoryBlock[];
+  storyBlocks: StoryBlock[];
 
   @ManyToMany(() => Tag, tag => tag.widgets)
   tags: Tag[];
@@ -52,4 +61,8 @@ export class Widget {
 
   @ManyToMany(() => Channel, channel => channel.widgets)
   channels: Channel[];
+
+  @OneToMany(() => Widget, widget => widget.parent)
+  @JoinColumn({ name: 'parent_id' })
+  childWidgets: Widget[];
 }

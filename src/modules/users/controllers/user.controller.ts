@@ -10,6 +10,7 @@ import {
   UpdateUserInterestsDto,
 } from '../interfaces/user.dto';
 import { UserService } from '../services/user.service';
+import { errorHandle } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
@@ -26,7 +27,7 @@ export class UserController {
     try {
       return await this.usersService.updateProfile(body, req.user.id);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'updateProfile');
     }
   }
 
@@ -39,7 +40,7 @@ export class UserController {
     try {
       return await this.usersService.updateUserInterests(body, req.user.id);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'updateUserInterests');
     }
   }
 
@@ -55,7 +56,7 @@ export class UserController {
     try {
       return await this.usersService.changeUserOnBoardedStatus(body, req.user.id);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'changeUserOnBoardedStatus');
     }
   }
 
@@ -68,7 +69,7 @@ export class UserController {
     try {
       return await this.usersService.addUserFavorite(body, req.user.id);
     } catch (error) {
-      console.log(error.message);
+      errorHandle(error, 'addUserFavorite');
     }
   }
 }
