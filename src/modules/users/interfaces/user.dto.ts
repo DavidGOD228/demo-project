@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsOptional, IsString } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class UpdateProfileDto {
   @ApiProperty()
@@ -27,4 +27,15 @@ export class ChangeUserOnBoardedStatusDto {
   @ApiProperty()
   @IsBoolean()
   onboarded: boolean;
+}
+
+export class AddUserFavoriteDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  widgetId: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  likeExist: boolean;
 }
