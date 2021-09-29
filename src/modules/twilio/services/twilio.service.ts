@@ -45,15 +45,21 @@ export default class TwilioSmsService {
     }
 
     const userExist = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+
     if (userExist) {
       await this.usersRepository.update(userExist.id, { lastLoginAt: new Date() });
+
       const token = this.jwtService.sign({ id: userExist.id });
+
       return { authToken: token };
     }
 
     const user = this.usersRepository.create({ phoneNumber: phoneNumber, lastLoginAt: new Date(), location: location });
+
     await this.usersRepository.save(user);
+
     const token = this.jwtService.sign({ id: user.id });
+
     return { authToken: token };
   }
 }
