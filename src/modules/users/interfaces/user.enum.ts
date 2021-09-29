@@ -3,3 +3,8 @@ export enum UserRoleEnum {
   ADMIN = 'ADMIN',
   SUPERUSER = 'SUPERUSER',
 }
+
+export enum FilterUserOrderEnum {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
