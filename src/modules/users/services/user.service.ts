@@ -11,6 +11,8 @@ import {
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
+import { FileService } from './file.service';
+import { UserAvatarUploadResponse } from '../interfaces';
 
 @Injectable()
 export class UserService {
@@ -18,6 +20,7 @@ export class UserService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
     @InjectRepository(Interest) private readonly interestsRepository: Repository<Interest>,
     @InjectRepository(Widget) private readonly widgetsRepository: Repository<Widget>,
+    private readonly fileService: FileService,
   ) {}
 
   public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
@@ -69,5 +72,14 @@ export class UserService {
     }
     user.widgets.push(widget);
     return await this.usersRepository.save(user);
+  }
+
+  public async addUserAvatar(userId: string, imageBuffer: Buffer, filename: string): Promise<UserAvatarUploadResponse> {
+    const user = await this.usersRepository.findOne(userId);
+    if (!user) {
+      new NotFoundException();
+    }
+    const avatar = await this.fileService.uploadFile(user.id, imageBuffer, filename);
+    return { imageUrl: avatar };
   }
 }
