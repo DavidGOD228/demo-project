@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { UsersWithFiltersResponse, UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarUploadResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
@@ -84,49 +84,25 @@ export class UserService {
     return { imageUrl: avatar };
   }
 
-  public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<UsersWithFiltersResponse> {
+  public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {
     const { limit: take, page: skip, fieldName: sortField, order: sortOrder } = filterByPages;
 
-    const table = [
-      {
-        fieldName: 'User ID',
-        props: ['id'],
-      },
-      {
-        fieldName: 'Name',
-        props: ['firstName', 'lastName'],
-      },
-      {
-        fileName: 'Email Address',
-        props: ['email'],
-      },
-      {
-        fieldName: 'Location',
-        props: ['location'],
-      },
-      {
-        fieldName: 'Phone',
-        props: ['phoneNumber'],
-      },
-      {
-        fieldName: 'Last Login',
-        props: ['lastLoginAt'],
-      },
-      {
-        fieldName: 'Created at',
-        props: ['createdAt'],
-      },
-    ];
+    const users = await this.usersRepository
+      .createQueryBuilder('users')
+      .select([
+        'users.id as id',
+        'users.email as email',
+        'users.location as location',
+        'users.phoneNumber as phoneNumber',
+        'users.lastLoginAt as lastLoginAt',
+        'users.createdAt as createdAt',
+      ])
+      .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name')
+      .limit(take)
+      .offset((skip - 1) * take)
+      .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
+      .getRawMany();
 
-    const users = await this.usersRepository.find({
-      take: take,
-      skip: (skip - 1) * take,
-      order: {
-        [sortField]: sortOrder === 'DESC' ? 'DESC' : 'ASC',
-      },
-      select: ['id', 'firstName', 'lastName', 'email', 'location', 'phoneNumber', 'lastLoginAt', 'createdAt'],
-    });
-
-    return { table: table, users: users };
+    return users;
   }
 }

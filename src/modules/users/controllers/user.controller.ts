@@ -22,7 +22,6 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
-import { UsersWithFiltersResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   UpdateProfileDto,
@@ -31,10 +30,10 @@ import {
   UpdateUserInterestsDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiFile } from 'src/common/interceptors';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
+import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
@@ -121,7 +120,7 @@ export class UserController {
   @ApiOkResponse({ description: 'OK' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @ApiForbiddenResponse({ description: 'Forbidden' })
-  async getUsersWithFilters(@Query() filterByPages: FilterUserPagesDto): Promise<UsersWithFiltersResponse> {
+  async getUsersWithFilters(@Query() filterByPages: FilterUserPagesDto): Promise<User[]> {
     try {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
