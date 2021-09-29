@@ -1,6 +1,6 @@
 export enum ChannelTypeEnum {
-  FOOTBALL = 'FOOTBALL',
-  BASKETBALL = 'BASKETBALL',
+  FOOTBALL = 'Football',
+  BASKETBALL = 'Basketball',
 }
 
 export enum LeagueLabelEnum {
@@ -10,7 +10,11 @@ export enum LeagueLabelEnum {
   NFL = 'NFL',
 }
 
+export enum InscriptionLabelEnum {
+  WILSON = 'Wilson',
+}
+
 export enum TypeLabelEnum {
-  FOOTBALLBALL = 'FOOTBALLBALL',
-  BASKETBALLBALL = 'BASKETBALLBALL',
+  FOOTBALLBALL = 'FootballBall',
+  BASKETBALLBALL = 'BasketballBall',
 }

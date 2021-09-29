@@ -6,3 +6,7 @@ export interface RequestWithUserParams extends Request {
     id: string;
   };
 }
+
+export interface SuccessResponseMessage {
+  message: string;
+}

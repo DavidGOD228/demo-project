@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
 import { FilterUserOrderEnum } from './user.enum';
 
 export class UpdateProfileDto {
@@ -17,6 +17,28 @@ export class UpdateProfileDto {
   @IsEmail()
   @IsOptional()
   email?: string;
+}
+
+export class UpdateUserInterestsDto {
+  @ApiProperty()
+  interestsIds: string[];
+}
+
+export class ChangeUserOnBoardedStatusDto {
+  @ApiProperty()
+  @IsBoolean()
+  onboarded: boolean;
+}
+
+export class AddUserFavoriteDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  widgetId: string;
+
+  @ApiProperty()
+  @IsBoolean()
+  likeExist: boolean;
 }
 
 export class FilterUserPagesDto {
