@@ -9,6 +9,7 @@ import {
   UploadedFile,
   Post,
   UseInterceptors,
+  Res,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -125,6 +126,19 @@ export class UserController {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('exportCsv')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto) {
+    try {
+      return await this.usersService.exportUsersCSV(filterByPages);
+    } catch (error) {
+      console.log(error.message);
     }
   }
 }
