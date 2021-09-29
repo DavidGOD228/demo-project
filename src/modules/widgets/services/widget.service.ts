@@ -5,6 +5,8 @@ import { Widget } from '../entities/widget.entity';
 import { User } from '../../users/entities/user.entity';
 import { UserRoleEnum } from '../../users/interfaces/user.enum';
 import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
+import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
+import { WidgetTypeEnum } from '../interfaces/widget.enum';
 
 @Injectable()
 export class WidgetService {
@@ -51,5 +53,50 @@ export class WidgetService {
       .leftJoinAndSelect('widget.childWidgets', 'children')
       .leftJoinAndSelect('children.storyBlocks', 'childStoryBlocks')
       .getMany();
+  }
+
+  public async updateCarousel({
+    title,
+    exclusive,
+    addToCarousel,
+    removeFromCarousel,
+  }: UpdateCarouselDto): Promise<Widget> {
+    const carousel = await this.widgetsRepository.findOne({ where: { type: WidgetTypeEnum.CAROUSEL } });
+
+    if (title) {
+      carousel.title = title;
+    }
+
+    // != used for checking if exclusive value is neither null nor undefined
+    if (exclusive != null) {
+      carousel.exclusive = exclusive;
+    }
+
+    if (addToCarousel?.length) {
+      await Promise.all(
+        addToCarousel.map(item =>
+          this.widgetsRepository.update(item.id, {
+            parent: carousel,
+            carouselTitle: item.carouselTitle,
+            carouselPriority: item.carouselPriority,
+          }),
+        ),
+      );
+    }
+
+    if (removeFromCarousel?.length) {
+      await this.widgetsRepository.update(removeFromCarousel, {
+        parent: null,
+        carouselTitle: null,
+        carouselPriority: null,
+      });
+    }
+
+    await this.widgetsRepository.save(carousel);
+
+    return this.widgetsRepository.findOne({
+      where: { type: WidgetTypeEnum.CAROUSEL },
+      join: { alias: 'widget', leftJoinAndSelect: { widgets: 'widget.childWidgets' } },
+    });
   }
 }

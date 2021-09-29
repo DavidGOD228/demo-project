@@ -46,6 +46,12 @@ export class Widget {
   exclusive: boolean;
 
   @Column({ nullable: true })
+  carouselTitle?: string;
+
+  @Column({ nullable: true })
+  carouselPriority?: number;
+
+  @Column({ nullable: true })
   expireAt: Date;
 
   @CreateDateColumn({ name: 'created_at' })
