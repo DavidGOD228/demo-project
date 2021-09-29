@@ -1,4 +1,4 @@
-import { IsArray, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
 
 export class GetWidgetFeedDto {
@@ -8,4 +8,14 @@ export class GetWidgetFeedDto {
   @Type(() => String)
   @Transform(({ value }) => value.split(',').filter(v => !!v))
   tags: string[];
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  perPage: number;
+
+  @IsOptional()
+  @IsInt()
+  @Type(() => Number)
+  pageNumber: number;
 }

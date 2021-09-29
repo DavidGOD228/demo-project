@@ -1,5 +1,6 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToMany,
@@ -7,6 +8,7 @@ import {
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
@@ -42,6 +44,15 @@ export class Widget {
 
   @Column({ default: false })
   exclusive: boolean;
+
+  @Column({ nullable: true })
+  expireAt: Date;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
   @OneToOne(() => Promotion, promotion => promotion.widget)
   promotion: Promotion;

@@ -22,7 +22,7 @@ export class WidgetController {
     @Query(new ValidationPipe({ transform: true })) params: GetWidgetFeedDto,
   ) {
     try {
-      return this.widgetsService.generateWidgetFeed(req.user.id, params.tags);
+      return this.widgetsService.generateWidgetFeed(req.user.id, params);
     } catch (error) {
       errorHandle(error, 'getWidgetFeed');
     }
