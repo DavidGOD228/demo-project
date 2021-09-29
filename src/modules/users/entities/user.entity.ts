@@ -50,6 +50,9 @@ export class User {
   @Column({ nullable: true })
   lastLoginAt?: Date;
 
+  @Column({ default: false })
+  exclusiveSubscription: boolean;
+
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];

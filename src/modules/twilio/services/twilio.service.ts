@@ -1,11 +1,12 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFICATION_SERVICE_SID } from 'src/common/constants/constants';
 import { ConfirmPasswordResponse } from 'src/modules/auth/interfaces/interfaces';
-import { ConfirmUserDto } from 'src/modules/auth/interfaces/login.dto';
+import { ConfirmAdminDto, ConfirmUserDto } from 'src/modules/auth/interfaces/login.dto';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
 import { Twilio } from 'twilio';
 import { Repository } from 'typeorm';
 
@@ -54,6 +55,27 @@ export default class TwilioSmsService {
     const user = this.usersRepository.create({ phoneNumber: phoneNumber, lastLoginAt: new Date(), location: location });
     await this.usersRepository.save(user);
     const token = this.jwtService.sign({ id: user.id });
+    return { authToken: token };
+  }
+
+  public async confirmAdmin(body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
+    const { phoneNumber, verificationCode } = body;
+    const user = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+    if (user.role !== UserRoleEnum.ADMIN) {
+      throw new ForbiddenException();
+    }
+    const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
+
+    try {
+      await this.twilioClient.verify
+        .services(serviceSid)
+        .verificationChecks.create({ to: phoneNumber, code: verificationCode });
+    } catch (error) {
+      throw new BadRequestException('Verification code is incorrect!');
+    }
+
+    const token = this.jwtService.sign({ id: user.id });
+
     return { authToken: token };
   }
 }
