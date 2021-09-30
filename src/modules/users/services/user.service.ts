@@ -31,7 +31,9 @@ export class UserService {
     }
 
     const updatedUser = { ...user, ...body };
+
     await this.usersRepository.update(user.id, updatedUser);
+
     return updatedUser;
   }
 

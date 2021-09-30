@@ -8,6 +8,7 @@ export class AuthService {
 
   public async login(body: LoginDto): Promise<void> {
     const { phoneNumber } = body;
+
     await this.twilioService.verifyPhoneNumber(phoneNumber);
   }
 }

@@ -13,7 +13,9 @@ export const ormconfig = {
   imports: [ConfigModule],
   useFactory: (): IDbProps => {
     const configService = new ConfigService();
+
     types.setTypeParser(types.builtins.DATE, parser);
+
     return {
       type: 'postgres',
       host: configService.get<string>(constants.WILSON_DB_HOST, 'localhost'),
