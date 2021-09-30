@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ExportCsvService } from '../config/services/csvExport.service';
 import { Interest } from '../interests/entities/interest.entity';
 import { Scan } from '../scans/entities/scan.entity';
 import { Widget } from '../widgets/entities/widget.entity';
@@ -10,7 +11,7 @@ import { UserService } from './services/user.service';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService, FileService],
+  providers: [UserService, FileService, ExportCsvService],
   imports: [TypeOrmModule.forFeature([User, Interest, Widget, Scan])],
 })
 export class UserModule {}

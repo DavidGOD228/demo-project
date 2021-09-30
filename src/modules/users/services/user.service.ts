@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { In, Repository } from 'typeorm';
+import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
 import { UserAvatarUploadResponse } from '../interfaces';
 import {
@@ -14,6 +14,7 @@ import {
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { FileService } from './file.service';
+import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 
 @Injectable()
 export class UserService {
@@ -22,6 +23,7 @@ export class UserService {
     @InjectRepository(Interest) private readonly interestsRepository: Repository<Interest>,
     @InjectRepository(Widget) private readonly widgetsRepository: Repository<Widget>,
     private readonly fileService: FileService,
+    private readonly csvService: ExportCsvService,
   ) {}
 
   public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
@@ -106,5 +108,11 @@ export class UserService {
       .getRawMany();
 
     return users;
+  }
+
+  public async exportUsersCSV(body: FilterUserPagesDto) {
+    const users = await this.getUsersWithFilters(body);
+    const csv = await this.csvService.exportCsv(users);
+    return csv;
   }
 }
