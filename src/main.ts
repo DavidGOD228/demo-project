@@ -19,6 +19,7 @@ async function bootstrap() {
   const configService = app.get<ConfigService>(ConfigService);
 
   const logger = configService.get<string>(constants.WILSON_BE_LOGGING, 'off');
+
   if (logger === 'on') {
     app.useGlobalInterceptors(new LoggingInterceptor());
   }
@@ -30,6 +31,7 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
+
   SwaggerModule.setup('api', app, document);
 
   awsConfig.update({
@@ -39,6 +41,8 @@ async function bootstrap() {
   });
 
   const port = configService.get<number>(constants.WILSON_BE_PORT, 8080);
+
   await app.listen(port);
 }
+
 bootstrap();
