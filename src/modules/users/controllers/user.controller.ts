@@ -1,26 +1,40 @@
-import { Body, Controller, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+  UploadedFile,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
-import { ApiFile } from 'src/common/interceptors';
-import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
+import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
-import { UserAvatarUploadResponse } from '../interfaces';
 import {
+  FilterUserPagesDto,
+  UpdateProfileDto,
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
-  UpdateProfileDto,
   UpdateUserInterestsDto,
 } from '../interfaces/user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
+import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
+import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
@@ -29,9 +43,9 @@ export class UserController {
   constructor(private readonly usersService: UserService) {}
 
   @ApiBearerAuth()
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiOkResponse({ description: 'OK' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @Patch('profile')
   async updateProfile(@Body() body: UpdateProfileDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -42,9 +56,9 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @Patch('interests')
   async updateUserInterests(@Body() body: UpdateUserInterestsDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -55,9 +69,9 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @Patch('onboard')
   async changeUserOnBoardedStatus(
     @Body() body: ChangeUserOnBoardedStatusDto,
@@ -71,9 +85,9 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Patch('likes')
   async addUserFavorite(@Body() body: AddUserFavoriteDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -85,9 +99,9 @@ export class UserController {
 
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @ApiCreatedResponse({ description: 'Created' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
   @Post('avatar')
@@ -97,6 +111,32 @@ export class UserController {
   ): Promise<UserAvatarUploadResponse> {
     try {
       return await this.usersService.addUserAvatar(req.user.id, file.buffer, file.originalname);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('all')
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
+  async getUsersWithFilters(@Query() filterByPages: FilterUserPagesDto): Promise<User[]> {
+    try {
+      return await this.usersService.getUsersWithFilters(filterByPages);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('exportCsv')
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
+  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto) {
+    try {
+      return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
       console.log(error.message);
     }

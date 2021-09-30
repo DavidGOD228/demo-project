@@ -64,17 +64,18 @@ export class LoggingInterceptor implements NestInterceptor {
         }),
       )
       .pipe(
-        map((data) => {
+        map(data => {
           console.log('Response Body:', JSON.stringify(data));
           console.log(
             '\n------------------------------------------------------------------------------------------------------',
             '\n',
           );
+
           return data;
         }),
       )
       .pipe(
-        catchError((err) => {
+        catchError(err => {
           console.log(
             '\n-----------------------------------------------RESPONSE-----------------------------------------------',
             '\n',
@@ -95,16 +96,22 @@ export class LoggingInterceptor implements NestInterceptor {
             switch (err.response.statusCode) {
               case 400:
                 throw new BadRequestException(err.message);
+
               case 401:
                 throw new UnauthorizedException(err.message);
+
               case 403:
                 throw new ForbiddenException(err.message);
+
               case 404:
                 throw new NotFoundException(err.message);
+
               case 415:
                 throw new UnsupportedMediaTypeException(err.message);
+
               case 422:
                 throw new UnprocessableEntityException(err.message);
+
               default:
                 throw new Error('Error: Internal Server Error');
             }
