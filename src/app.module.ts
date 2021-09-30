@@ -11,6 +11,7 @@ import { InterestModule } from './modules/interests/interest.module';
 import { PromotionModule } from './modules/promotions/promotion.module';
 import { ScanModule } from './modules/scans/scan.module';
 import { TagModule } from './modules/tags/tag.module';
+import { TermsOfUseModule } from './modules/terms/terms.module';
 import { TwilioModule } from './modules/twilio/twilio.module';
 import { UserModule } from './modules/users/user.module';
 import { WidgetModule } from './modules/widgets/widget.module';
@@ -33,6 +34,7 @@ import { WidgetModule } from './modules/widgets/widget.module';
     WidgetModule,
     ScanModule,
     TwilioModule,
+    TermsOfUseModule,
   ],
   controllers: [AppController],
   providers: [AppService],

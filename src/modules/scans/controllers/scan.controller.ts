@@ -1,5 +1,6 @@
 import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { ScanService } from '../services/scan.service';
 import { errorHandle } from '../../../common/errorHandler';
@@ -12,9 +13,9 @@ export class ScanController {
 
   @ApiBearerAuth()
   @Get(':objectId')
-  @ApiOkResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   async getWidgetById(@Param('objectId', new ParseUUIDPipe({ version: '4' })) objectId: string) {
     try {
       return await this.scansService.getScansByObjectId(objectId);
