@@ -19,7 +19,7 @@ export class Widget {
   type: string;
 
   @Column({ nullable: true })
-  parentId?: number;
+  parentId?: string;
 
   // general info
   @Column()
@@ -46,7 +46,7 @@ export class Widget {
   @ManyToMany(() => User, user => user.widgets)
   users: User[];
 
-  @OneToMany(() => Scan, scan => scan.objectId)
+  @OneToMany(() => Scan, scan => scan.widget)
   @JoinColumn({ name: 'object_id' })
   scans: Scan[];
 
