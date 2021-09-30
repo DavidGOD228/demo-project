@@ -1,9 +1,15 @@
 import { Body, Controller, Post } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import TwilioSmsService from 'src/modules/twilio/services/twilio.service';
 import { ConfirmPasswordResponse } from '../interfaces/interfaces';
-import { ConfirmUserDto, LoginDto } from '../interfaces/login.dto';
+import { ConfirmAdminDto, ConfirmUserDto, LoginDto } from '../interfaces/login.dto';
 import { AuthService } from '../services/auth.service';
 
 @ApiTags('Auth')
@@ -28,6 +34,18 @@ export class AuthController {
   async confirmUser(@Body() body: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
     try {
       return await this.twilioService.confirmPhoneNumber(body);
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  @ApiBadRequestResponse({ description: 'Bad Request' })
+  @ApiCreatedResponse({ description: 'Created' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @Post('/loginAdmin')
+  async confirmAdmin(@Body() body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
+    try {
+      return await this.twilioService.confirmAdmin(body);
     } catch (error) {
       console.log(error.message);
     }

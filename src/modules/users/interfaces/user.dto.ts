@@ -17,6 +17,11 @@ export class UpdateProfileDto {
   @IsEmail()
   @IsOptional()
   email?: string;
+
+  @ApiProperty()
+  @IsOptional()
+  @IsBoolean()
+  exclusiveSubscription?: boolean;
 }
 
 export class UpdateUserInterestsDto {
