@@ -1,7 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import * as fs from 'fs';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
 import { UserAvatarUploadResponse } from '../interfaces';

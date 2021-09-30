@@ -7,6 +7,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { TermsOfUse } from '../entities/terms.entity';
 import { CreateTermDto } from '../interfaces/terms.dto';
@@ -19,9 +20,9 @@ export class TermsOfUseController {
   constructor(private readonly termsService: TermsOfUseService) {}
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @Get(':id')
   async getTermsById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Promise<TermsOfUse> {
     try {
@@ -32,8 +33,8 @@ export class TermsOfUseController {
   }
 
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: 'Created' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @Post('/addTerms')
   async createTerm(@Body() body: CreateTermDto): Promise<TermsOfUse> {
     try {

@@ -9,8 +9,9 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ReasonPhrases } from 'http-status-codes';
+import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 import { RecognitionService } from '../services/recognition.service';
-import { ApiFile } from '../../../common/interceptors';
 import { GetWidgetPromotionDto } from '../interfaces/getWidgetPromotion.dto';
 import { Promotion } from '../../promotions/entities/promotion.entity';
 import { RequestWithUserParams } from '../../../common/interfaces';
@@ -24,10 +25,10 @@ export class RecognitionController {
 
   @Post('/')
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: 'Recognized' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @ApiBadRequestResponse({ description: "AWS didn't recognized image" })
-  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
