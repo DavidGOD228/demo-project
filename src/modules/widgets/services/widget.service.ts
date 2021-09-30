@@ -18,6 +18,26 @@ export class WidgetService {
     private readonly widgetsRepository: Repository<Widget>,
   ) {}
 
+  public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget>[] {
+    return widgets
+      .map(widget => {
+        const { storyBlocks, childWidgets } = widget;
+
+        if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
+          return widget.childWidgets[0];
+        }
+
+        return {
+          ...widget,
+          storyBlocks: storyBlocks?.length ? storyBlocks.sort((a, b) => a.priority - b.priority) : undefined,
+          childWidgets: childWidgets.length
+            ? childWidgets.sort((a, b) => a.carouselPriority - b.carouselPriority)
+            : undefined,
+        };
+      })
+      .filter(widget => !!widget);
+  }
+
   public async getWidgetById(id: string): Promise<Widget> {
     const widget = await this.widgetsRepository.findOne({ where: { id }, relations: ['scans'] });
     if (!widget) {
@@ -26,7 +46,10 @@ export class WidgetService {
     return widget;
   }
 
-  public async generateWidgetFeed(userId: string, { tags, pageNumber, perPage }: GetWidgetFeedDto) {
+  public async generateWidgetFeed(
+    userId: string,
+    { tags, pageNumber, perPage }: GetWidgetFeedDto,
+  ): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     const widgetList = this.widgetsRepository
@@ -39,20 +62,54 @@ export class WidgetService {
     }
 
     if (tags?.length) {
-      widgetList.innerJoin('widget.tags', 'tag', 'tag.id IN (:...tagIds)', { tagIds: tags });
+      widgetList
+        .leftJoin('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
+          tagIds: tags,
+        })
+        .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
+          carouselType: WidgetTypeEnum.CAROUSEL,
+        });
     }
+
+    widgetList
+      .orderBy('widget.expireAt')
+      .addOrderBy('widget.updatedAt', 'DESC')
+      .leftJoinAndSelect('widget.storyBlocks', 'stories');
+
+    if (tags?.length) {
+      widgetList
+        .leftJoin(
+          'widget.childWidgets',
+          'childWidgets',
+          '(childWidgets.expire_at IS NULL OR childWidgets.expire_at > :startDate)',
+          {
+            startDate: new Date(),
+          },
+        )
+        .leftJoin('childWidgets.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
+        .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
+          carouselType: WidgetTypeEnum.CAROUSEL,
+        });
+    }
+
+    widgetList.leftJoinAndSelect(
+      'widget.childWidgets',
+      'children',
+      '(children.expire_at IS NULL OR children.expire_at > :startDate)',
+      {
+        startDate: new Date(),
+      },
+    );
 
     if (perPage && pageNumber) {
       widgetList.skip((pageNumber - 1) * perPage).take(perPage);
     }
 
-    return widgetList
-      .orderBy('widget.expireAt')
-      .addOrderBy('widget.updatedAt', 'DESC')
-      .leftJoinAndSelect('widget.storyBlocks', 'stories')
-      .leftJoinAndSelect('widget.childWidgets', 'children')
-      .leftJoinAndSelect('children.storyBlocks', 'childStoryBlocks')
-      .getMany();
+    widgetList.leftJoinAndSelect('children.storyBlocks', 'childStoryBlocks');
+
+    const widgets = await widgetList.getMany();
+
+    return this.serializeWidgetList(widgets);
   }
 
   public async updateCarousel({

@@ -16,6 +16,9 @@ export class StoryBlock {
   @Column()
   assetUrl: string;
 
+  @Column()
+  priority: number;
+
   @ManyToOne(() => Widget, widget => widget.storyBlocks)
   @JoinColumn({ name: 'widget_id' })
   widget: Widget;
