@@ -3,7 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { In, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
+import { UserAvatarUploadResponse } from '../interfaces';
 import {
+  FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
   UpdateProfileDto,
@@ -12,7 +14,6 @@ import {
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { FileService } from './file.service';
-import { UserAvatarUploadResponse } from '../interfaces';
 
 @Injectable()
 export class UserService {
@@ -83,5 +84,27 @@ export class UserService {
     }
     const avatar = await this.fileService.uploadFile(user.id, imageBuffer, filename);
     return { imageUrl: avatar };
+  }
+
+  public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {
+    const { limit: take, page: skip, fieldName: sortField, order: sortOrder } = filterByPages;
+
+    const users = await this.usersRepository
+      .createQueryBuilder('users')
+      .select([
+        'users.id as id',
+        'users.email as email',
+        'users.location as location',
+        'users.phoneNumber as phoneNumber',
+        'users.lastLoginAt as lastLoginAt',
+        'users.createdAt as createdAt',
+      ])
+      .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name')
+      .limit(take)
+      .offset((skip - 1) * take)
+      .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
+      .getRawMany();
+
+    return users;
   }
 }

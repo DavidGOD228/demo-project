@@ -1,26 +1,39 @@
-import { Body, Controller, Patch, Post, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Query,
+  Req,
+  UseGuards,
+  UploadedFile,
+  Post,
+  UseInterceptors,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiNotFoundResponse,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiForbiddenResponse,
 } from '@nestjs/swagger';
-import { ApiFile } from 'src/common/interceptors';
-import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { User } from '../entities/user.entity';
-import { UserAvatarUploadResponse } from '../interfaces';
 import {
+  FilterUserPagesDto,
+  UpdateProfileDto,
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
-  UpdateProfileDto,
   UpdateUserInterestsDto,
 } from '../interfaces/user.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
+import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
+import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
@@ -99,6 +112,19 @@ export class UserController {
       return await this.usersService.addUserAvatar(req.user.id, file.buffer, file.originalname);
     } catch (error) {
       console.log(error.message);
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('all')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  @ApiForbiddenResponse({ description: 'Forbidden' })
+  async getUsersWithFilters(@Query() filterByPages: FilterUserPagesDto): Promise<User[]> {
+    try {
+      return await this.usersService.getUsersWithFilters(filterByPages);
+    } catch (error) {
+      console.log(error);
     }
   }
 }
