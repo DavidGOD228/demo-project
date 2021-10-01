@@ -19,16 +19,16 @@ export class UpdateCarouselDto {
 
   @IsOptional()
   @IsBoolean()
-  exclusive?: boolean;
+  isExclusive?: boolean;
 
   @IsArray()
   @IsOptional()
   @Type(() => AddToCarouselWidget)
   @ValidateNested({ each: true })
-  addToCarousel?: AddToCarouselWidget[];
+  widgetsToAdd?: AddToCarouselWidget[];
 
   @IsArray()
   @IsOptional()
   @IsUUID(4, { each: true })
-  removeFromCarousel?: string[];
+  widgetsToRemove?: string[];
 }

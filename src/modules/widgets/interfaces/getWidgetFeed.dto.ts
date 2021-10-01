@@ -1,19 +1,21 @@
 import { IsArray, IsInt, IsOptional, IsString } from 'class-validator';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class GetWidgetFeedDto {
+  @ApiPropertyOptional()
   @IsArray()
   @IsOptional()
   @IsString({ each: true })
-  @Type(() => String)
-  @Transform(({ value }) => value.split(',').filter(v => !!v))
   tags: string[];
 
+  @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
   @Type(() => Number)
-  perPage: number;
+  limit: number;
 
+  @ApiPropertyOptional()
   @IsOptional()
   @IsInt()
   @Type(() => Number)

@@ -53,7 +53,7 @@ export class Widget {
   carouselPriority?: number;
 
   @Column({ nullable: true })
-  expireAt: Date;
+  expiresAt: Date;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

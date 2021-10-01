@@ -50,14 +50,14 @@ export class WidgetService {
 
   public async generateWidgetFeed(
     userId: string,
-    { tags, pageNumber, perPage }: GetWidgetFeedDto,
+    { tags, pageNumber, limit }: GetWidgetFeedDto,
   ): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     const widgetList = this.widgetsRepository
       .createQueryBuilder('widget')
       .where('widget.parent_id IS NULL')
-      .andWhere('(widget.expire_at IS NULL OR widget.expire_at > :startDate)', { startDate: new Date() });
+      .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() });
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
       widgetList.andWhere('widget.exclusive = FALSE');
@@ -74,7 +74,7 @@ export class WidgetService {
         .leftJoin(
           'widget.childWidgets',
           'childWidgets',
-          '(childWidgets.expire_at IS NULL OR childWidgets.expire_at > :startDate)',
+          '(childWidgets.expires_at IS NULL OR childWidgets.expires_at > :startDate)',
           {
             startDate: new Date(),
           },
@@ -86,20 +86,20 @@ export class WidgetService {
     }
 
     widgetList
-      .orderBy('widget.expireAt')
+      .orderBy('widget.expiresAt')
       .addOrderBy('widget.updatedAt', 'DESC')
       .leftJoinAndSelect('widget.stories', 'stories')
       .leftJoinAndSelect(
         'widget.childWidgets',
         'children',
-        '(children.expire_at IS NULL OR children.expire_at > :startDate)',
+        '(children.expires_at IS NULL OR children.expires_at > :startDate)',
         {
           startDate: new Date(),
         },
       );
 
-    if (perPage && pageNumber) {
-      widgetList.skip((pageNumber - 1) * perPage).take(perPage);
+    if (limit && pageNumber) {
+      widgetList.skip((pageNumber - 1) * limit).take(limit);
     }
 
     widgetList.leftJoinAndSelect('children.stories', 'childStories');
@@ -111,9 +111,9 @@ export class WidgetService {
 
   public async updateCarousel({
     title,
-    exclusive,
-    addToCarousel,
-    removeFromCarousel,
+    isExclusive,
+    widgetsToAdd,
+    widgetsToRemove,
   }: UpdateCarouselDto): Promise<Widget> {
     const carousel = await this.widgetsRepository.findOne({ where: { type: WidgetTypeEnum.CAROUSEL } });
 
@@ -122,13 +122,13 @@ export class WidgetService {
     }
 
     // != used for checking if exclusive value is neither null nor undefined
-    if (exclusive != null) {
-      carousel.exclusive = exclusive;
+    if (isExclusive != null) {
+      carousel.exclusive = isExclusive;
     }
 
-    if (addToCarousel?.length) {
+    if (widgetsToAdd?.length) {
       await Promise.all(
-        addToCarousel.map(item =>
+        widgetsToAdd.map(item =>
           this.widgetsRepository.update(item.id, {
             parentWidget: carousel,
             carouselTitle: item.carouselTitle,
@@ -138,8 +138,8 @@ export class WidgetService {
       );
     }
 
-    if (removeFromCarousel?.length) {
-      await this.widgetsRepository.update(removeFromCarousel, {
+    if (widgetsToRemove?.length) {
+      await this.widgetsRepository.update(widgetsToRemove, {
         parentWidget: null,
         carouselTitle: null,
         carouselPriority: null,
