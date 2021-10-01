@@ -17,6 +17,7 @@ export class ExportCsvService {
     };
 
     const csvExporter = new ExportToCsv(options);
+
     return csvExporter.generateCsv(body, true);
   }
 }

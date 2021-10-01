@@ -1,9 +1,20 @@
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Scan } from 'src/modules/scans/entities/scan.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { Column, Entity, JoinColumn, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from './storyBlock.entity';
 
@@ -18,8 +29,9 @@ export class Widget {
   @Column({ name: 'type', enum: WidgetTypeEnum })
   type: string;
 
-  @Column({ nullable: true })
-  parentId?: string;
+  @ManyToOne(() => Widget, widget => widget.childWidgets)
+  @JoinColumn({ name: 'parent_id' })
+  parentWidget: Widget;
 
   // general info
   @Column()
@@ -34,11 +46,26 @@ export class Widget {
   @Column({ default: false })
   exclusive: boolean;
 
+  @Column({ nullable: true })
+  carouselTitle?: string;
+
+  @Column({ nullable: true })
+  carouselPriority?: number;
+
+  @Column({ nullable: true })
+  expiresAt: Date;
+
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
+
   @OneToOne(() => Promotion, promotion => promotion.widget)
   promotion: Promotion;
 
   @OneToMany(() => StoryBlock, storyBlock => storyBlock.widget)
-  storyBlock: StoryBlock[];
+  stories: StoryBlock[];
 
   @ManyToMany(() => Tag, tag => tag.widgets)
   tags: Tag[];
@@ -52,4 +79,8 @@ export class Widget {
 
   @ManyToMany(() => Channel, channel => channel.widgets)
   channels: Channel[];
+
+  @OneToMany(() => Widget, widget => widget.parentWidget)
+  @JoinColumn({ name: 'parent_id' })
+  childWidgets: Widget[];
 }

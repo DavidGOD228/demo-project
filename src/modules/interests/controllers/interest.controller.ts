@@ -4,6 +4,7 @@ import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { Interest } from '../entities/interest.entity';
 import { InterestService } from '../services/interest.service';
+import { handleError } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @Controller('interests')
@@ -18,7 +19,7 @@ export class InterestController {
     try {
       return await this.interestsService.getAllInterests();
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'getAllInterests');
     }
   }
 }

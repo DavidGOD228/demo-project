@@ -14,12 +14,14 @@ export class TermsOfUseService {
     if (!term) {
       throw new NotFoundException();
     }
+
     return term;
   }
 
   public async createTerm(body: CreateTermDto): Promise<TermsOfUse> {
     const { title, mainText } = body;
     const term = this.termsRepository.create({ title: title, mainText: mainText });
+
     return await this.termsRepository.save(term);
   }
 }
