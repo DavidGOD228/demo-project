@@ -116,7 +116,7 @@ export class UserController {
     try {
       return await this.usersService.addUserAvatar(req.user.id, file.buffer, file.originalname);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addUserAvatar');
     }
   }
 
@@ -131,7 +131,7 @@ export class UserController {
     try {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
-      console.log(error);
+      handleError(error, 'getUsersWithFilters');
     }
   }
 
@@ -146,7 +146,7 @@ export class UserController {
     try {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'exportUsersCSV');
     }
   }
 }

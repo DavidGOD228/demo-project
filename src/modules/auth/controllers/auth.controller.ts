@@ -48,7 +48,7 @@ export class AuthController {
     try {
       return await this.twilioService.confirmAdmin(body);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'confirmAdmin');
     }
   }
 }

@@ -11,6 +11,7 @@ import {
 } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import { Roles } from 'src/common/decorators/roles.decorator';
+import { handleError } from 'src/common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
@@ -39,7 +40,7 @@ export class PromotionController {
     try {
       return await this.promotionsService.addPromotionImage(file);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addPromotionImage');
     }
   }
 }

@@ -65,7 +65,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.getFilteredWidgets(filterWidgets);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'getFilteredWidgets');
     }
   }
 
@@ -77,7 +77,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.exportWidgetCsv(filterWidgets);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'exportWidgetCsv');
     }
   }
 
@@ -138,7 +138,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.addFeedMedia(file);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addFeedMedia');
     }
   }
 
@@ -157,7 +157,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.addDetailsMedia(file);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addDetailsMedia');
     }
   }
 
@@ -176,7 +176,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.addThumbnail(file);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addThumbnail');
     }
   }
 
@@ -193,7 +193,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.createWidget(body);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'createWidget');
     }
   }
 
@@ -212,7 +212,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.editWidgets(id, body);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'editWidgets');
     }
   }
 }
