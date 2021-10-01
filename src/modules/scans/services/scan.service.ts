@@ -9,9 +9,11 @@ export class ScanService {
 
   public async getScansByObjectId(objectId: string) {
     const scan = await this.scansRepository.find({ where: { objectId: objectId } });
+
     if (!scan) {
       throw new NotFoundException();
     }
+
     return scan;
   }
 }

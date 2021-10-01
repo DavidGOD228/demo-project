@@ -79,9 +79,7 @@ export class UserService {
     }
 
     if (likeExist) {
-      user.widgets = user.widgets.filter(widgetLike => {
-        widgetLike.id !== widgetId;
-      });
+      user.widgets = user.widgets.filter(widgetLike => widgetLike.id !== widgetId);
 
       return await this.usersRepository.save(user);
     }

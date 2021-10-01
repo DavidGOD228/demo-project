@@ -44,14 +44,14 @@ export class User {
   @Column({ default: false })
   onboarded: boolean;
 
+  @Column({ default: false })
+  exclusiveSubscription: boolean;
+
   @Column({ name: 'role', enum: UserRoleEnum, insert: true, default: UserRoleEnum.USER })
   role: string;
 
   @Column({ nullable: true })
   lastLoginAt?: Date;
-
-  @Column({ default: false })
-  exclusiveSubscription: boolean;
 
   @Column({ nullable: true })
   imageUrl?: string;
