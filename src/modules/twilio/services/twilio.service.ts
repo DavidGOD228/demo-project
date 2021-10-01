@@ -67,9 +67,11 @@ export default class TwilioSmsService {
   public async confirmAdmin(body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
     const { phoneNumber, verificationCode } = body;
     const user = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+
     if (user.role !== UserRoleEnum.ADMIN) {
       throw new ForbiddenException();
     }
+
     const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
 
     try {

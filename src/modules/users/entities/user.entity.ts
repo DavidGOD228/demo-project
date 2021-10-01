@@ -53,9 +53,6 @@ export class User {
   @Column({ nullable: true })
   lastLoginAt?: Date;
 
-  @Column({ default: false })
-  exclusiveSubscription: boolean;
-
   @Column({ nullable: true })
   imageUrl?: string;
 
