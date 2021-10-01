@@ -17,7 +17,9 @@ import { Promotion } from '../../promotions/entities/promotion.entity';
 import { RequestWithUserParams } from '../../../common/interfaces';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { handleError } from '../../../common/errorHandler';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @ApiTags('Recognition')
 @Controller('recognition')
