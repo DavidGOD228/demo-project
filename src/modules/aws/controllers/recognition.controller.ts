@@ -16,7 +16,7 @@ import { GetWidgetPromotionDto } from '../interfaces/getWidgetPromotion.dto';
 import { Promotion } from '../../promotions/entities/promotion.entity';
 import { RequestWithUserParams } from '../../../common/interfaces';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
-import { errorHandle } from '../../../common/errorHandler';
+import { handleError } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Recognition')
@@ -40,8 +40,8 @@ export class RecognitionController {
   ): Promise<Promotion | Promotion[]> {
     try {
       return this.recognitionService.getBallPromotion(body, file, req.user.id);
-    } catch (e) {
-      errorHandle(e, 'recognize');
+    } catch (error) {
+      handleError(error, 'recognize');
     }
   }
 }

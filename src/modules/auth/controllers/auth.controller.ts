@@ -5,7 +5,7 @@ import TwilioSmsService from 'src/modules/twilio/services/twilio.service';
 import { ConfirmPasswordResponse } from '../interfaces/interfaces';
 import { ConfirmUserDto, LoginDto } from '../interfaces/login.dto';
 import { AuthService } from '../services/auth.service';
-import { errorHandle } from '../../../common/errorHandler';
+import { handleError } from '../../../common/errorHandler';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -19,7 +19,7 @@ export class AuthController {
     try {
       return await this.authService.login(body);
     } catch (error) {
-      errorHandle(error, 'login');
+      handleError(error, 'login');
     }
   }
 
@@ -30,7 +30,7 @@ export class AuthController {
     try {
       return await this.twilioService.confirmPhoneNumber(body);
     } catch (error) {
-      errorHandle(error, 'confirmUser');
+      handleError(error, 'confirmUser');
     }
   }
 }

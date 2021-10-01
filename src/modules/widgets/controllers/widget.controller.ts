@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { WidgetService } from '../services/widget.service';
 import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { RequestWithUserParams } from '../../../common/interfaces';
-import { errorHandle } from '../../../common/errorHandler';
+import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { Widget } from '../entities/widget.entity';
 
@@ -38,7 +38,7 @@ export class WidgetController {
     try {
       return this.widgetsService.generateWidgetFeed(req.user.id, params);
     } catch (error) {
-      errorHandle(error, 'getWidgetFeed');
+      handleError(error, 'getWidgetFeed');
     }
   }
 
@@ -51,7 +51,7 @@ export class WidgetController {
     try {
       return await this.widgetsService.getWidgetById(id);
     } catch (error) {
-      errorHandle(error, 'getWidgetById');
+      handleError(error, 'getWidgetById');
     }
   }
 
@@ -64,7 +64,7 @@ export class WidgetController {
     try {
       return this.widgetsService.updateCarousel(body);
     } catch (error) {
-      errorHandle(error, 'updateCarouselWidget');
+      handleError(error, 'updateCarouselWidget');
     }
   }
 }

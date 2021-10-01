@@ -30,7 +30,8 @@ export class Widget {
   type: string;
 
   @ManyToOne(() => Widget, widget => widget.childWidgets)
-  parent: Widget;
+  @JoinColumn({ name: 'parent_id' })
+  parentWidget: Widget;
 
   // general info
   @Column()
@@ -64,7 +65,7 @@ export class Widget {
   promotion: Promotion;
 
   @OneToMany(() => StoryBlock, storyBlock => storyBlock.widget)
-  storyBlocks: StoryBlock[];
+  stories: StoryBlock[];
 
   @ManyToMany(() => Tag, tag => tag.widgets)
   tags: Tag[];
@@ -79,7 +80,7 @@ export class Widget {
   @ManyToMany(() => Channel, channel => channel.widgets)
   channels: Channel[];
 
-  @OneToMany(() => Widget, widget => widget.parent)
+  @OneToMany(() => Widget, widget => widget.parentWidget)
   @JoinColumn({ name: 'parent_id' })
   childWidgets: Widget[];
 }

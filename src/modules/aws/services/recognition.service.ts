@@ -92,7 +92,9 @@ export class RecognitionService {
         },
         (err, data) => {
           if (err) return reject(err);
+
           if (!data.CustomLabels) reject('Image was not recognized');
+
           resolve(data);
         },
       ),
@@ -110,6 +112,7 @@ export class RecognitionService {
 
     const labelsInfo = recognizeResult.CustomLabels.reduce((gen, curr) => {
       gen[curr.Name] = curr;
+
       return gen;
     }, {} as Record<string, sdk.Rekognition.CustomLabel>);
 
@@ -148,6 +151,7 @@ export class RecognitionService {
       if (passedChannel) {
         const promotionsPromises = passedChannel.widgets.map(async widget => {
           await this.increaseScanTimes(widget, user, passedChannel);
+
           return {
             ...widget.promotion,
             imageUrl: this.getImageUrl(widget.promotion.imageUrl),

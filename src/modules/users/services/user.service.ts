@@ -43,7 +43,9 @@ export class UserService {
   public async updateUserInterests(body: UpdateUserInterestsDto, userId: string): Promise<User> {
     const interests = await this.interestsRepository.find({ where: { id: In(body.interestsIds) } });
     const user = await this.usersRepository.findOne(userId);
+
     user.interests = interests;
+
     return await this.usersRepository.save(user);
   }
 
@@ -52,39 +54,50 @@ export class UserService {
     userId: string,
   ): Promise<SuccessResponseMessage> {
     const user = await this.usersRepository.findOne(userId);
+
     if (!user) {
       throw new NotFoundException();
     }
+
     await this.usersRepository.update(user.id, { onboarded: body.onboarded });
+
     return { message: 'User on-boarded status successfully updated!' };
   }
 
   public async addUserFavorite(body: AddUserFavoriteDto, userId: string): Promise<User> {
     const { likeExist, widgetId } = body;
     const widget = await this.widgetsRepository.findOne({ where: { id: widgetId } });
+
     if (!widget) {
       throw new NotFoundException('There is no widget with such id!');
     }
+
     const user = await this.usersRepository.findOne(userId, { relations: ['widgets'] });
+
     if (!user) {
       throw new NotFoundException();
     }
+
     if (likeExist) {
-      user.widgets = user.widgets.filter(widgetLike => {
-        widgetLike.id !== widgetId;
-      });
+      user.widgets = user.widgets.filter(widgetLike => widgetLike.id !== widgetId);
+
       return await this.usersRepository.save(user);
     }
+
     user.widgets.push(widget);
+
     return await this.usersRepository.save(user);
   }
 
   public async addUserAvatar(userId: string, imageBuffer: Buffer, filename: string): Promise<UserAvatarUploadResponse> {
     const user = await this.usersRepository.findOne(userId);
+
     if (!user) {
       new NotFoundException();
     }
+
     const avatar = await this.fileService.uploadFile(user.id, imageBuffer, filename);
+
     return { imageUrl: avatar };
   }
 
@@ -113,6 +126,7 @@ export class UserService {
   public async exportUsersCSV(body: FilterUserPagesDto) {
     const users = await this.getUsersWithFilters(body);
     const csv = await this.csvService.exportCsv(users);
+
     return csv;
   }
 }

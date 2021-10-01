@@ -34,7 +34,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
-import { errorHandle } from '../../../common/errorHandler';
+import { handleError } from '../../../common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 
 @UseGuards(JwtAuthGuard)
@@ -52,7 +52,7 @@ export class UserController {
     try {
       return await this.usersService.updateProfile(body, req.user.id);
     } catch (error) {
-      errorHandle(error, 'updateProfile');
+      handleError(error, 'updateProfile');
     }
   }
 
@@ -65,7 +65,7 @@ export class UserController {
     try {
       return await this.usersService.updateUserInterests(body, req.user.id);
     } catch (error) {
-      errorHandle(error, 'updateUserInterests');
+      handleError(error, 'updateUserInterests');
     }
   }
 
@@ -81,7 +81,7 @@ export class UserController {
     try {
       return await this.usersService.changeUserOnBoardedStatus(body, req.user.id);
     } catch (error) {
-      errorHandle(error, 'changeUserOnBoardedStatus');
+      handleError(error, 'changeUserOnBoardedStatus');
     }
   }
 
@@ -94,7 +94,7 @@ export class UserController {
     try {
       return await this.usersService.addUserFavorite(body, req.user.id);
     } catch (error) {
-      errorHandle(error, 'addUserFavorite');
+      handleError(error, 'addUserFavorite');
     }
   }
 

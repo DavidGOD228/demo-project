@@ -21,7 +21,7 @@ export class WidgetService {
   public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget>[] {
     return widgets
       .map(widget => {
-        const { storyBlocks, childWidgets } = widget;
+        const { stories, childWidgets } = widget;
 
         if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
           return widget.childWidgets[0];
@@ -29,7 +29,7 @@ export class WidgetService {
 
         return {
           ...widget,
-          storyBlocks: storyBlocks?.length ? storyBlocks.sort((a, b) => a.priority - b.priority) : undefined,
+          stories: stories?.length ? stories.sort((a, b) => a.priority - b.priority) : undefined,
           childWidgets: childWidgets.length
             ? childWidgets.sort((a, b) => a.carouselPriority - b.carouselPriority)
             : undefined,
@@ -40,9 +40,11 @@ export class WidgetService {
 
   public async getWidgetById(id: string): Promise<Widget> {
     const widget = await this.widgetsRepository.findOne({ where: { id }, relations: ['scans'] });
+
     if (!widget) {
       throw new NotFoundException();
     }
+
     return widget;
   }
 
@@ -68,16 +70,7 @@ export class WidgetService {
         })
         .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
           carouselType: WidgetTypeEnum.CAROUSEL,
-        });
-    }
-
-    widgetList
-      .orderBy('widget.expireAt')
-      .addOrderBy('widget.updatedAt', 'DESC')
-      .leftJoinAndSelect('widget.storyBlocks', 'stories');
-
-    if (tags?.length) {
-      widgetList
+        })
         .leftJoin(
           'widget.childWidgets',
           'childWidgets',
@@ -92,20 +85,24 @@ export class WidgetService {
         });
     }
 
-    widgetList.leftJoinAndSelect(
-      'widget.childWidgets',
-      'children',
-      '(children.expire_at IS NULL OR children.expire_at > :startDate)',
-      {
-        startDate: new Date(),
-      },
-    );
+    widgetList
+      .orderBy('widget.expireAt')
+      .addOrderBy('widget.updatedAt', 'DESC')
+      .leftJoinAndSelect('widget.stories', 'stories')
+      .leftJoinAndSelect(
+        'widget.childWidgets',
+        'children',
+        '(children.expire_at IS NULL OR children.expire_at > :startDate)',
+        {
+          startDate: new Date(),
+        },
+      );
 
     if (perPage && pageNumber) {
       widgetList.skip((pageNumber - 1) * perPage).take(perPage);
     }
 
-    widgetList.leftJoinAndSelect('children.storyBlocks', 'childStoryBlocks');
+    widgetList.leftJoinAndSelect('children.stories', 'childStories');
 
     const widgets = await widgetList.getMany();
 
@@ -133,7 +130,7 @@ export class WidgetService {
       await Promise.all(
         addToCarousel.map(item =>
           this.widgetsRepository.update(item.id, {
-            parent: carousel,
+            parentWidget: carousel,
             carouselTitle: item.carouselTitle,
             carouselPriority: item.carouselPriority,
           }),
@@ -143,7 +140,7 @@ export class WidgetService {
 
     if (removeFromCarousel?.length) {
       await this.widgetsRepository.update(removeFromCarousel, {
-        parent: null,
+        parentWidget: null,
         carouselTitle: null,
         carouselPriority: null,
       });

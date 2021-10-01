@@ -6,18 +6,19 @@ import {
 } from '@nestjs/common';
 import { BadRequestException, ForbiddenException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 
-type ExceptionResponse = {
-  statusCode: number;
-  message: string;
-  error: string;
-};
+interface ExceptionResponse extends Error {
+  status?: number;
+  error?: string;
+  response?: {
+    statusCode: number;
+  };
+}
 
-export const errorHandle = (err: ExceptionResponse | Error, fnName: string): void => {
-  let error: any = err;
-  console.log(`ERROR (${fnName}): `, err.message);
+export const handleError = (error: ExceptionResponse, functionName: string): void => {
+  console.log(`ERROR (${functionName}): `, error.message);
 
   if (!error) {
-    error = { message: 'Error body was empty' };
+    error = { message: 'Error body was empty', name: 'Empty error' };
   }
 
   if (!error.status) {
@@ -26,20 +27,28 @@ export const errorHandle = (err: ExceptionResponse | Error, fnName: string): voi
     switch (error.response.statusCode) {
       case 400:
         throw new BadRequestException(error.response);
+
       case 401:
         throw new UnauthorizedException(error.response);
+
       case 403:
         throw new ForbiddenException(error.response);
+
       case 404:
         throw new NotFoundException(error.response);
+
       case 413:
         throw new PayloadTooLargeException(error.response);
+
       case 415:
         throw new UnsupportedMediaTypeException(error.response);
+
       case 422:
         throw new UnprocessableEntityException(error.response);
+
       case 500:
         throw new InternalServerErrorException(error.response);
+
       default:
         throw new Error('Error: Internal Server Error');
     }

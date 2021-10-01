@@ -3,7 +3,7 @@ import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthor
 import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { ScanService } from '../services/scan.service';
-import { errorHandle } from '../../../common/errorHandler';
+import { handleError } from '../../../common/errorHandler';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Scans')
@@ -20,7 +20,7 @@ export class ScanController {
     try {
       return await this.scansService.getScansByObjectId(objectId);
     } catch (error) {
-      errorHandle(error, 'getScansByObjectId');
+      handleError(error, 'getScansByObjectId');
     }
   }
 }

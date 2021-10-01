@@ -24,7 +24,9 @@ export class FileService {
       .promise();
 
     await this.usersRepository.update(userId, { imageUrl: uploadResult.Location });
+
     const user = await this.usersRepository.findOne(userId);
+
     return user.imageUrl;
   }
 }
