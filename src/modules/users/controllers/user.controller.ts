@@ -35,6 +35,9 @@ import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interf
 import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRoleEnum } from '../interfaces/user.enum';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
@@ -116,6 +119,8 @@ export class UserController {
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @Get('all')
   @ApiOkResponse({ description: ReasonPhrases.OK })
@@ -129,12 +134,14 @@ export class UserController {
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @Get('exportCsv')
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto) {
+  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto): Promise<string> {
     try {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
