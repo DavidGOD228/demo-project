@@ -11,6 +11,8 @@ import { InscriptionLabelAccuracyEnum, LeagueLabelAccuracyEnum } from '../interf
 import { Scan } from '../../scans/entities/scan.entity';
 import { User } from '../../users/entities/user.entity';
 import * as constants from '../../../common/constants/constants';
+import { EmailsService } from '../../emails/services/emails.service';
+import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 
 @Injectable()
 export class RecognitionService {
@@ -28,9 +30,19 @@ export class RecognitionService {
 
     @InjectRepository(User)
     private userRepository: Repository<User>,
+
+    private readonly emailService: EmailsService,
   ) {}
 
   public SIGNED_URL_EXPIRATION_TIME = 5;
+
+  public isWidgetExclusive(widget: Widget, user: User): boolean {
+    if (!widget.exclusive) return false;
+
+    const scan = user.scans.find(scan => widget.channels.filter(widgetChannel => widgetChannel.id === scan.channel.id));
+
+    return !!scan;
+  }
 
   public passConfidence(labelsInfo: Record<string, sdk.Rekognition.CustomLabel>, channels: Channel[]): Channel {
     const passedChannel = channels.find(channel => {
@@ -74,6 +86,31 @@ export class RecognitionService {
     );
 
     await this.scanRepository.save(newScans);
+  }
+
+  public notifyUserWithEmail(user: User, widgets: Widget[], passedChannel: Channel): void {
+    if (user.email) {
+      const exclusiveWidgets = passedChannel.widgets.filter(widget => this.isWidgetExclusive(widget, user));
+
+      if (exclusiveWidgets.length) {
+        // we don`t wait for email to be sent not to stop recognize process
+        this.emailService
+          .sendEmail(MailTemplateTypeEnum.EXCLUSIVE, user.email, {
+            userName: user.firstName,
+            widgets: exclusiveWidgets.map(widget => ({ name: widget.title })),
+          })
+          .then(data => console.log(data))
+          .catch(e => console.log(e.message));
+      }
+
+      // we don`t wait for email to be sent not to stop recognize process
+      this.emailService
+        .sendEmail(MailTemplateTypeEnum.SCAN, user.email, {
+          userName: user.firstName,
+          widgets: widgets.map(widget => ({ name: widget.title })),
+        })
+        .catch(e => console.log(e.message));
+    }
   }
 
   public async recognize(file: Express.Multer.File): Promise<sdk.Rekognition.DetectCustomLabelsResponse> {
@@ -129,6 +166,8 @@ export class RecognitionService {
       const passedChannel = this.passConfidence(labelsInfo, channels);
 
       if (passedChannel) {
+        this.notifyUserWithEmail(user, [widget], passedChannel);
+
         await this.increaseScanTimes(widget, user, passedChannel);
 
         return { ...widget.promotion, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };
@@ -138,12 +177,14 @@ export class RecognitionService {
     } else {
       // logic for all available promotions
       const channels = await this.channelRepository.find({
-        relations: ['widgets', 'widgets.promotion', 'widgets.scans', 'widgets.scans.channel'],
+        relations: ['widgets', 'widgets.channels', 'widgets.promotion', 'widgets.scans', 'widgets.scans.channel'],
       });
 
       const passedChannel = this.passConfidence(labelsInfo, channels);
 
       if (passedChannel) {
+        this.notifyUserWithEmail(user, passedChannel.widgets, passedChannel);
+
         const promotionsPromises = passedChannel.widgets.map(async widget => {
           await this.increaseScanTimes(widget, user, passedChannel);
 

@@ -27,12 +27,8 @@ export class EmailsService {
     this.mailService.setApiKey(this.configService.get<string>(constants.WILSON_SENDGRID_API_KEY));
   }
 
-  public async sendEmail(
-    templateType: MailTemplateTypeEnum,
-    to: string | string[],
-    emailBody: Record<string, string | number>,
-  ) {
-    const template = await this.mailTemplatesRepository.findOne({ where: { type: MailTemplateTypeEnum.WELCOME } });
+  public async sendEmail(templateType: MailTemplateTypeEnum, to: string | string[], emailBody: Record<string, any>) {
+    const template = await this.mailTemplatesRepository.findOne({ where: { type: templateType } });
 
     if (!template) {
       throw new BadRequestException('Template for this email was not found');

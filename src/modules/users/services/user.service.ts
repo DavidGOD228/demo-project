@@ -21,9 +21,15 @@ import { EmailsService } from '../../emails/services/emails.service';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    @InjectRepository(Interest) private readonly interestsRepository: Repository<Interest>,
-    @InjectRepository(Widget) private readonly widgetsRepository: Repository<Widget>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+
+    @InjectRepository(Interest)
+    private readonly interestsRepository: Repository<Interest>,
+
+    @InjectRepository(Widget)
+    private readonly widgetsRepository: Repository<Widget>,
+
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
     private readonly emailService: EmailsService,

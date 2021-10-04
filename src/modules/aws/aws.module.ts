@@ -7,9 +7,10 @@ import { Channel } from '../channels/entities/channel.entity';
 import { Widget } from '../widgets/entities/widget.entity';
 import { Scan } from '../scans/entities/scan.entity';
 import { User } from '../users/entities/user.entity';
+import { EmailsModule } from '../emails/emails.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Channel, Widget, Scan, User])],
+  imports: [EmailsModule, TypeOrmModule.forFeature([Channel, Widget, Scan, User])],
   providers: [RecognitionService, ConfigService],
   controllers: [RecognitionController],
   exports: [RecognitionService],
