@@ -1,10 +1,12 @@
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { ScanService } from '../services/scan.service';
 import { handleError } from '../../../common/errorHandler';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @ApiTags('Scans')
 @Controller('scans')

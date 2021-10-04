@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -12,7 +12,9 @@ import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { TermsOfUse } from '../entities/terms.entity';
 import { CreateTermDto } from '../interfaces/terms.dto';
 import { TermsOfUseService } from '../services/terms.service';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @ApiTags('Terms Of Use')
 @UseGuards(JwtAuthGuard)
 @Controller('terms')

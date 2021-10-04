@@ -36,7 +36,9 @@ import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @ApiTags('Users')
 @Controller('users')

@@ -8,6 +8,7 @@ import {
   Query,
   Req,
   UseGuards,
+  UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
@@ -19,7 +20,9 @@ import { RequestWithUserParams } from '../../../common/interfaces';
 import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { Widget } from '../entities/widget.entity';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @ApiTags('Widgets')
 @Controller('widgets')

@@ -1,11 +1,13 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { Interest } from '../entities/interest.entity';
 import { InterestService } from '../services/interest.service';
 import { handleError } from '../../../common/errorHandler';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @Controller('interests')
 export class InterestController {
