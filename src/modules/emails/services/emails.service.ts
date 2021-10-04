@@ -27,7 +27,10 @@ export class EmailsService {
     this.mailService.setApiKey(this.configService.get<string>(constants.WILSON_SENDGRID_API_KEY));
   }
 
-  public async sendEmail(templateType: MailTemplateTypeEnum, to: string | string[], emailBody: Record<string, any>) {
+  public async sendEmail(
+    templateType: MailTemplateTypeEnum,
+    emailBody: { to: string; templateBody: Record<string, any> }[],
+  ) {
     const template = await this.mailTemplatesRepository.findOne({ where: { type: templateType } });
 
     if (!template) {
@@ -36,13 +39,11 @@ export class EmailsService {
 
     return this.mailService.send({
       from: this.from,
-      personalizations: [
-        {
-          dynamicTemplateData: emailBody,
-          to,
-          subject: template.subject,
-        },
-      ],
+      personalizations: emailBody.map(({ to, templateBody }) => ({
+        to,
+        dynamicTemplateData: templateBody,
+        subject: template.subject,
+      })),
       templateId: template.templateId,
     });
   }

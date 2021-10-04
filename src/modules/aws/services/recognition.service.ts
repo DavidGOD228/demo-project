@@ -95,20 +95,29 @@ export class RecognitionService {
       if (exclusiveWidgets.length) {
         // we don`t wait for email to be sent not to stop recognize process
         this.emailService
-          .sendEmail(MailTemplateTypeEnum.EXCLUSIVE, user.email, {
-            userName: user.firstName,
-            widgets: exclusiveWidgets.map(widget => ({ name: widget.title })),
-          })
-          .then(data => console.log(data))
+          .sendEmail(MailTemplateTypeEnum.EXCLUSIVE, [
+            {
+              to: user.email,
+              templateBody: {
+                userName: user.firstName,
+                widgets: exclusiveWidgets.map(widget => ({ name: widget.title })),
+              },
+            },
+          ])
           .catch(e => console.log(e.message));
       }
 
       // we don`t wait for email to be sent not to stop recognize process
       this.emailService
-        .sendEmail(MailTemplateTypeEnum.SCAN, user.email, {
-          userName: user.firstName,
-          widgets: widgets.map(widget => ({ name: widget.title })),
-        })
+        .sendEmail(MailTemplateTypeEnum.SCAN, [
+          {
+            to: user.email,
+            templateBody: {
+              userName: user.firstName,
+              widgets: widgets.map(widget => ({ name: widget.title })),
+            },
+          },
+        ])
         .catch(e => console.log(e.message));
     }
   }

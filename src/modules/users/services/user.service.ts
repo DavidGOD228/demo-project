@@ -47,9 +47,14 @@ export class UserService {
     await this.usersRepository.update(user.id, updatedUser);
 
     if (!user.email && body.email) {
-      await this.emailService.sendEmail(MailTemplateTypeEnum.WELCOME, body.email, {
-        name: `${body.firstName} ${body.lastName}`,
-      });
+      await this.emailService.sendEmail(MailTemplateTypeEnum.WELCOME, [
+        {
+          to: body.email,
+          templateBody: {
+            name: `${body.firstName} ${body.lastName}`,
+          },
+        },
+      ]);
     }
 
     return updatedUser;
