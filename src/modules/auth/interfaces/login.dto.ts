@@ -27,3 +27,16 @@ export class ConfirmUserDto {
   @IsNotEmpty()
   location: string;
 }
+
+export class ConfirmAdminDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  @Matches(phoneNumberRegex)
+  phoneNumber: string;
+
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  verificationCode: string;
+}

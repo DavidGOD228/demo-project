@@ -1,16 +1,29 @@
 export enum ChannelTypeEnum {
-  FOOTBALL = 'FOOTBALL',
-  BASKETBALL = 'BASKETBALL',
+  FOOTBALL = 'Football',
+  BASKETBALL = 'Basketball',
 }
 
-export enum LeagueLabelEnum {
+export enum ChannelLeagueEnum {
+  EVOLUTION = 'Evolution',
   NBA = 'NBA',
-  WNBA = 'WNBA',
-  EVOLUTION = 'EVOLUTION',
   NFL = 'NFL',
 }
 
+export enum LeagueLabelEnum {
+  NBALOGO = 'NBALogo',
+  NBA75 = 'NBA75',
+  WNBALOGO = 'WNBALogo',
+  EVOLUTION = 'Evolution',
+  EVONXT = 'EvoNXT',
+  NFLSHIELD = 'NFLShield',
+  NFLLETTERING = 'NFLLettering',
+}
+
+export enum InscriptionLabelEnum {
+  WILSONSCRIPT = 'WilsonScript',
+}
+
 export enum TypeLabelEnum {
-  FOOTBALLBALL = 'FOOTBALLBALL',
-  BASKETBALLBALL = 'BASKETBALLBALL',
+  FOOTBALLBALL = 'FootballBall',
+  BASKETBALLBALL = 'BasketballBall',
 }

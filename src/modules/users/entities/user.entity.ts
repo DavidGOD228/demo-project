@@ -44,11 +44,17 @@ export class User {
   @Column({ default: false })
   onboarded: boolean;
 
+  @Column({ default: false })
+  exclusiveSubscription: boolean;
+
   @Column({ name: 'role', enum: UserRoleEnum, insert: true, default: UserRoleEnum.USER })
   role: string;
 
   @Column({ nullable: true })
   lastLoginAt?: Date;
+
+  @Column({ nullable: true })
+  imageUrl?: string;
 
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
@@ -62,7 +68,10 @@ export class User {
   @JoinTable({ name: 'favorites' })
   widgets: Widget[];
 
-  @OneToMany(() => Scan, scan => scan.objectId)
+  @OneToMany(() => Scan, scan => scan.user)
   @JoinColumn({ name: 'object_id' })
   scans: Scan[];
+
+  @ManyToMany(() => Promotion, promotion => promotion.winners)
+  wonPromotions: Promotion[];
 }
