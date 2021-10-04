@@ -13,6 +13,7 @@ import { TagModule } from './modules/tags/tag.module';
 import { TwilioModule } from './modules/twilio/twilio.module';
 import { UserModule } from './modules/users/user.module';
 import { WidgetModule } from './modules/widgets/widget.module';
+import { EmailsModule } from './modules/emails/emails.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WidgetModule } from './modules/widgets/widget.module';
     TypeOrmModule.forFeature([]),
     AuthModule,
     ChannelModule,
+    EmailsModule,
     InterestModule,
     PromotionModule,
     TagModule,
