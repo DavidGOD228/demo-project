@@ -1,11 +1,5 @@
 import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import TwilioSmsService from 'src/modules/twilio/services/twilio.service';
 import { ConfirmPasswordResponse } from '../interfaces/interfaces';
@@ -13,6 +7,7 @@ import { ConfirmAdminDto, ConfirmUserDto, LoginDto } from '../interfaces/login.d
 import { AuthService } from '../services/auth.service';
 import { handleError } from '../../../common/errorHandler';
 import { SentryInterceptor } from '../../../common/interceptors';
+import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 
 @UseInterceptors(SentryInterceptor)
 @ApiTags('Auth')
@@ -42,9 +37,7 @@ export class AuthController {
     }
   }
 
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiCreatedResponse({ description: 'Created' })
-  @ApiForbiddenResponse({ description: 'Forbidden' })
+  @BaseApiCreatedResponses()
   @Post('/loginAdmin')
   async confirmAdmin(@Body() body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
     try {

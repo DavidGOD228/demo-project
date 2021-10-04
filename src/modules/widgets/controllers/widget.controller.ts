@@ -48,6 +48,7 @@ import { RequestWithUserParams } from '../../../common/interfaces';
 import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { SentryInterceptor } from '../../../common/interceptors';
+import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -143,10 +144,7 @@ export class WidgetController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
@@ -162,10 +160,7 @@ export class WidgetController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
@@ -181,10 +176,7 @@ export class WidgetController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
@@ -200,10 +192,7 @@ export class WidgetController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
@@ -220,11 +209,7 @@ export class WidgetController {
   @Roles(UserRoleEnum.ADMIN)
   @Post('post')
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   async createWidget(@Body() body: CreateWidgetDto): Promise<Widget> {
     try {
       return await this.widgetsService.createWidget(body);

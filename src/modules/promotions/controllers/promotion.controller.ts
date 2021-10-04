@@ -1,15 +1,7 @@
 import { Controller, Post, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiConsumes,
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
-import { ReasonPhrases } from 'http-status-codes';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { handleError } from 'src/common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
@@ -28,10 +20,7 @@ export class PromotionController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))

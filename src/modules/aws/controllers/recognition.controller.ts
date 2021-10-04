@@ -1,15 +1,6 @@
 import { Body, Controller, Post, Req, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
-import {
-  ApiBadRequestResponse,
-  ApiBearerAuth,
-  ApiConsumes,
-  ApiCreatedResponse,
-  ApiNotFoundResponse,
-  ApiTags,
-  ApiUnauthorizedResponse,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ReasonPhrases } from 'http-status-codes';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 import { RecognitionService } from '../services/recognition.service';
 import { GetWidgetPromotionDto } from '../interfaces/getWidgetPromotion.dto';
@@ -18,6 +9,7 @@ import { RequestWithUserParams } from '../../../common/interfaces';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { handleError } from '../../../common/errorHandler';
 import { SentryInterceptor } from '../../../common/interceptors';
+import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -28,10 +20,7 @@ export class RecognitionController {
 
   @Post('/')
   @ApiBearerAuth()
-  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
   @ApiFile('file')
   @UseInterceptors(FileInterceptor('file'))
