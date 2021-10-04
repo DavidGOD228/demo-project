@@ -6,12 +6,15 @@ export const TypeLabelEnumAccuracyEnum = {
 };
 
 export const LeagueLabelAccuracyEnum = {
-  [LeagueLabelEnum.NBA]: 80,
-  [LeagueLabelEnum.WNBA]: 80,
+  [LeagueLabelEnum.NBALOGO]: 80,
+  [LeagueLabelEnum.NBA75]: 80,
+  [LeagueLabelEnum.WNBALOGO]: 80,
   [LeagueLabelEnum.EVOLUTION]: 80,
-  [LeagueLabelEnum.NFL]: 80,
+  [LeagueLabelEnum.EVONXT]: 80,
+  [LeagueLabelEnum.NFLSHIELD]: 80,
+  [LeagueLabelEnum.NFLLETTERING]: 80,
 };
 
 export const InscriptionLabelAccuracyEnum = {
-  [InscriptionLabelEnum.WILSON]: 80,
+  [InscriptionLabelEnum.WILSONSCRIPT]: 80,
 };

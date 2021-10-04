@@ -1,7 +1,13 @@
 import { Scan } from 'src/modules/scans/entities/scan.entity';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { ChannelTypeEnum, LeagueLabelEnum, TypeLabelEnum } from '../interfaces/channel.enum';
+import {
+  ChannelLeagueEnum,
+  ChannelTypeEnum,
+  InscriptionLabelEnum,
+  LeagueLabelEnum,
+  TypeLabelEnum,
+} from '../interfaces/channel.enum';
 
 @Entity({ schema: 'chnl', name: 'channels' })
 export class Channel {
@@ -14,13 +20,13 @@ export class Channel {
   @Column()
   inscription: string;
 
-  @Column()
+  @Column({ name: 'league', enum: ChannelLeagueEnum })
   league: string;
 
   @Column({ enum: LeagueLabelEnum })
   leagueLabel: string;
 
-  @Column({ default: 'Wilson' })
+  @Column({ default: InscriptionLabelEnum.WILSONSCRIPT })
   inscriptionLabel: string;
 
   @Column({ enum: TypeLabelEnum })
