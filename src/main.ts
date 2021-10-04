@@ -4,6 +4,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import * as morgan from 'morgan';
 import { config as awsConfig } from 'aws-sdk';
 import { config } from 'dotenv';
+import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/interceptors';
 import * as constants from './common/constants/constants';
@@ -38,6 +39,11 @@ async function bootstrap() {
     accessKeyId: configService.get<string>(constants.WILSON_AWS_ACCESS_KEY_ID),
     secretAccessKey: configService.get<string>(constants.WILSON_AWS_SECRET_ACCESS_KEY),
     region: configService.get<string>(constants.WILSON_AWS_REGION),
+  });
+
+  Sentry.init({
+    dsn: configService.get<string>(constants.WILSON_SENTRY_DSN),
+    environment: configService.get<string>(constants.WILSON_SENTRY_ENVIRONMENT),
   });
 
   const port = configService.get<number>(constants.WILSON_BE_PORT, 8080);

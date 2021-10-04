@@ -7,11 +7,7 @@ import { GetWidgetPromotionDto } from '../interfaces/getWidgetPromotion.dto';
 import { Channel } from '../../channels/entities/channel.entity';
 import { Widget } from '../../widgets/entities/widget.entity';
 import { Promotion } from '../../promotions/entities/promotion.entity';
-import {
-  InscriptionLabelAccuracyEnum,
-  LeagueLabelAccuracyEnum,
-  TypeLabelEnumAccuracyEnum,
-} from '../interfaces/accuracy.enum';
+import { InscriptionLabelAccuracyEnum, LeagueLabelAccuracyEnum } from '../interfaces/accuracy.enum';
 import { Scan } from '../../scans/entities/scan.entity';
 import { User } from '../../users/entities/user.entity';
 import * as constants from '../../../common/constants/constants';
@@ -39,7 +35,6 @@ export class RecognitionService {
   public passConfidence(labelsInfo: Record<string, sdk.Rekognition.CustomLabel>, channels: Channel[]): Channel {
     const passedChannel = channels.find(channel => {
       return (
-        labelsInfo[channel.typeLabel]?.Confidence > TypeLabelEnumAccuracyEnum[channel.typeLabel] &&
         labelsInfo[channel.inscriptionLabel]?.Confidence > InscriptionLabelAccuracyEnum[channel.inscriptionLabel] &&
         labelsInfo[channel.leagueLabel]?.Confidence > LeagueLabelAccuracyEnum[channel.leagueLabel]
       );

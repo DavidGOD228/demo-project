@@ -71,4 +71,7 @@ export class User {
   @OneToMany(() => Scan, scan => scan.user)
   @JoinColumn({ name: 'object_id' })
   scans: Scan[];
+
+  @ManyToMany(() => Promotion, promotion => promotion.winners)
+  wonPromotions: Promotion[];
 }

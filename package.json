@@ -38,6 +38,8 @@
     "@nestjs/platform-express": "^7.6.15",
     "@nestjs/swagger": "^4.8.0",
     "@nestjs/typeorm": "^7.1.5",
+    "@sentry/node": "^6.13.2",
+    "@sentry/tracing": "^6.13.2",
     "aws-sdk": "^2.994.0",
     "class-transformer": "^0.4.0",
     "class-validator": "^0.13.1",

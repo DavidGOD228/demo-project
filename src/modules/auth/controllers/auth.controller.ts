@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiCreatedResponse,
@@ -12,7 +12,9 @@ import { ConfirmPasswordResponse } from '../interfaces/interfaces';
 import { ConfirmAdminDto, ConfirmUserDto, LoginDto } from '../interfaces/login.dto';
 import { AuthService } from '../services/auth.service';
 import { handleError } from '../../../common/errorHandler';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {

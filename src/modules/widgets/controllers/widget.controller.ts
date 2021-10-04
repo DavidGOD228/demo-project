@@ -47,7 +47,9 @@ import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { RequestWithUserParams } from '../../../common/interfaces';
 import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
+import { SentryInterceptor } from '../../../common/interceptors';
 
+@UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
 @ApiTags('Widgets')
 @Controller('widgets')

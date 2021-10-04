@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { User } from 'src/modules/users/entities/user.entity';
 
@@ -22,4 +22,8 @@ export class Promotion {
 
   @ManyToMany(() => User, user => user.promotions, { onDelete: 'CASCADE' })
   users: User[];
+
+  @ManyToMany(() => User, user => user.wonPromotions)
+  @JoinTable({ name: 'winners' })
+  winners: User[];
 }
