@@ -19,7 +19,7 @@ export class StoryBlock {
   @Column()
   priority: number;
 
-  @ManyToOne(() => Widget, widget => widget.stories)
+  @ManyToOne(() => Widget, widget => widget.stories, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'widget_id' })
   widget: Widget;
 }

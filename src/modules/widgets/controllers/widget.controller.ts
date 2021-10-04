@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseUUIDPipe,
@@ -36,6 +37,7 @@ import { Widget } from '../entities/widget.entity';
 import {
   AddDetailsMediaResponse,
   AddFeedMediaResponse,
+  AddStoryMedia,
   AddThumbnailResponse,
   FilteredWidgetsResponse,
 } from '../interfaces';
@@ -111,6 +113,19 @@ export class WidgetController {
   }
 
   @ApiBearerAuth()
+  @Delete(':id')
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  async deleteWidgetById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+    try {
+      return await this.widgetsService.deleteWidgetById(id);
+    } catch (error) {
+      handleError(error, 'getWidgetById');
+    }
+  }
+
+  @ApiBearerAuth()
   @Put('/carousel')
   @ApiOkResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not Found' })
@@ -177,6 +192,25 @@ export class WidgetController {
       return await this.widgetsService.addThumbnail(file);
     } catch (error) {
       handleError(error, 'addThumbnail');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('story')
+  async addStoryMedia(@UploadedFile() file: Express.Multer.File): Promise<AddStoryMedia> {
+    try {
+      return await this.widgetsService.addStoryMedia(file);
+    } catch (error) {
+      handleError(error, 'addStoryMedia');
     }
   }
 

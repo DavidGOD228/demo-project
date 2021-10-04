@@ -2,9 +2,9 @@ export interface FilteredWidgetsResponse {
   id: string;
   title: string;
   type: string;
-  startdate: string;
-  expirationdate: string;
-  exclusive: boolean;
+  startDate: string;
+  expirationDate: string;
+  isExclusive: boolean;
   channels: string;
 }
 
@@ -18,4 +18,8 @@ export interface AddDetailsMediaResponse {
 
 export interface AddFeedMediaResponse {
   feedMedia: string;
+}
+
+export interface AddStoryMedia {
+  storyAssetUrl: string;
 }

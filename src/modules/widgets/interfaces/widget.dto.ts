@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
-import { FilterWidgetOrderEnum } from './widget.enum';
+import { IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { FilterWidgetOrderEnum, StoryBlockTypeEnum } from './widget.enum';
 
 export class CreateWidgetDto {
   @ApiProperty()
@@ -26,7 +26,7 @@ export class CreateWidgetDto {
 
   @ApiProperty()
   @IsBoolean()
-  exclusive: boolean;
+  isExclusive: boolean;
 
   @ApiProperty({ default: false })
   @IsBoolean()
@@ -37,7 +37,11 @@ export class CreateWidgetDto {
   hasExpiration: boolean;
 
   @ApiPropertyOptional()
-  tagsIds?: string[];
+  tagIds?: string[];
+
+  @ApiProperty()
+  @IsString()
+  status: string;
 
   @ApiProperty()
   @IsString()
@@ -58,7 +62,7 @@ export class CreateWidgetDto {
   expirationTime?: string;
 
   @ApiProperty()
-  channelsIds: string[];
+  channelIds: string[];
 
   @ApiProperty()
   @IsString()
@@ -111,6 +115,29 @@ export class CreateWidgetDto {
   @ApiProperty()
   @IsString()
   thumbnailUrl: string;
+
+  @IsArray()
+  @IsOptional()
+  @Type(() => AddStoryBlockToWidget)
+  @ValidateNested({ each: true })
+  storiesToAdd?: AddStoryBlockToWidget[];
+}
+
+export class AddStoryBlockToWidget {
+  @ApiProperty()
+  @IsString()
+  assetUrl: string;
+
+  @ApiProperty()
+  @IsString()
+  swipeUrl: string;
+
+  @ApiProperty({ enum: StoryBlockTypeEnum })
+  type: string;
+
+  @ApiProperty()
+  @IsString()
+  priority: number;
 }
 
 export class FilterWidgetsDto {
@@ -163,7 +190,7 @@ export class EditWidgetDto {
 
   @ApiPropertyOptional()
   @IsBoolean()
-  exclusive?: boolean;
+  isExclusive?: boolean;
 
   @ApiPropertyOptional({ default: false })
   @IsBoolean()
@@ -174,7 +201,7 @@ export class EditWidgetDto {
   hasExpiration?: boolean;
 
   @ApiPropertyOptional()
-  tagsIds?: string[];
+  tagIds?: string[];
 
   @ApiPropertyOptional()
   @IsString()
@@ -195,7 +222,7 @@ export class EditWidgetDto {
   expirationTime?: string;
 
   @ApiPropertyOptional()
-  channelsIds?: string[];
+  channelIds?: string[];
 
   @ApiPropertyOptional()
   @IsString()
@@ -248,4 +275,10 @@ export class EditWidgetDto {
   @ApiPropertyOptional()
   @IsString()
   thumbnailUrl?: string;
+
+  @IsArray()
+  @IsOptional()
+  @Type(() => AddStoryBlockToWidget)
+  @ValidateNested({ each: true })
+  storiesToAdd?: AddStoryBlockToWidget[];
 }

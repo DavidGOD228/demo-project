@@ -22,7 +22,7 @@ export class Scan {
   @JoinColumn({ name: 'object_id' })
   user: User;
 
-  @ManyToOne(() => Widget)
+  @ManyToOne(() => Widget, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'object_id' })
   widget: Widget;
 }

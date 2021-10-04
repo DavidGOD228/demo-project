@@ -15,6 +15,8 @@ export class FileService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
+  public SIGNED_URL_EXPIRATION_TIME = 5;
+
   public async uploadRawMedia(dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
     const encryptedName = crypto.AES.encrypt(filename, constants.WILSON_NAME_SECRET);
     const uuid = uuidv4();
@@ -27,7 +29,13 @@ export class FileService {
       })
       .promise();
 
-    return uploadResult.Location;
+    const requestObject: Record<string, any> = {
+      Expires: this.SIGNED_URL_EXPIRATION_TIME,
+      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
+      Key: uploadResult.Key,
+    };
+
+    return s3Bucket.getSignedUrl('getObject', requestObject);
   }
 
   public async uploadMedia(id: string, dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
@@ -40,7 +48,13 @@ export class FileService {
       })
       .promise();
 
-    return uploadResult.Location;
+    const requestObject: Record<string, any> = {
+      Expires: this.SIGNED_URL_EXPIRATION_TIME,
+      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
+      Key: uploadResult.Key,
+    };
+
+    return s3Bucket.getSignedUrl('getObject', requestObject);
   }
 
   public async uploadUserAvatar(

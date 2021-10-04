@@ -44,7 +44,10 @@ export class Widget {
   webViewUrl: string;
 
   @Column({ default: false })
-  exclusive: boolean;
+  isExclusive: boolean;
+
+  @Column()
+  status: string;
 
   @Column()
   startDate: Date;
@@ -64,7 +67,7 @@ export class Widget {
   @Column({ default: false })
   hasExpiration: boolean;
 
-  //feed info
+  // feed info
   @Column()
   feedButtonText: string;
 
@@ -75,22 +78,22 @@ export class Widget {
   feedMediaUrl: string;
 
   // details info
-  @Column()
+  @Column({ nullable: true })
   detailsButtonText: string;
 
-  @Column()
+  @Column({ nullable: true })
   detailsButtonColor: string;
 
-  @Column()
+  @Column({ nullable: true })
   retailPrice: string;
 
-  @Column()
+  @Column({ nullable: true })
   discount: string;
 
-  @Column()
+  @Column({ nullable: true })
   discountedPrice: string;
 
-  @Column()
+  @Column({ nullable: true })
   detailsMediaUrl: string;
 
   @Column()

@@ -11,6 +11,7 @@ import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/
 import {
   AddDetailsMediaResponse,
   AddFeedMediaResponse,
+  AddStoryMedia,
   AddThumbnailResponse,
   FilteredWidgetsResponse,
 } from '../interfaces';
@@ -19,6 +20,7 @@ import { UserRoleEnum } from '../../users/interfaces/user.enum';
 import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { WidgetTypeEnum } from '../interfaces/widget.enum';
+import { StoryBlock } from '../entities/storyBlock.entity';
 
 @Injectable()
 export class WidgetService {
@@ -27,6 +29,7 @@ export class WidgetService {
     @InjectRepository(Promotion) private readonly promotionsRepository: Repository<Promotion>,
     @InjectRepository(Channel) private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
+    @InjectRepository(StoryBlock) private readonly storyRepository: Repository<StoryBlock>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly fileService: FileService,
@@ -63,105 +66,151 @@ export class WidgetService {
     return widget;
   }
 
-  public async addFeedMedia(file: Express.Multer.File): Promise<AddFeedMediaResponse> {
-    const { buffer, filename } = file;
-
+  public async addFeedMedia({ buffer, filename }: Express.Multer.File): Promise<AddFeedMediaResponse> {
     const feedMedia = await this.fileService.uploadRawMedia(buffer, filename, 'widgets');
 
-    return { feedMedia: feedMedia };
+    return { feedMedia };
   }
 
-  public async addDetailsMedia(file: Express.Multer.File): Promise<AddDetailsMediaResponse> {
-    const { buffer, filename } = file;
-
+  public async addDetailsMedia({ buffer, filename }: Express.Multer.File): Promise<AddDetailsMediaResponse> {
     const detailsMedia = await this.fileService.uploadRawMedia(buffer, filename, 'widgets');
 
-    return { detailsMedia: detailsMedia };
+    return { detailsMedia };
   }
 
-  public async addThumbnail(file: Express.Multer.File): Promise<AddThumbnailResponse> {
-    const { buffer, filename } = file;
-
+  public async addThumbnail({ buffer, filename }: Express.Multer.File): Promise<AddThumbnailResponse> {
     const thumbnail = await this.fileService.uploadRawMedia(buffer, filename, 'widgets');
 
-    return { thumbnail: thumbnail };
+    return { thumbnail };
   }
 
-  public async createWidget(body: CreateWidgetDto): Promise<Widget> {
-    const {
-      promotionButtonColor,
-      promotionButtonText,
-      channelsIds,
-      tagsIds,
-      title,
-      description,
-      backgroundColor,
-      websiteUrl,
-      type,
-      exclusive,
-      canBeShared,
-      hasExpiration,
-      startDate,
-      expirationDate,
-      startTime,
-      expirationTime,
-      feedButtonText,
-      feedButtonColor,
-      detailsButtonText,
-      detailsButtonColor,
-      retailPrice,
-      discount,
-      discountedPrice,
-      promotionMediaUrl,
-      feedMediaUrl,
-      detailsMediaUrl,
-      thumbnailUrl,
-    } = body;
+  public async addStoryMedia({ buffer, filename }: Express.Multer.File): Promise<AddStoryMedia> {
+    const storyAssetUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories');
 
-    const promotion = this.promotionsRepository.create({
-      buttonColor: promotionButtonColor,
-      buttonText: promotionButtonText,
-      imageUrl: promotionMediaUrl,
-    });
+    return { storyAssetUrl };
+  }
 
-    await this.promotionsRepository.save(promotion);
+  public async createWidget({
+    promotionButtonColor,
+    promotionButtonText,
+    channelIds,
+    tagIds,
+    title,
+    description,
+    backgroundColor,
+    websiteUrl,
+    type,
+    isExclusive,
+    canBeShared,
+    hasExpiration,
+    status,
+    startDate,
+    expirationDate,
+    startTime,
+    expirationTime,
+    feedButtonText,
+    feedButtonColor,
+    detailsButtonText,
+    detailsButtonColor,
+    retailPrice,
+    discount,
+    discountedPrice,
+    promotionMediaUrl,
+    feedMediaUrl,
+    detailsMediaUrl,
+    thumbnailUrl,
+    storiesToAdd,
+  }: CreateWidgetDto): Promise<Widget> {
+    if (type === WidgetTypeEnum.POST) {
+      const promotion = this.promotionsRepository.create({
+        buttonColor: promotionButtonColor,
+        buttonText: promotionButtonText,
+        imageUrl: promotionMediaUrl,
+      });
 
-    const channels = await this.channelsRepository.find({ where: { id: In(channelsIds) } });
+      await this.promotionsRepository.save(promotion);
 
-    const widget = this.widgetsRepository.create({
-      title: title,
-      description: description,
-      backgroundColor: backgroundColor,
-      webViewUrl: websiteUrl,
-      type: type,
-      exclusive: exclusive,
-      canBeShared: canBeShared,
-      hasExpiration: hasExpiration,
-      startDate: startDate,
-      expirationDate: expirationDate,
-      startTime: startTime,
-      expirationTime: expirationTime,
-      feedButtonText: feedButtonText,
-      feedButtonColor: feedButtonColor,
-      detailsButtonText: detailsButtonText,
-      detailsButtonColor: detailsButtonColor,
-      retailPrice: retailPrice,
-      discount: discount,
-      discountedPrice: discountedPrice,
-      promotion: promotion,
-      channels: channels,
-      feedMediaUrl: feedMediaUrl,
-      detailsMediaUrl: detailsMediaUrl,
-      thumbnailUrl: thumbnailUrl,
-    });
+      const channels = await this.channelsRepository.find({ where: { id: In(channelIds) } });
 
-    if (tagsIds) {
-      const tags = await this.tagsRepository.find({ where: { id: In(tagsIds) } });
+      const widget = this.widgetsRepository.create({
+        title,
+        description,
+        backgroundColor,
+        webViewUrl: websiteUrl,
+        type,
+        isExclusive,
+        canBeShared,
+        hasExpiration,
+        status,
+        startDate,
+        expirationDate,
+        startTime,
+        expirationTime,
+        feedButtonText,
+        feedButtonColor,
+        detailsButtonText,
+        detailsButtonColor,
+        retailPrice,
+        discount,
+        discountedPrice,
+        promotion,
+        channels,
+        feedMediaUrl,
+        detailsMediaUrl,
+        thumbnailUrl,
+      });
 
-      widget.tags = tags;
+      if (tagIds) {
+        const tags = await this.tagsRepository.find({ where: { id: In(tagIds) } });
+
+        widget.tags = tags;
+      }
+
+      return this.widgetsRepository.save(widget);
+    } else if (type === WidgetTypeEnum.STORY) {
+      const channels = await this.channelsRepository.find({ where: { id: In(channelIds) } });
+
+      const widget = this.widgetsRepository.create({
+        title,
+        type,
+        backgroundColor,
+        webViewUrl: websiteUrl,
+        description,
+        canBeShared,
+        isExclusive,
+        status,
+        startDate,
+        expirationDate,
+        startTime,
+        expirationTime,
+        channels,
+        feedButtonText,
+        feedButtonColor,
+        feedMediaUrl,
+        thumbnailUrl,
+      });
+
+      const stories = storiesToAdd.map(story =>
+        this.storyRepository.create({
+          assetUrl: story.assetUrl,
+          swipeUrl: story.swipeUrl,
+          type: story.type,
+          priority: story.priority,
+        }),
+      );
+
+      await this.storyRepository.save(stories);
+
+      if (tagIds) {
+        const tags = await this.tagsRepository.find({ where: { id: In(tagIds) } });
+
+        widget.tags = tags;
+      }
+
+      widget.stories = stories;
+
+      return this.widgetsRepository.save(widget);
     }
-
-    return await this.widgetsRepository.save(widget);
   }
 
   public async getFilteredWidgets(filterWidgets: FilterWidgetsDto): Promise<FilteredWidgetsResponse[]> {
@@ -174,7 +223,7 @@ export class WidgetService {
         'widgets.type as type',
         'widgets.startDate as startDate',
         'widgets.expirationDate as expirationDate',
-        'widgets.exclusive as exclusive',
+        'widgets.isExclusive as isExclusive',
       ])
       .leftJoin('widgets.channels', 'channel')
       .addSelect("array_to_string(array_agg(CONCAT_WS(' ', channel.league, channel.type)), ', ')", 'channels')
@@ -193,20 +242,45 @@ export class WidgetService {
   }
 
   public async editWidgets(widgetId: string, body: EditWidgetDto): Promise<Widget> {
-    const { channelsIds, tagsIds } = body;
+    const { channelIds, tagIds, storiesToAdd } = body;
+    const widget = await this.widgetsRepository.findOne({
+      where: { id: widgetId },
+      relations: ['channels', 'tags', 'stories'],
+    });
 
-    const widget = await this.widgetsRepository.findOne({ where: { id: widgetId }, relations: ['channels', 'tags'] });
-
-    if (channelsIds) {
-      const channels = await this.channelsRepository.find({ where: { id: In(channelsIds) } });
+    if (channelIds) {
+      const channels = await this.channelsRepository.find({ where: { id: In(channelIds) } });
 
       widget.channels = channels;
     }
 
-    if (tagsIds) {
-      const tags = await this.tagsRepository.find({ where: { id: In(tagsIds) } });
+    if (tagIds) {
+      const tags = await this.tagsRepository.find({ where: { id: In(tagIds) } });
 
       widget.tags = tags;
+    }
+
+    if (storiesToAdd?.length) {
+      await this.storyRepository
+        .createQueryBuilder('stories')
+        .leftJoin('stories.widget', 'widget')
+        .delete()
+        .where('widget.id = :widgetId', { widgetId: widget.id })
+        .execute();
+
+      const stories = storiesToAdd.map(story =>
+        this.storyRepository.create({
+          assetUrl: story.assetUrl,
+          swipeUrl: story.swipeUrl,
+          type: story.type,
+          priority: story.priority,
+          widget,
+        }),
+      );
+
+      await this.storyRepository.save(stories);
+
+      widget.stories = stories;
     }
 
     const widgetUpdated = {
@@ -214,9 +288,16 @@ export class WidgetService {
       ...body,
       channels: widget.channels,
       tags: widget.tags,
+      stories: widget.stories,
     };
 
     return await this.widgetsRepository.save(widgetUpdated);
+  }
+
+  public async deleteWidgetById(id: string) {
+    const widget = await this.widgetsRepository.findOne(id);
+
+    await this.widgetsRepository.remove(widget);
   }
 
   public async exportWidgetCsv(body: FilterWidgetsDto): Promise<string> {
@@ -239,7 +320,7 @@ export class WidgetService {
       .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() });
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
-      widgetList.andWhere('widget.exclusive = FALSE');
+      widgetList.andWhere('widget.isExclusive = FALSE');
     }
 
     if (tags?.length) {
@@ -302,7 +383,7 @@ export class WidgetService {
 
     // != used for checking if exclusive value is neither null nor undefined
     if (isExclusive != null) {
-      carousel.exclusive = isExclusive;
+      carousel.isExclusive = isExclusive;
     }
 
     if (widgetsToAdd?.length) {

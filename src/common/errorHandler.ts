@@ -23,7 +23,7 @@ export const handleError = (error: ExceptionResponse, functionName: string): voi
   if (!error.status && !error.response) {
     throw new Error(error.message);
   } else {
-    switch (error.status || !error.response.statusCode) {
+    switch (error.status || error.response.statusCode) {
       case 400:
         throw new BadRequestException(error.response);
 

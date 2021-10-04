@@ -6,11 +6,9 @@ import { PromotionMediaResponse } from '../interfaces';
 export class PromotionService {
   constructor(private readonly fileService: FileService) {}
 
-  public async addPromotionImage(file: Express.Multer.File): Promise<PromotionMediaResponse> {
-    const { buffer, filename } = file;
-
+  public async addPromotionImage({ buffer, filename }: Express.Multer.File): Promise<PromotionMediaResponse> {
     const promotionMedia = await this.fileService.uploadRawMedia(buffer, filename, 'promotions');
 
-    return { promotionMedia: promotionMedia };
+    return { promotionMedia };
   }
 }
