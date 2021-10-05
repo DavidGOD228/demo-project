@@ -161,7 +161,7 @@ export class WidgetService {
         thumbnailUrl,
       });
 
-      if (tagIds?.length) {
+      if (tagIds) {
         const tags = await this.tagsRepository.find({ where: { id: In(tagIds) } });
 
         widget.tags = tags;
@@ -317,8 +317,6 @@ export class WidgetService {
   ): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
-    console.log(user.scans.map(item => item.channel.id));
-
     const widgetList = this.widgetsRepository
       .createQueryBuilder('widget')
       .where('widget.parent_id IS NULL')
@@ -377,7 +375,7 @@ export class WidgetService {
       widgetList.skip((pageNumber - 1) * limit).take(limit);
     }
 
-    widgetList.leftJoinAndSelect('children.stories', 'childStories').leftJoinAndSelect('widget.scans', 'scans');
+    widgetList.leftJoinAndSelect('children.stories', 'childStories');
 
     const widgets = await widgetList.getMany();
 
