@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   PayloadTooLargeException,
   UnprocessableEntityException,
@@ -44,6 +46,9 @@ export const handleError = (error: ExceptionResponse, functionName: string): voi
 
       case 422:
         throw new UnprocessableEntityException(error.response);
+
+      case 429:
+        throw new HttpException(error.response, HttpStatus.TOO_MANY_REQUESTS);
 
       case 500:
         throw new InternalServerErrorException(error.response);

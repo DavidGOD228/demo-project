@@ -20,7 +20,6 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConsumes,
-  ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -40,6 +39,7 @@ import {
   AddStoryMedia,
   AddThumbnailResponse,
   FilteredWidgetsResponse,
+  DeleteWidgetResponse,
 } from '../interfaces';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import { WidgetService } from '../services/widget.service';
@@ -120,7 +120,7 @@ export class WidgetController {
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  async deleteWidgetById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string) {
+  async deleteWidgetById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Promise<DeleteWidgetResponse> {
     try {
       return await this.widgetsService.deleteWidgetById(id);
     } catch (error) {

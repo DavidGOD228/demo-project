@@ -13,6 +13,7 @@ import {
   AddFeedMediaResponse,
   AddStoryMedia,
   AddThumbnailResponse,
+  DeleteWidgetResponse,
   FilteredWidgetsResponse,
 } from '../interfaces';
 import { User } from '../../users/entities/user.entity';
@@ -294,10 +295,12 @@ export class WidgetService {
     return await this.widgetsRepository.save(widgetUpdated);
   }
 
-  public async deleteWidgetById(id: string) {
+  public async deleteWidgetById(id: string): Promise<DeleteWidgetResponse> {
     const widget = await this.widgetsRepository.findOne(id);
 
     await this.widgetsRepository.remove(widget);
+
+    return { message: 'Widget was successfully deleted!' };
   }
 
   public async exportWidgetCsv(body: FilterWidgetsDto): Promise<string> {

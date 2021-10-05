@@ -23,3 +23,7 @@ export interface AddFeedMediaResponse {
 export interface AddStoryMedia {
   storyAssetUrl: string;
 }
+
+export interface DeleteWidgetResponse {
+  message: string;
+}
