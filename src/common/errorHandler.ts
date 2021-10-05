@@ -1,4 +1,6 @@
 import {
+  HttpException,
+  HttpStatus,
   InternalServerErrorException,
   PayloadTooLargeException,
   UnprocessableEntityException,
@@ -9,22 +11,21 @@ import { BadRequestException, ForbiddenException, NotFoundException, Unauthorize
 interface ExceptionResponse extends Error {
   status?: number;
   error?: string;
-  response?: {
-    statusCode: number;
-  };
+  response?: Record<string, any>;
 }
 
 export const handleError = (error: ExceptionResponse, functionName: string): void => {
   console.log(`ERROR (${functionName}): `, error.message);
+  console.log(error);
 
   if (!error) {
     error = { message: 'Error body was empty', name: 'Empty error' };
   }
 
-  if (!error.status) {
+  if (!error.status && !error.response) {
     throw new Error(error.message);
   } else {
-    switch (error.response.statusCode) {
+    switch (error.status || error.response.statusCode) {
       case 400:
         throw new BadRequestException(error.response);
 
@@ -45,6 +46,9 @@ export const handleError = (error: ExceptionResponse, functionName: string): voi
 
       case 422:
         throw new UnprocessableEntityException(error.response);
+
+      case 429:
+        throw new HttpException(error.response, HttpStatus.TOO_MANY_REQUESTS);
 
       case 500:
         throw new InternalServerErrorException(error.response);

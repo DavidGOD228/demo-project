@@ -46,6 +46,59 @@ export class Widget {
   @Column({ default: false })
   isExclusive: boolean;
 
+  @Column()
+  status: string;
+
+  @Column()
+  startDate: Date;
+
+  @Column({ nullable: true })
+  expirationDate?: Date;
+
+  @Column('time', { name: 'start_time' })
+  startTime: Date;
+
+  @Column('time', { name: 'expiration_time', nullable: true })
+  expirationTime?: Date;
+
+  @Column({ default: false })
+  canBeShared: boolean;
+
+  @Column({ default: false })
+  hasExpiration: boolean;
+
+  // feed info
+  @Column()
+  feedButtonText: string;
+
+  @Column()
+  feedButtonColor: string;
+
+  @Column()
+  feedMediaUrl: string;
+
+  // details info
+  @Column({ nullable: true })
+  detailsButtonText: string;
+
+  @Column({ nullable: true })
+  detailsButtonColor: string;
+
+  @Column({ nullable: true })
+  retailPrice: string;
+
+  @Column({ nullable: true })
+  discount: string;
+
+  @Column({ nullable: true })
+  discountedPrice: string;
+
+  @Column({ nullable: true })
+  detailsMediaUrl: string;
+
+  @Column()
+  thumbnailUrl: string;
+
   @Column({ nullable: true })
   carouselTitle?: string;
 

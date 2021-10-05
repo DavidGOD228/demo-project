@@ -8,3 +8,8 @@ export enum StoryBlockTypeEnum {
   VIDEO = 'VIDEO',
   IMAGE = 'IMAGE',
 }
+
+export enum FilterWidgetOrderEnum {
+  ASC = 'ASC',
+  DESC = 'DESC',
+}

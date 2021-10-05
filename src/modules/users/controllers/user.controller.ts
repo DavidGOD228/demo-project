@@ -36,6 +36,9 @@ import { UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
+import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
 
 @UseInterceptors(SentryInterceptor)
@@ -115,10 +118,12 @@ export class UserController {
     try {
       return await this.usersService.addUserAvatar(req.user.id, file.buffer, file.originalname);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'addUserAvatar');
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @Get('all')
   @ApiOkResponse({ description: ReasonPhrases.OK })
@@ -128,20 +133,22 @@ export class UserController {
     try {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
-      console.log(error);
+      handleError(error, 'getUsersWithFilters');
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @Get('exportCsv')
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto) {
+  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto): Promise<string> {
     try {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'exportUsersCSV');
     }
   }
 }

@@ -13,7 +13,7 @@ import {
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
-import { FileService } from './file.service';
+import { FileService } from '../../aws/services/file.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { EmailsService } from '../../emails/services/emails.service';
@@ -116,7 +116,7 @@ export class UserService {
       new NotFoundException();
     }
 
-    const avatar = await this.fileService.uploadFile(user.id, imageBuffer, filename);
+    const avatar = await this.fileService.uploadUserAvatar(user.id, imageBuffer, filename, 'users');
 
     return { imageUrl: avatar };
   }
@@ -143,9 +143,9 @@ export class UserService {
     return users;
   }
 
-  public async exportUsersCSV(body: FilterUserPagesDto) {
+  public async exportUsersCSV(body: FilterUserPagesDto): Promise<string> {
     const users = await this.getUsersWithFilters(body);
-    const csv = await this.csvService.exportCsv(users);
+    const csv = await this.csvService.exportCsv(users, 'Users');
 
     return csv;
   }

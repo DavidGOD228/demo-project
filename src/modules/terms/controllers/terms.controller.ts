@@ -8,6 +8,7 @@ import {
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
+import { handleError } from 'src/common/errorHandler';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
 import { TermsOfUse } from '../entities/terms.entity';
 import { CreateTermDto } from '../interfaces/terms.dto';
@@ -30,7 +31,7 @@ export class TermsOfUseController {
     try {
       return await this.termsService.getTermsById(id);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'getTermsById');
     }
   }
 
@@ -42,7 +43,7 @@ export class TermsOfUseController {
     try {
       return await this.termsService.createTerm(body);
     } catch (error) {
-      console.log(error.message);
+      handleError(error, 'createTerm');
     }
   }
 }

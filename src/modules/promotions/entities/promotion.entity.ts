@@ -7,7 +7,7 @@ export class Promotion {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => Widget, widget => widget.promotion)
+  @OneToOne(() => Widget, widget => widget.promotion, { onDelete: 'CASCADE' })
   @JoinColumn()
   widget: Widget;
 
@@ -20,7 +20,7 @@ export class Promotion {
   @Column()
   buttonColor: string;
 
-  @ManyToMany(() => User, user => user.promotions)
+  @ManyToMany(() => User, user => user.promotions, { onDelete: 'CASCADE' })
   users: User[];
 
   @ManyToMany(() => User, user => user.wonPromotions)
