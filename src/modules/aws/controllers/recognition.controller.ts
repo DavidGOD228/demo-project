@@ -10,15 +10,16 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { handleError } from '../../../common/errorHandler';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import { GetChannelByImage } from '../interfaces/interfaces';
 
 @UseInterceptors(SentryInterceptor)
-@UseGuards(JwtAuthGuard)
 @ApiTags('Recognition')
 @Controller('recognition')
 export class RecognitionController {
   constructor(public recognitionService: RecognitionService) {}
 
   @Post('/')
+  @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @BaseApiCreatedResponses()
   @ApiConsumes('multipart/form-data')
@@ -33,6 +34,19 @@ export class RecognitionController {
       return this.recognitionService.getBallPromotion(body, file, req.user.id);
     } catch (error) {
       handleError(error, 'recognize');
+    }
+  }
+
+  @Post('/channel')
+  @BaseApiCreatedResponses()
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
+  @UseInterceptors(FileInterceptor('file'))
+  public async recognizeChannel(@UploadedFile() file: Express.Multer.File): Promise<GetChannelByImage> {
+    try {
+      return this.recognitionService.getChannelByImage(file);
+    } catch (error) {
+      handleError(error, 'recognizeChannel');
     }
   }
 }
