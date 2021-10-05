@@ -15,6 +15,7 @@ import { TermsOfUseModule } from './modules/terms/terms.module';
 import { TwilioModule } from './modules/twilio/twilio.module';
 import { UserModule } from './modules/users/user.module';
 import { WidgetModule } from './modules/widgets/widget.module';
+import { EmailsModule } from './modules/emails/emails.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WidgetModule } from './modules/widgets/widget.module';
     AuthModule,
     AwsModule,
     ChannelModule,
+    EmailsModule,
     InterestModule,
     PromotionModule,
     TagModule,
