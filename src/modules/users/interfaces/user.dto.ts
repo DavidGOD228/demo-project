@@ -65,3 +65,13 @@ export class FilterUserPagesDto {
   @IsOptional()
   order?: string = FilterUserOrderEnum.ASC;
 }
+
+export class FilterLikesDto {
+  @ApiProperty()
+  @IsNumber()
+  limit: number;
+
+  @ApiProperty()
+  @IsNumber()
+  pageNumber: number;
+}

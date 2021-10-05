@@ -10,6 +10,7 @@ import {
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
+  FilterLikesDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
@@ -119,6 +120,25 @@ export class UserService {
     const avatar = await this.fileService.uploadUserAvatar(user.id, imageBuffer, filename, 'users');
 
     return { imageUrl: avatar };
+  }
+
+  public async getUserFavorites(userId: string, { limit, pageNumber }: FilterLikesDto) {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    const favorites = await this.widgetsRepository
+      .createQueryBuilder('widgets')
+      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
+      .leftJoin('widgets.users', 'user')
+      .andWhere('user.id = :userId', { userId: user.id })
+      .limit(limit)
+      .offset((pageNumber - 1) * limit)
+      .getMany();
+
+    return favorites;
   }
 
   public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {
