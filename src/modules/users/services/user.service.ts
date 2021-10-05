@@ -15,15 +15,24 @@ import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { FileService } from '../../aws/services/file.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
+import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
+import { EmailsService } from '../../emails/services/emails.service';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private readonly usersRepository: Repository<User>,
-    @InjectRepository(Interest) private readonly interestsRepository: Repository<Interest>,
-    @InjectRepository(Widget) private readonly widgetsRepository: Repository<Widget>,
+    @InjectRepository(User)
+    private readonly usersRepository: Repository<User>,
+
+    @InjectRepository(Interest)
+    private readonly interestsRepository: Repository<Interest>,
+
+    @InjectRepository(Widget)
+    private readonly widgetsRepository: Repository<Widget>,
+
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
+    private readonly emailService: EmailsService,
   ) {}
 
   public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
@@ -36,6 +45,17 @@ export class UserService {
     const updatedUser = { ...user, ...body };
 
     await this.usersRepository.update(user.id, updatedUser);
+
+    if (!user.email && body.email) {
+      await this.emailService.sendEmail(MailTemplateTypeEnum.WELCOME, [
+        {
+          to: body.email,
+          templateBody: {
+            name: `${body.firstName} ${body.lastName}`,
+          },
+        },
+      ]);
+    }
 
     return updatedUser;
   }

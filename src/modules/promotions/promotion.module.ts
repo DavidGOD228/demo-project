@@ -3,13 +3,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileService } from '../aws/services/file.service';
 import { User } from '../users/entities/user.entity';
 import { Widget } from '../widgets/entities/widget.entity';
-import { PromotionController } from './controllers/promotion.controller';
 import { Promotion } from './entities/promotion.entity';
-import { PromotionService } from './services/promotion.service';
+import { PromotionsService } from './services/promotions.service';
+import { PromotionsController } from './controllers/promotions.controller';
+import { EmailsModule } from '../emails/emails.module';
 
 @Module({
-  controllers: [PromotionController],
-  providers: [PromotionService, FileService],
-  imports: [TypeOrmModule.forFeature([Promotion, Widget, User])],
+  imports: [EmailsModule, TypeOrmModule.forFeature([Promotion, Widget, User])],
+  providers: [PromotionsService, FileService],
+  controllers: [PromotionsController],
 })
 export class PromotionModule {}

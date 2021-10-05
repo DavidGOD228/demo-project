@@ -8,13 +8,14 @@ import { User } from '../users/entities/user.entity';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { EmailsModule } from '../emails/emails.module';
 
 @Module({
   controllers: [AuthController],
   providers: [AuthService, TwilioSmsService, JwtStrategy],
   imports: [
     TypeOrmModule.forFeature([User]),
-
+    EmailsModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
