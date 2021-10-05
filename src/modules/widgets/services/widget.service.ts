@@ -60,7 +60,7 @@ export class WidgetService {
       .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() });
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
-      widgetList.andWhere('widget.exclusive = FALSE');
+      widgetList.andWhere('widget.isExclusive = FALSE');
     }
 
     if (tags?.length) {
@@ -123,7 +123,7 @@ export class WidgetService {
 
     // != used for checking if exclusive value is neither null nor undefined
     if (isExclusive != null) {
-      carousel.exclusive = isExclusive;
+      carousel.isExclusive = isExclusive;
     }
 
     if (widgetsToAdd?.length) {

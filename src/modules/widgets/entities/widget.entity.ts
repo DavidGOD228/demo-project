@@ -44,7 +44,7 @@ export class Widget {
   webViewUrl: string;
 
   @Column({ default: false })
-  exclusive: boolean;
+  isExclusive: boolean;
 
   @Column({ nullable: true })
   carouselTitle?: string;

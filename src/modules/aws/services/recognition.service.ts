@@ -34,10 +34,10 @@ export class RecognitionService {
     private readonly emailService: EmailsService,
   ) {}
 
-  public SIGNED_URL_EXPIRATION_TIME = 5;
+  public readonly SIGNED_URL_EXPIRATION_TIME = 5;
 
-  public isWidgetExclusive(widget: Widget, user: User): boolean {
-    if (!widget.exclusive) return false;
+  public isWidgetExclusiveForUser(widget: Widget, user: User): boolean {
+    if (!widget.isExclusive) return false;
 
     const scan = user.scans.find(scan => widget.channels.filter(widgetChannel => widgetChannel.id === scan.channel.id));
 
@@ -90,10 +90,10 @@ export class RecognitionService {
 
   public notifyUserWithEmail(user: User, widgets: Widget[], passedChannel: Channel): void {
     if (user.email) {
-      const exclusiveWidgets = passedChannel.widgets.filter(widget => this.isWidgetExclusive(widget, user));
+      const exclusiveWidgets = passedChannel.widgets.filter(widget => this.isWidgetExclusiveForUser(widget, user));
 
       if (exclusiveWidgets.length) {
-        // we don`t wait for email to be sent not to stop recognize process
+        // we don't wait for the result of sending an email to keep the recognition process going
         this.emailService
           .sendEmail(MailTemplateTypeEnum.EXCLUSIVE, [
             {
@@ -107,7 +107,7 @@ export class RecognitionService {
           .catch(e => console.log(e.message));
       }
 
-      // we don`t wait for email to be sent not to stop recognize process
+      // we don't wait for the result of sending an email to keep the recognition process going
       this.emailService
         .sendEmail(MailTemplateTypeEnum.SCAN, [
           {
