@@ -10,7 +10,7 @@ import {
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
-  FilterPromotionsDto,
+  PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
@@ -126,14 +126,12 @@ export class UserService {
     return { imageUrl: avatar };
   }
 
-  public async getUserPromotions(userId: string, { limit, pageNumber }: FilterPromotionsDto) {
+  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto) {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
       throw new NotFoundException();
     }
-
-    // add api in dto
 
     return await this.promotionsRepository
       .createQueryBuilder('promotions')

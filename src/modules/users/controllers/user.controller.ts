@@ -29,7 +29,7 @@ import {
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
-  FilterPromotionsDto,
+  PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
@@ -125,9 +125,9 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get('promotions')
-  async getUserPromotions(@Req() req: RequestWithUserParams, @Query() filterPromotions: FilterPromotionsDto) {
+  async getUserPromotions(@Req() req: RequestWithUserParams, @Query() promotionsFilter: PromotionsFilterDto) {
     try {
-      return await this.usersService.getUserPromotions(req.user.id, filterPromotions);
+      return await this.usersService.getUserPromotions(req.user.id, promotionsFilter);
     } catch (error) {
       handleError(error, 'getUserPromotions');
     }
