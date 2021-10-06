@@ -41,6 +41,8 @@ import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
+import { Channel } from 'src/modules/channels/entities/channel.entity';
+import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -125,11 +127,27 @@ export class UserController {
 
   @ApiBearerAuth()
   @Get('promotions')
-  async getUserPromotions(@Req() req: RequestWithUserParams, @Query() promotionsFilter: PromotionsFilterDto) {
+  async getUserPromotions(
+    @Req() req: RequestWithUserParams,
+    @Query() promotionsFilter: PromotionsFilterDto,
+  ): Promise<Promotion[]> {
     try {
       return await this.usersService.getUserPromotions(req.user.id, promotionsFilter);
     } catch (error) {
       handleError(error, 'getUserPromotions');
+    }
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @Get('scoreboard')
+  async getUserScans(@Req() req: RequestWithUserParams): Promise<Channel[]> {
+    try {
+      return await this.usersService.getUserScans(req.user.id);
+    } catch (error) {
+      handleError(error, 'getUserScans');
     }
   }
 
