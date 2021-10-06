@@ -7,6 +7,8 @@ import { User } from '../../users/entities/user.entity';
 import { Promotion } from '../entities/promotion.entity';
 import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
+import { PromotionMediaResponse } from '../interfaces';
+import { FileService } from 'src/modules/aws/services/file.service';
 
 @Injectable()
 export class PromotionsService {
@@ -21,7 +23,15 @@ export class PromotionsService {
     private userRepository: Repository<User>,
 
     private readonly emailsService: EmailsService,
+
+    private readonly fileService: FileService,
   ) {}
+
+  public async addPromotionImage({ buffer, filename }: Express.Multer.File): Promise<PromotionMediaResponse> {
+    const promotionMedia = await this.fileService.uploadRawMedia(buffer, filename, 'promotions');
+
+    return { promotionMedia };
+  }
 
   public async assignWinners({ widgetId, winners }: AssignWinnersDto): Promise<Promotion> {
     const widget = await this.widgetRepository.findOne({ where: { id: widgetId } });

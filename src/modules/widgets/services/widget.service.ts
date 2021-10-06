@@ -315,7 +315,7 @@ export class WidgetService {
     userId: string,
     { tags, pageNumber, limit }: GetWidgetFeedDto,
   ): Promise<Partial<Widget>[]> {
-    const user = await this.userRepository.findOne({ where: { id: userId } });
+    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const widgetList = this.widgetsRepository
       .createQueryBuilder('widget')
@@ -324,6 +324,16 @@ export class WidgetService {
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
       widgetList.andWhere('widget.isExclusive = FALSE');
+    }
+
+    if (user.scans?.length) {
+      widgetList
+        .leftJoin('widget.channels', 'channels')
+        .andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
+          userChannels: user.scans.map(item => item.channel.id),
+        });
+    } else {
+      widgetList.andWhere('widget.isExclusive = false');
     }
 
     if (tags?.length) {
