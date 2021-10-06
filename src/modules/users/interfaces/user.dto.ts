@@ -66,7 +66,7 @@ export class FilterUserPagesDto {
   order?: string = FilterUserOrderEnum.ASC;
 }
 
-export class FilterLikesDto {
+export class LikesFilterDto {
   @ApiProperty()
   @IsNumber()
   limit: number;

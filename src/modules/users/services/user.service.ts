@@ -10,7 +10,7 @@ import {
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
-  FilterLikesDto,
+  LikesFilterDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
@@ -122,7 +122,7 @@ export class UserService {
     return { imageUrl: avatar };
   }
 
-  public async getUserFavorites(userId: string, { limit, pageNumber }: FilterLikesDto) {
+  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto) {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {

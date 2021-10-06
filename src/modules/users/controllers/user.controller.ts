@@ -29,7 +29,7 @@ import {
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
-  FilterLikesDto,
+  LikesFilterDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
@@ -119,9 +119,9 @@ export class UserController {
   @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Get('likes')
-  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() filterLikes: FilterLikesDto) {
+  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() likesFilter: LikesFilterDto) {
     try {
-      return await this.usersService.getUserFavorites(req.user.id, filterLikes);
+      return await this.usersService.getUserFavorites(req.user.id, likesFilter);
     } catch (error) {
       handleError(error, 'getUserFavorites');
     }
