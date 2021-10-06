@@ -75,3 +75,13 @@ export class LikesFilterDto {
   @IsNumber()
   pageNumber: number;
 }
+
+export class PromotionsFilterDto {
+  @ApiProperty()
+  @IsNumber()
+  limit: number;
+
+  @ApiProperty()
+  @IsNumber()
+  pageNumber: number;
+}

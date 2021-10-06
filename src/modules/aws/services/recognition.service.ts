@@ -13,6 +13,7 @@ import { User } from '../../users/entities/user.entity';
 import * as constants from '../../../common/constants/constants';
 import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
+import { GetChannelByImage } from '../interfaces/interfaces';
 
 @Injectable()
 export class RecognitionService {
@@ -142,6 +143,24 @@ export class RecognitionService {
     );
   }
 
+  public async getChannelByImage(file: Express.Multer.File): Promise<GetChannelByImage> {
+    const recognizeResult = await this.recognize(file);
+    const labelsInfo = recognizeResult.CustomLabels.reduce((gen, curr) => {
+      gen[curr.Name] = curr;
+
+      return gen;
+    }, {} as Record<string, sdk.Rekognition.CustomLabel>);
+
+    const channels = await this.channelRepository.find();
+    const passedChannel = this.passConfidence(labelsInfo, channels);
+
+    if (passedChannel) {
+      return { channel: passedChannel, labelsInfo };
+    } else {
+      throw new BadRequestException('Image was not recognized');
+    }
+  }
+
   public async getBallPromotion(
     body: GetWidgetPromotionDto,
     file: Express.Multer.File,
@@ -176,7 +195,6 @@ export class RecognitionService {
 
       if (passedChannel) {
         this.notifyUserWithEmail(user, [widget], passedChannel);
-
         await this.increaseScanTimes(widget, user, passedChannel);
 
         return { ...widget.promotion, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };

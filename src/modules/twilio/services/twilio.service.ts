@@ -38,9 +38,13 @@ export default class TwilioSmsService {
     const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
 
     try {
-      await this.twilioClient.verify
+      const verifyCode = await this.twilioClient.verify
         .services(serviceSid)
         .verificationChecks.create({ to: phoneNumber, code: verificationCode });
+
+      if (verifyCode.valid === false) {
+        throw new BadRequestException('Verification code is incorrect!');
+      }
     } catch (error) {
       throw new BadRequestException('Verification code is incorrect!');
     }
@@ -75,9 +79,13 @@ export default class TwilioSmsService {
     const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
 
     try {
-      await this.twilioClient.verify
+      const verifyCode = await this.twilioClient.verify
         .services(serviceSid)
         .verificationChecks.create({ to: phoneNumber, code: verificationCode });
+
+      if (verifyCode.valid === false) {
+        throw new BadRequestException('Verification code is incorrect!');
+      }
     } catch (error) {
       throw new BadRequestException('Verification code is incorrect!');
     }
