@@ -127,7 +127,7 @@ export class UserService {
     return { imageUrl: avatar };
   }
 
-  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto) {
+  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto): Promise<Widget[]> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {

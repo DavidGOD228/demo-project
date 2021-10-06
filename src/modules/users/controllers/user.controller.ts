@@ -43,6 +43,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
+import { Widget } from 'src/modules/widgets/entities/widget.entity';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -120,7 +121,7 @@ export class UserController {
   @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Get('likes')
-  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() likesFilter: LikesFilterDto) {
+  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() likesFilter: LikesFilterDto): Promise<Widget[]> {
     try {
       return await this.usersService.getUserFavorites(req.user.id, likesFilter);
     } catch (error) {
