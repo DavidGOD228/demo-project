@@ -65,3 +65,8 @@ export class FilterUserPagesDto {
   @IsOptional()
   order?: string = FilterUserOrderEnum.ASC;
 }
+
+export class FilterPromotionsDto {
+  limit: number;
+  pageNumber: number;
+}

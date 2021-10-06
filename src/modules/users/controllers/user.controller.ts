@@ -29,6 +29,7 @@ import {
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
+  FilterPromotionsDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
@@ -119,6 +120,16 @@ export class UserController {
       return await this.usersService.addUserAvatar(req.user.id, file.buffer, file.originalname);
     } catch (error) {
       handleError(error, 'addUserAvatar');
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('promotions')
+  async getUserPromotions(@Req() req: RequestWithUserParams, @Query() filterPromotions: FilterPromotionsDto) {
+    try {
+      return await this.usersService.getUserPromotions(req.user.id, filterPromotions);
+    } catch (error) {
+      handleError(error, 'getUserPromotions');
     }
   }
 

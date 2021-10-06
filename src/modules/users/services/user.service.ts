@@ -10,6 +10,7 @@ import {
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
+  FilterPromotionsDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
@@ -17,6 +18,7 @@ import { FileService } from '../../aws/services/file.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { EmailsService } from '../../emails/services/emails.service';
+import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 
 @Injectable()
 export class UserService {
@@ -29,6 +31,9 @@ export class UserService {
 
     @InjectRepository(Widget)
     private readonly widgetsRepository: Repository<Widget>,
+
+    @InjectRepository(Promotion)
+    private readonly promotionsRepository: Repository<Promotion>,
 
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
@@ -119,6 +124,27 @@ export class UserService {
     const avatar = await this.fileService.uploadUserAvatar(user.id, imageBuffer, filename, 'users');
 
     return { imageUrl: avatar };
+  }
+
+  public async getUserPromotions(userId: string, { limit, pageNumber }: FilterPromotionsDto) {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    // add api in dto
+
+    return await this.promotionsRepository
+      .createQueryBuilder('promotions')
+      .select(['promotions.id', 'promotions.imageUrl'])
+      .leftJoin('promotions.users', 'user')
+      .where('user.id = :userId', { userId: user.id })
+      .leftJoin('promotions.widget', 'widget')
+      .addSelect(['widget.title'])
+      .limit(limit)
+      .offset((pageNumber - 1) * limit)
+      .getMany();
   }
 
   public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {

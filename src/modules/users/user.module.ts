@@ -9,10 +9,11 @@ import { User } from './entities/user.entity';
 import { FileService } from '../aws/services/file.service';
 import { UserService } from './services/user.service';
 import { EmailsModule } from '../emails/emails.module';
+import { Promotion } from '../promotions/entities/promotion.entity';
 
 @Module({
   controllers: [UserController],
   providers: [UserService, FileService, ExportCsvService],
-  imports: [EmailsModule, TypeOrmModule.forFeature([User, Interest, Widget, Scan])],
+  imports: [EmailsModule, TypeOrmModule.forFeature([User, Interest, Widget, Scan, Promotion])],
 })
 export class UserModule {}
