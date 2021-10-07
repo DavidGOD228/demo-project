@@ -1,4 +1,14 @@
-import { Body, Controller, Post, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Query,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -17,8 +27,9 @@ import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 import { ApiFile } from 'src/common/interceptors';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { PromotionMediaResponse } from '../interfaces';
+import { FeedSubmission, PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
+import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -42,6 +53,21 @@ export class PromotionsController {
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Get('submissions')
+  async getFeedSubmissions(
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) params: GetFeedSubmissionsDto,
+  ): Promise<FeedSubmission[]> {
+    try {
+      return await this.promotionsService.getSubmissions(params);
+    } catch (error) {
+      handleError(error, 'getFeedSubmissions');
+    }
+  }
+
   @ApiBearerAuth()
   @ApiOkResponse({ description: 'OK' })
   @ApiBadRequestResponse({ description: 'Bad Request' })
@@ -51,7 +77,7 @@ export class PromotionsController {
     try {
       return this.promotionsService.assignWinners(body);
     } catch (error) {
-      console.log(error);
+      handleError(error, 'assignWinners');
     }
   }
 }
