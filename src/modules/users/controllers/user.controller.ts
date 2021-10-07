@@ -9,6 +9,8 @@ import {
   UploadedFile,
   Post,
   UseInterceptors,
+  Param,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -197,6 +199,19 @@ export class UserController {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
       handleError(error, 'exportUsersCSV');
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get(':id')
+  async getUserById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req: RequestWithUserParams,
+  ): Promise<User> {
+    try {
+      return await this.usersService.getUserById(req.user.id, id);
+    } catch (error) {
+      handleError(error, 'getUserById');
     }
   }
 }
