@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
@@ -21,6 +21,7 @@ import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum'
 import { EmailsService } from '../../emails/services/emails.service';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
+import { UserRoleEnum } from '../interfaces/user.enum';
 
 @Injectable()
 export class UserService {
@@ -226,5 +227,19 @@ export class UserService {
     const csv = await this.csvService.exportCsv(users, 'Users');
 
     return csv;
+  }
+
+  public async getUserById(userId: string, reqUserId: string): Promise<User> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException('There is no such user!');
+    }
+
+    if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
+      return user;
+    } else {
+      throw new ForbiddenException();
+    }
   }
 }
