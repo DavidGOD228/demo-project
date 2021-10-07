@@ -3,13 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
-import { UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
+  LikesFilterDto,
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
@@ -128,6 +129,39 @@ export class UserService {
     const avatar = await this.fileService.uploadUserAvatar(user.id, imageBuffer, filename, 'users');
 
     return { imageUrl: avatar };
+  }
+
+  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto): Promise<Widget[]> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return await this.widgetsRepository
+      .createQueryBuilder('widgets')
+      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
+      .leftJoin('widgets.users', 'user')
+      .andWhere('user.id = :userId', { userId: user.id })
+      .limit(limit)
+      .offset((pageNumber - 1) * limit)
+      .getMany();
+  }
+
+  public async getUserAvatar(userId: string): Promise<UserAvatarResponse> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    if (user?.imageUrl) {
+      const userAvatar = this.fileService.getImageUrl(user?.imageUrl);
+
+      return { userAvatar };
+    } else {
+      throw new NotFoundException('This user does not have avatar!');
+    }
   }
 
   public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto): Promise<Promotion[]> {

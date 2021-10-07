@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
+import * as sdk from 'aws-sdk';
 import { S3 } from 'aws-sdk';
 import * as crypto from 'crypto-js';
 import { v4 as uuidv4 } from 'uuid';
@@ -25,17 +26,11 @@ export class FileService {
       .upload({
         Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
         Body: dataBuffer,
-        Key: `${entityName}/${uuid}-${encryptedName}`,
+        Key: `/${entityName}/${uuid}-${encryptedName}`,
       })
       .promise();
 
-    const requestObject: Record<string, any> = {
-      Expires: this.SIGNED_URL_EXPIRATION_TIME,
-      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
-      Key: uploadResult.Key,
-    };
-
-    return s3Bucket.getSignedUrl('getObject', requestObject);
+    return uploadResult.Key;
   }
 
   public async uploadMedia(id: string, dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
@@ -44,17 +39,11 @@ export class FileService {
       .upload({
         Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
         Body: dataBuffer,
-        Key: `${entityName}/${id}-${filename}`,
+        Key: `/${entityName}/${id}-${filename}`,
       })
       .promise();
 
-    const requestObject: Record<string, any> = {
-      Expires: this.SIGNED_URL_EXPIRATION_TIME,
-      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
-      Key: uploadResult.Key,
-    };
-
-    return s3Bucket.getSignedUrl('getObject', requestObject);
+    return uploadResult.Key;
   }
 
   public async uploadUserAvatar(
@@ -70,5 +59,17 @@ export class FileService {
     const user = await this.usersRepository.findOne(userId);
 
     return user.imageUrl;
+  }
+
+  public getImageUrl(fileKey: string) {
+    const s3Bucket = new sdk.S3();
+
+    const requestObject: Record<string, any> = {
+      Expires: this.SIGNED_URL_EXPIRATION_TIME,
+      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
+      Key: fileKey,
+    };
+
+    return s3Bucket.getSignedUrl('getObject', requestObject);
   }
 }
