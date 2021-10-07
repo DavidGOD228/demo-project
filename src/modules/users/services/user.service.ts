@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
-import { UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
@@ -134,7 +134,7 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    const favorites = await this.widgetsRepository
+    return await this.widgetsRepository
       .createQueryBuilder('widgets')
       .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
       .leftJoin('widgets.users', 'user')
@@ -142,8 +142,22 @@ export class UserService {
       .limit(limit)
       .offset((pageNumber - 1) * limit)
       .getMany();
+  }
 
-    return favorites;
+  public async getUserAvatar(userId: string): Promise<UserAvatarResponse> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    if (user?.imageUrl) {
+      const userAvatar = this.fileService.getImageUrl(user?.imageUrl);
+
+      return { userAvatar };
+    } else {
+      throw new NotFoundException('This user does not have avatar!');
+    }
   }
 
   public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto) {

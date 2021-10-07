@@ -34,7 +34,7 @@ import {
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
-import { UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
@@ -126,6 +126,18 @@ export class UserController {
       return await this.usersService.getUserFavorites(req.user.id, likesFilter);
     } catch (error) {
       handleError(error, 'getUserFavorites');
+    }
+  }
+
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @Get('avatar')
+  async getUserAvatar(@Req() req: RequestWithUserParams): Promise<UserAvatarResponse> {
+    try {
+      return await this.usersService.getUserAvatar(req.user.id);
+    } catch (error) {
+      handleError(error, 'getUserAvatar');
     }
   }
 
