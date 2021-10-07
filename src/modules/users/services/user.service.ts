@@ -20,6 +20,7 @@ import { ExportCsvService } from 'src/modules/config/services/csvExport.service'
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { EmailsService } from '../../emails/services/emails.service';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
+import { Channel } from 'src/modules/channels/entities/channel.entity';
 
 @Injectable()
 export class UserService {
@@ -35,6 +36,9 @@ export class UserService {
 
     @InjectRepository(Promotion)
     private readonly promotionsRepository: Repository<Promotion>,
+
+    @InjectRepository(Channel)
+    private readonly channelsRepository: Repository<Channel>,
 
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
@@ -160,7 +164,7 @@ export class UserService {
     }
   }
 
-  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto) {
+  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto): Promise<Promotion[]> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
@@ -176,6 +180,22 @@ export class UserService {
       .addSelect(['widget.title'])
       .limit(limit)
       .offset((pageNumber - 1) * limit)
+      .getMany();
+  }
+
+  public async getUserScans(userId: string): Promise<Channel[]> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return await this.channelsRepository
+      .createQueryBuilder('channels')
+      .select(['channels.id', 'channels.league'])
+      .leftJoin('channels.scans', 'scans')
+      .addSelect(['scans.number'])
+      .andWhere('scans.object_id = :userId', { userId: user.id })
       .getMany();
   }
 
