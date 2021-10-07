@@ -66,6 +66,16 @@ export class FilterUserPagesDto {
   order?: string = FilterUserOrderEnum.ASC;
 }
 
+export class LikesFilterDto {
+  @ApiProperty()
+  @IsNumber()
+  limit: number;
+
+  @ApiProperty()
+  @IsNumber()
+  pageNumber: number;
+}
+
 export class PromotionsFilterDto {
   @ApiProperty()
   @IsNumber()

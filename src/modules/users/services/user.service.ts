@@ -10,6 +10,7 @@ import {
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
+  LikesFilterDto,
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
@@ -124,6 +125,23 @@ export class UserService {
     const avatar = await this.fileService.uploadUserAvatar(user.id, imageBuffer, filename, 'users');
 
     return { imageUrl: avatar };
+  }
+
+  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto): Promise<Widget[]> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return await this.widgetsRepository
+      .createQueryBuilder('widgets')
+      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
+      .leftJoin('widgets.users', 'user')
+      .andWhere('user.id = :userId', { userId: user.id })
+      .limit(limit)
+      .offset((pageNumber - 1) * limit)
+      .getMany();
   }
 
   public async getUserAvatar(userId: string): Promise<UserAvatarResponse> {

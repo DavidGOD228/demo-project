@@ -4,6 +4,7 @@ import {
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
+  ApiOkResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
@@ -15,5 +16,13 @@ export function BaseApiCreatedResponses() {
     ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN }),
     ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST }),
     ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND }),
+  );
+}
+
+export function BaseApiUserOkResponses() {
+  return applyDecorators(
+    ApiOkResponse({ description: ReasonPhrases.OK }),
+    ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND }),
+    ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED }),
   );
 }

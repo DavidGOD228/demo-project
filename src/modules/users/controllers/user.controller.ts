@@ -29,6 +29,7 @@ import {
   AddUserFavoriteDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
+  LikesFilterDto,
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -41,6 +42,8 @@ import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
+import { BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
+import { Widget } from 'src/modules/widgets/entities/widget.entity';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -50,9 +53,7 @@ export class UserController {
   constructor(private readonly usersService: UserService) {}
 
   @ApiBearerAuth()
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
-  @ApiOkResponse({ description: ReasonPhrases.OK })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @BaseApiUserOkResponses()
   @Patch('profile')
   async updateProfile(@Body() body: UpdateProfileDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -63,9 +64,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: ReasonPhrases.OK })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @BaseApiUserOkResponses()
   @Patch('interests')
   async updateUserInterests(@Body() body: UpdateUserInterestsDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -76,9 +75,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: ReasonPhrases.OK })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @BaseApiUserOkResponses()
   @Patch('onboard')
   async changeUserOnBoardedStatus(
     @Body() body: ChangeUserOnBoardedStatusDto,
@@ -92,9 +89,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: ReasonPhrases.OK })
-  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @BaseApiUserOkResponses()
   @Patch('likes')
   async addUserFavorite(@Body() body: AddUserFavoriteDto, @Req() req: RequestWithUserParams): Promise<User> {
     try {
@@ -124,6 +119,16 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @BaseApiUserOkResponses()
+  @Get('likes')
+  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() likesFilter: LikesFilterDto): Promise<Widget[]> {
+    try {
+      return await this.usersService.getUserFavorites(req.user.id, likesFilter);
+    } catch (error) {
+      handleError(error, 'getUserFavorites');
+    }
+  }
+
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
@@ -137,6 +142,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @BaseApiUserOkResponses()
   @Get('promotions')
   async getUserPromotions(@Req() req: RequestWithUserParams, @Query() promotionsFilter: PromotionsFilterDto) {
     try {
