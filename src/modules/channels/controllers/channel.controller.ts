@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, UseGuards, UseInterceptors } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -14,6 +14,8 @@ import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ChannelService } from '../services/channel.service';
 import { handleError } from '../../../common/errorHandler';
 import { IGetChannel } from '../interfaces/interfaces';
+import { Channel } from '../entities/channel.entity';
+import { BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
 
 @UseGuards(JwtAuthGuard)
 @ApiTags('Channels')
@@ -34,6 +36,17 @@ export class ChannelController {
       return this.channelService.getChannels();
     } catch (error) {
       handleError(error, 'getChannels');
+    }
+  }
+
+  @ApiBearerAuth()
+  @BaseApiUserOkResponses()
+  @Get(':id')
+  async getChannelById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Promise<Channel> {
+    try {
+      return await this.channelService.getChannelById(id);
+    } catch (error) {
+      handleError(error, 'getChannelById');
     }
   }
 }
