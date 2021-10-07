@@ -1,5 +1,13 @@
-import { Body, Controller, Post, UseInterceptors } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiOkResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Post, Req, UseGuards, UseInterceptors } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { ReasonPhrases } from 'http-status-codes';
 import TwilioSmsService from 'src/modules/twilio/services/twilio.service';
 import { ConfirmPasswordResponse } from '../interfaces/interfaces';
@@ -7,7 +15,8 @@ import { ConfirmAdminDto, ConfirmUserDto, LoginDto } from '../interfaces/login.d
 import { AuthService } from '../services/auth.service';
 import { handleError } from '../../../common/errorHandler';
 import { SentryInterceptor } from '../../../common/interceptors';
-import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { RequestWithUserParams } from 'src/common/interfaces';
 
 @UseInterceptors(SentryInterceptor)
 @ApiTags('Auth')
@@ -15,8 +24,9 @@ import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator
 export class AuthController {
   constructor(private readonly authService: AuthService, private readonly twilioService: TwilioSmsService) {}
 
-  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
   @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/login')
   async login(@Body() body: LoginDto): Promise<void> {
     try {
@@ -26,8 +36,9 @@ export class AuthController {
     }
   }
 
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
   @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
-  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/confirmUser')
   async confirmUser(@Body() body: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
     try {
@@ -37,13 +48,29 @@ export class AuthController {
     }
   }
 
-  @BaseApiCreatedResponses()
+  @ApiCreatedResponse({ description: ReasonPhrases.CREATED })
+  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/loginAdmin')
   async confirmAdmin(@Body() body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
     try {
       return await this.twilioService.confirmAdmin(body);
     } catch (error) {
       handleError(error, 'confirmAdmin');
+    }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
+  @Get('/logout')
+  async logout(@Req() req: RequestWithUserParams): Promise<void> {
+    try {
+      return await this.authService.logout(req.user.id);
+    } catch (error) {
+      handleError(error, 'logout');
     }
   }
 }

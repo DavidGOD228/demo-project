@@ -44,6 +44,9 @@ export class User {
   @Column({ default: false })
   onboarded: boolean;
 
+  @Column({ nullable: true })
+  authToken: string;
+
   @Column({ default: false })
   exclusiveSubscription: boolean;
 

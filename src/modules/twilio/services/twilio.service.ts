@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFICATION_SERVICE_SID } from 'src/common/constants/constants';
+import { handleError } from 'src/common/errorHandler';
 import { ConfirmPasswordResponse } from 'src/modules/auth/interfaces/interfaces';
 import { ConfirmAdminDto, ConfirmUserDto } from 'src/modules/auth/interfaces/login.dto';
 import { User } from 'src/modules/users/entities/user.entity';
@@ -33,8 +34,11 @@ export default class TwilioSmsService {
       .verifications.create({ to: phoneNumber, channel: 'sms' });
   }
 
-  public async confirmPhoneNumber(body: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
-    const { phoneNumber, verificationCode, location } = body;
+  public async confirmPhoneNumber({
+    phoneNumber,
+    verificationCode,
+    location,
+  }: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
     const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
 
     try {
@@ -45,27 +49,35 @@ export default class TwilioSmsService {
       if (verifyCode.valid === false) {
         throw new BadRequestException('Verification code is incorrect!');
       }
-    } catch (error) {
-      throw new BadRequestException('Verification code is incorrect!');
-    }
 
-    const userExist = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+      const userPhoneNumber = verifyCode.to;
 
-    if (userExist) {
-      await this.usersRepository.update(userExist.id, { lastLoginAt: new Date() });
+      const userExist = await this.usersRepository.findOne({ where: { phoneNumber: userPhoneNumber } });
 
-      const token = this.jwtService.sign({ id: userExist.id });
+      if (userExist) {
+        const token = this.jwtService.sign({ id: userExist.id });
+
+        await this.usersRepository.update(userExist.id, { lastLoginAt: new Date(), authToken: token });
+
+        return { authToken: token, onBoarded: userExist.onboarded };
+      }
+
+      const user = this.usersRepository.create({
+        phoneNumber: userPhoneNumber,
+        lastLoginAt: new Date(),
+        location: location,
+      });
+
+      const token = this.jwtService.sign({ id: user.id });
+
+      user.authToken = token;
+
+      await this.usersRepository.save(user);
 
       return { authToken: token };
+    } catch (error) {
+      handleError(error, 'confirmPhoneNumber');
     }
-
-    const user = this.usersRepository.create({ phoneNumber: phoneNumber, lastLoginAt: new Date(), location: location });
-
-    await this.usersRepository.save(user);
-
-    const token = this.jwtService.sign({ id: user.id });
-
-    return { authToken: token };
   }
 
   public async confirmAdmin(body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
@@ -91,6 +103,8 @@ export default class TwilioSmsService {
     }
 
     const token = this.jwtService.sign({ id: user.id });
+
+    await this.usersRepository.update(user.id, { authToken: token });
 
     return { authToken: token };
   }
