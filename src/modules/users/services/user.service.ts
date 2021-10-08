@@ -45,6 +45,10 @@ export class UserService {
     private readonly emailService: EmailsService,
   ) {}
 
+  public isProfileFilled(user: User) {
+    return !!(user.firstName && user.lastName && user.email);
+  }
+
   public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
     const user = await this.usersRepository.findOne(userId);
 

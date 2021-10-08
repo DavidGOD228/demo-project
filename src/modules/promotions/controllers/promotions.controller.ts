@@ -1,4 +1,14 @@
-import { Body, Controller, Post, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Patch,
+  Post,
+  Req,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -19,6 +29,9 @@ import { ApiFile } from 'src/common/interceptors';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
+import { ConfirmPromotionsDto } from '../interfaces/ConfirmPromotions.dto';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
+import { RequestWithUserParams } from '../../../common/interfaces';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -39,6 +52,20 @@ export class PromotionsController {
       return await this.promotionsService.addPromotionImage(file);
     } catch (error) {
       handleError(error, 'addPromotionImage');
+    }
+  }
+
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Patch('confirm')
+  async confirmPromotions(
+    @Req() req: RequestWithUserParams,
+    @Body() body: ConfirmPromotionsDto,
+  ): Promise<UsersPromotion[]> {
+    try {
+      return this.promotionsService.confirmUserPromotions(req.user.id, body.promotionIds);
+    } catch (error) {
+      handleError(error, 'confirmPromotions');
     }
   }
 

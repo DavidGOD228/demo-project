@@ -14,6 +14,9 @@ import * as constants from '../../../common/constants/constants';
 import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { GetChannelByImage } from '../interfaces/interfaces';
+import { UserService } from '../../users/services/user.service';
+import { GetPromotionErrorEnum } from '../../promotions/interfaces/promotions.enum';
+import { PromotionsService } from '../../promotions/services/promotions.service';
 
 @Injectable()
 export class RecognitionService {
@@ -33,6 +36,10 @@ export class RecognitionService {
     private userRepository: Repository<User>,
 
     private readonly emailService: EmailsService,
+
+    private readonly userService: UserService,
+
+    private readonly promotionsService: PromotionsService,
   ) {}
 
   public readonly SIGNED_URL_EXPIRATION_TIME = 5;
@@ -194,8 +201,19 @@ export class RecognitionService {
       const passedChannel = this.passConfidence(labelsInfo, channels);
 
       if (passedChannel) {
+        if (!widget.promotion) {
+          throw new BadRequestException({
+            message: 'This widget has no promotion',
+            key: GetPromotionErrorEnum.NO_PROMOTIONS,
+          });
+        }
+
         this.notifyUserWithEmail(user, [widget], passedChannel);
-        await this.increaseScanTimes(widget, user, passedChannel);
+
+        await Promise.all([
+          this.increaseScanTimes(widget, user, passedChannel),
+          this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]),
+        ]);
 
         return { ...widget.promotion, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };
       } else {
@@ -210,6 +228,17 @@ export class RecognitionService {
       const passedChannel = this.passConfidence(labelsInfo, channels);
 
       if (passedChannel) {
+        const promotionIds = passedChannel.widgets
+          .map(widget => widget.promotion && widget.promotion.id)
+          .filter(id => !!id);
+
+        if (!promotionIds.length) {
+          throw new BadRequestException({
+            message: 'This widget has no promotion',
+            key: GetPromotionErrorEnum.NO_PROMOTIONS,
+          });
+        }
+
         this.notifyUserWithEmail(user, passedChannel.widgets, passedChannel);
 
         const promotionsPromises = passedChannel.widgets.map(async widget => {
@@ -221,7 +250,11 @@ export class RecognitionService {
           };
         });
 
-        return await Promise.all(promotionsPromises);
+        const promotions = await Promise.all(promotionsPromises);
+
+        await this.promotionsService.confirmUserPromotions(user.id, promotionIds);
+
+        return promotions;
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
       }

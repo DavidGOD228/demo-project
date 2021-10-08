@@ -14,6 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRoleEnum } from '../interfaces/user.enum';
+import { UsersPromotion } from './usersPromotions.entity';
 
 @Entity({ schema: 'usr', name: 'users' })
 export class User {
@@ -60,9 +61,8 @@ export class User {
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];
 
-  @ManyToMany(() => Promotion, promotion => promotion.users)
-  @JoinTable({ name: 'users_promotions' })
-  promotions: Promotion[];
+  @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.user)
+  usersPromotions: UsersPromotion[];
 
   @ManyToMany(() => Widget, widget => widget.users)
   @JoinTable({ name: 'favorites' })

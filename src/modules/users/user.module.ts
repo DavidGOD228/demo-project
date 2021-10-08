@@ -11,10 +11,12 @@ import { UserService } from './services/user.service';
 import { EmailsModule } from '../emails/emails.module';
 import { Promotion } from '../promotions/entities/promotion.entity';
 import { Channel } from '../channels/entities/channel.entity';
+import { UsersPromotion } from './entities/usersPromotions.entity';
 
 @Module({
   controllers: [UserController],
   providers: [UserService, FileService, ExportCsvService],
-  imports: [EmailsModule, TypeOrmModule.forFeature([User, Interest, Widget, Scan, Promotion, Channel])],
+  exports: [UserService],
+  imports: [EmailsModule, TypeOrmModule.forFeature([User, UsersPromotion, Interest, Widget, Scan, Promotion, Channel])],
 })
 export class UserModule {}
