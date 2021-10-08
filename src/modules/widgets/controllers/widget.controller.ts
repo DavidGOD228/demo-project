@@ -40,6 +40,7 @@ import {
   AddThumbnailResponse,
   FilteredWidgetsResponse,
   DeleteWidgetResponse,
+  AddAuthorAvatarResponse,
 } from '../interfaces';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import { WidgetService } from '../services/widget.service';
@@ -202,6 +203,22 @@ export class WidgetController {
       return await this.widgetsService.addStoryMedia(file);
     } catch (error) {
       handleError(error, 'addStoryMedia');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('authorAvatar')
+  async addAuthorAvatar(@UploadedFile() file: Express.Multer.File): Promise<AddAuthorAvatarResponse> {
+    try {
+      return await this.widgetsService.addAuthorAvatar(file);
+    } catch (error) {
+      handleError(error, 'addAuthorAvatar');
     }
   }
 

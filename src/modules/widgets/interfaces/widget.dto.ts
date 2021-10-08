@@ -16,9 +16,9 @@ export class CreateWidgetDto {
   @IsString()
   type: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  backgroundColor: string;
+  backgroundColor?: string;
 
   @ApiProperty()
   @IsString()
@@ -31,6 +31,14 @@ export class CreateWidgetDto {
   @ApiProperty({ default: false })
   @IsBoolean()
   canBeShared: boolean;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  canBeLiked: boolean;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  hasCountdown: boolean;
 
   @ApiProperty({ default: false })
   @IsBoolean()
@@ -72,45 +80,57 @@ export class CreateWidgetDto {
   @IsString()
   feedButtonColor: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  detailsButtonText: string;
+  detailsButtonText?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  detailsButtonColor: string;
+  detailsButtonColor?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  retailPrice: string;
+  authorName?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  discount: string;
+  authorAvatarUrl?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  discountedPrice: string;
+  storyDescription?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  promotionButtonText: string;
+  retailPrice?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  promotionButtonColor: string;
+  discount?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  promotionMediaUrl: string;
+  discountedPrice?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  promotionButtonText?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  promotionButtonColor?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  promotionMediaUrl?: string;
 
   @ApiProperty()
   @IsString()
   feedMediaUrl: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
-  detailsMediaUrl: string;
+  detailsMediaUrl?: string;
 
   @ApiProperty()
   @IsString()
@@ -196,6 +216,14 @@ export class EditWidgetDto {
   @IsBoolean()
   canBeShared?: boolean;
 
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  canBeLiked?: boolean;
+
+  @ApiProperty({ default: false })
+  @IsBoolean()
+  hasCountdown?: boolean;
+
   @ApiPropertyOptional({ default: false })
   @IsBoolean()
   hasExpiration?: boolean;
@@ -239,6 +267,18 @@ export class EditWidgetDto {
   @ApiPropertyOptional()
   @IsString()
   detailsButtonColor?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  authorName?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  authorAvatarUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsString()
+  storyDescription?: string;
 
   @ApiPropertyOptional()
   @IsString()

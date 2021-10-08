@@ -65,6 +65,12 @@ export class Widget {
   canBeShared: boolean;
 
   @Column({ default: false })
+  canBeLiked: boolean;
+
+  @Column({ default: false })
+  hasCountdown: boolean;
+
+  @Column({ default: false })
   hasExpiration: boolean;
 
   // feed info
@@ -95,6 +101,16 @@ export class Widget {
 
   @Column({ nullable: true })
   detailsMediaUrl: string;
+
+  // story author
+  @Column({ nullable: true })
+  authorName?: string;
+
+  @Column({ nullable: true })
+  authorAvatarUrl?: string;
+
+  @Column({ nullable: true })
+  storyDescription?: string;
 
   @Column()
   thumbnailUrl: string;

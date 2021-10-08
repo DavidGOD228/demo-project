@@ -35,6 +35,9 @@ export class User {
   @Column()
   location: string;
 
+  @Column({ nullable: true, type: 'date' })
+  birthdayDate?: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

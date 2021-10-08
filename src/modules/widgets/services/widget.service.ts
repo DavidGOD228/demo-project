@@ -9,6 +9,7 @@ import { In, Repository } from 'typeorm';
 import { Widget } from '../entities/widget.entity';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import {
+  AddAuthorAvatarResponse,
   AddDetailsMediaResponse,
   AddFeedMediaResponse,
   AddStoryMedia,
@@ -91,6 +92,12 @@ export class WidgetService {
     return { storyAssetUrl };
   }
 
+  public async addAuthorAvatar({ buffer, filename }: Express.Multer.File): Promise<AddAuthorAvatarResponse> {
+    const authorAvatarUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories');
+
+    return { authorAvatarUrl };
+  }
+
   public async createWidget({
     promotionButtonColor,
     promotionButtonText,
@@ -121,6 +128,11 @@ export class WidgetService {
     detailsMediaUrl,
     thumbnailUrl,
     storiesToAdd,
+    canBeLiked,
+    hasCountdown,
+    authorName,
+    authorAvatarUrl,
+    storyDescription,
   }: CreateWidgetDto): Promise<Widget> {
     if (type === WidgetTypeEnum.POST) {
       const promotion = this.promotionsRepository.create({
@@ -159,6 +171,8 @@ export class WidgetService {
         feedMediaUrl,
         detailsMediaUrl,
         thumbnailUrl,
+        canBeLiked,
+        hasCountdown,
       });
 
       if (tagIds) {
@@ -178,6 +192,8 @@ export class WidgetService {
         webViewUrl: websiteUrl,
         description,
         canBeShared,
+        canBeLiked,
+        hasCountdown,
         isExclusive,
         status,
         startDate,
@@ -189,6 +205,9 @@ export class WidgetService {
         feedButtonColor,
         feedMediaUrl,
         thumbnailUrl,
+        authorName,
+        authorAvatarUrl,
+        storyDescription,
       });
 
       const stories = storiesToAdd.map(story =>
