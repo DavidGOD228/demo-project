@@ -1,4 +1,15 @@
-import { Body, Controller, Post, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+  ValidationPipe,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -6,6 +17,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AssignWinnersDto } from '../interfaces/assignWinners.dto';
 import { PromotionsService } from '../services/promotions.service';
@@ -19,6 +31,7 @@ import { ApiFile } from 'src/common/interceptors';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
+import { ReasonPhrases } from 'http-status-codes';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -43,15 +56,29 @@ export class PromotionsController {
   }
 
   @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/winners')
   async assignWinners(@Body(new ValidationPipe()) body: AssignWinnersDto): Promise<Promotion> {
     try {
       return this.promotionsService.assignWinners(body);
     } catch (error) {
       console.log(error);
+    }
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @Get(':widgetId')
+  async getPromotionByWidgetId(
+    @Param('widgetId', new ParseUUIDPipe({ version: '4' })) widgetId: string,
+  ): Promise<Promotion> {
+    try {
+      return await this.promotionsService.getPromotionByWidgetId(widgetId);
+    } catch (error) {
+      handleError(error, 'getPromotionByWidgetId');
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { AssignWinnersDto } from '../interfaces/assignWinners.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Widget } from '../../widgets/entities/widget.entity';
@@ -9,6 +9,7 @@ import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { PromotionMediaResponse } from '../interfaces';
 import { FileService } from 'src/modules/aws/services/file.service';
+import { WidgetTypeEnum } from 'src/modules/widgets/interfaces/widget.enum';
 
 @Injectable()
 export class PromotionsService {
@@ -63,5 +64,21 @@ export class PromotionsService {
     promotion.winners = [...(promotion.winners || []), ...users];
 
     return this.promotionRepository.save(promotion);
+  }
+
+  public async getPromotionByWidgetId(widgetId: string): Promise<Promotion> {
+    const widget = await this.widgetRepository.findOne(widgetId, { relations: ['promotion'] });
+
+    if (widget.promotion === null) {
+      throw new NotFoundException('This widget does not have promotion!');
+    }
+
+    const promotion = await this.promotionRepository
+      .createQueryBuilder('promotion')
+      .leftJoin('promotion.widget', 'widget')
+      .where('widget.id = :widgetId', { widgetId: widget.id })
+      .getOne();
+
+    return promotion;
   }
 }
