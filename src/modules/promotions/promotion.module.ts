@@ -7,10 +7,13 @@ import { Promotion } from './entities/promotion.entity';
 import { PromotionsService } from './services/promotions.service';
 import { PromotionsController } from './controllers/promotions.controller';
 import { EmailsModule } from '../emails/emails.module';
+import { UserModule } from '../users/user.module';
+import { UsersPromotion } from '../users/entities/usersPromotions.entity';
 
 @Module({
-  imports: [EmailsModule, TypeOrmModule.forFeature([Promotion, Widget, User])],
+  imports: [EmailsModule, UserModule, TypeOrmModule.forFeature([Promotion, Widget, User, UsersPromotion])],
   providers: [PromotionsService, FileService],
   controllers: [PromotionsController],
+  exports: [PromotionsService],
 })
 export class PromotionModule {}
