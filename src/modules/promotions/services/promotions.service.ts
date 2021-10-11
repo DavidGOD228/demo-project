@@ -88,7 +88,7 @@ export class PromotionsService {
     const submissions = await submissionsQuery.getRawMany<FeedSubmission>();
 
     // making pagination with js array method because typeorm query builder methods
-    // offset+limit/skip+take doesn't work properly with joins and getRawMany
+    // offset+limit/skip+take don't work with joins and getRawMany properly
     return submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
   }
 
