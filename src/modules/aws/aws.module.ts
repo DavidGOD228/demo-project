@@ -8,9 +8,11 @@ import { Widget } from '../widgets/entities/widget.entity';
 import { Scan } from '../scans/entities/scan.entity';
 import { User } from '../users/entities/user.entity';
 import { EmailsModule } from '../emails/emails.module';
+import { UserModule } from '../users/user.module';
+import { PromotionModule } from '../promotions/promotion.module';
 
 @Module({
-  imports: [EmailsModule, TypeOrmModule.forFeature([Channel, Widget, Scan, User])],
+  imports: [EmailsModule, UserModule, PromotionModule, TypeOrmModule.forFeature([Channel, Widget, Scan, User])],
   providers: [RecognitionService, ConfigService],
   controllers: [RecognitionController],
   exports: [RecognitionService],

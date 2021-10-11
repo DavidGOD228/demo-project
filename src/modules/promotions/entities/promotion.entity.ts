@@ -1,6 +1,16 @@
-import { Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 
 @Entity({ schema: 'wdgt', name: 'promotions' })
 export class Promotion {
@@ -20,8 +30,8 @@ export class Promotion {
   @Column()
   buttonColor: string;
 
-  @ManyToMany(() => User, user => user.promotions, { onDelete: 'CASCADE' })
-  users: User[];
+  @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.promotion, { onDelete: 'CASCADE' })
+  userPromotions: UsersPromotion[];
 
   @ManyToMany(() => User, user => user.wonPromotions)
   @JoinTable({ name: 'winners' })

@@ -20,10 +20,12 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const { id } = payload;
     const user = await this.usersRepository.findOne({ where: { id } });
 
-    if (!user) {
-      throw new UnauthorizedException();
+    if (user) {
+      const { id, authToken, role } = user;
+
+      return { id, authToken, role };
     }
 
-    return user;
+    return null;
   }
 }

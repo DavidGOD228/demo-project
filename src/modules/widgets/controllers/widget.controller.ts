@@ -40,6 +40,7 @@ import {
   AddThumbnailResponse,
   FilteredWidgetsResponse,
   DeleteWidgetResponse,
+  AddAuthorAvatarResponse,
 } from '../interfaces';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import { WidgetService } from '../services/widget.service';
@@ -49,6 +50,7 @@ import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -71,6 +73,19 @@ export class WidgetController {
       return await this.widgetsService.getFilteredWidgets(filterWidgets);
     } catch (error) {
       handleError(error, 'getFilteredWidgets');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Get('select')
+  async filterWidgetByTitle(@Query(new ValidationPipe()) params: FilterWidgetByTitleDto) {
+    try {
+      return this.widgetsService.filterWidgetByTitle(params);
+    } catch (error) {
+      handleError(error, 'filterWidgetByTitle');
     }
   }
 
@@ -202,6 +217,22 @@ export class WidgetController {
       return await this.widgetsService.addStoryMedia(file);
     } catch (error) {
       handleError(error, 'addStoryMedia');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('authorAvatar')
+  async addAuthorAvatar(@UploadedFile() file: Express.Multer.File): Promise<AddAuthorAvatarResponse> {
+    try {
+      return await this.widgetsService.addAuthorAvatar(file);
+    } catch (error) {
+      handleError(error, 'addAuthorAvatar');
     }
   }
 
