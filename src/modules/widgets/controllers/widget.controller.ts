@@ -50,6 +50,7 @@ import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -72,6 +73,19 @@ export class WidgetController {
       return await this.widgetsService.getFilteredWidgets(filterWidgets);
     } catch (error) {
       handleError(error, 'getFilteredWidgets');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Get('select')
+  async filterWidgetByTitle(@Query(new ValidationPipe()) params: FilterWidgetByTitleDto) {
+    try {
+      return this.widgetsService.filterWidgetByTitle(params);
+    } catch (error) {
+      handleError(error, 'filterWidgetByTitle');
     }
   }
 

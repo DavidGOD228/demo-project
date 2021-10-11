@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { FindManyOptions, In, Like, Not, Repository } from 'typeorm';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
-import { In, Repository } from 'typeorm';
 import { Widget } from '../entities/widget.entity';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import {
@@ -23,6 +23,7 @@ import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from '../entities/storyBlock.entity';
+import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 
 @Injectable()
 export class WidgetService {
@@ -328,6 +329,20 @@ export class WidgetService {
     const csv = await this.csvService.exportCsv(widgets, 'Widgets');
 
     return csv;
+  }
+
+  public async filterWidgetByTitle({ filterValue }: FilterWidgetByTitleDto): Promise<Widget[]> {
+    const query: FindManyOptions<Widget> = {
+      select: ['id', 'title', 'type'],
+    };
+
+    if (filterValue.trim().length) {
+      query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: Like(`${filterValue}%`) };
+    } else {
+      query.where = { type: Not(WidgetTypeEnum.CAROUSEL) };
+    }
+
+    return this.widgetsRepository.find(query);
   }
 
   public async generateWidgetFeed(
