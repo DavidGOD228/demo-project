@@ -15,7 +15,7 @@ import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Scan } from 'src/modules/scans/entities/scan.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { User } from 'src/modules/users/entities/user.entity';
-import { WidgetTypeEnum } from '../interfaces/widget.enum';
+import { WidgetStatusEnum, WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from './storyBlock.entity';
 
 @Entity({ schema: 'wdgt', name: 'widgets' })
@@ -46,7 +46,7 @@ export class Widget {
   @Column({ default: false })
   isExclusive: boolean;
 
-  @Column()
+  @Column({ name: 'status', enum: WidgetStatusEnum })
   status: string;
 
   @Column()
@@ -63,6 +63,12 @@ export class Widget {
 
   @Column({ default: false })
   canBeShared: boolean;
+
+  @Column({ default: false })
+  canBeLiked: boolean;
+
+  @Column({ default: false })
+  hasCountdown: boolean;
 
   @Column({ default: false })
   hasExpiration: boolean;
@@ -95,6 +101,15 @@ export class Widget {
 
   @Column({ nullable: true })
   detailsMediaUrl: string;
+
+  @Column({ nullable: true })
+  storyAuthorName?: string;
+
+  @Column({ nullable: true })
+  storyAuthorAvatarUrl?: string;
+
+  @Column({ nullable: true })
+  storyDescription?: string;
 
   @Column()
   thumbnailUrl: string;
