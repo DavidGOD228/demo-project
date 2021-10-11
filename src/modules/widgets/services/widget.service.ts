@@ -130,8 +130,8 @@ export class WidgetService {
     storiesToAdd,
     canBeLiked,
     hasCountdown,
-    authorName,
-    authorAvatarUrl,
+    storyAuthorName,
+    storyAuthorAvatarUrl,
     storyDescription,
   }: CreateWidgetDto): Promise<Widget> {
     if (type === WidgetTypeEnum.POST) {
@@ -205,8 +205,8 @@ export class WidgetService {
         feedButtonColor,
         feedMediaUrl,
         thumbnailUrl,
-        authorName,
-        authorAvatarUrl,
+        storyAuthorName,
+        storyAuthorAvatarUrl,
         storyDescription,
       });
 

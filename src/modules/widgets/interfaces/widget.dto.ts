@@ -90,11 +90,11 @@ export class CreateWidgetDto {
 
   @ApiPropertyOptional()
   @IsString()
-  authorName?: string;
+  storyAuthorName?: string;
 
   @ApiPropertyOptional()
   @IsString()
-  authorAvatarUrl?: string;
+  storyAuthorAvatarUrl?: string;
 
   @ApiPropertyOptional()
   @IsString()
@@ -270,11 +270,11 @@ export class EditWidgetDto {
 
   @ApiPropertyOptional()
   @IsString()
-  authorName?: string;
+  storyAuthorName?: string;
 
   @ApiPropertyOptional()
   @IsString()
-  authorAvatarUrl?: string;
+  storyAuthorAvatarUrl?: string;
 
   @ApiPropertyOptional()
   @IsString()

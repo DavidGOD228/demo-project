@@ -102,12 +102,11 @@ export class Widget {
   @Column({ nullable: true })
   detailsMediaUrl: string;
 
-  // story author
   @Column({ nullable: true })
-  authorName?: string;
+  storyAuthorName?: string;
 
   @Column({ nullable: true })
-  authorAvatarUrl?: string;
+  storyAuthorAvatarUrl?: string;
 
   @Column({ nullable: true })
   storyDescription?: string;

@@ -20,7 +20,7 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional()
   @IsOptional()
-  birthdayDate?: Date;
+  birthDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()

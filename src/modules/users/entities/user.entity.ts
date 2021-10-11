@@ -36,7 +36,7 @@ export class User {
   location: string;
 
   @Column({ nullable: true, type: 'date' })
-  birthdayDate?: Date;
+  birthDate?: Date;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
