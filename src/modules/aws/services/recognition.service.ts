@@ -18,6 +18,11 @@ import { UserService } from '../../users/services/user.service';
 import { GetPromotionErrorEnum } from '../../promotions/interfaces/promotions.enum';
 import { PromotionsService } from '../../promotions/services/promotions.service';
 
+const NO_PROMOTION_ERROR = {
+  message: 'This widget has no promotion',
+  key: GetPromotionErrorEnum.NO_PROMOTIONS,
+};
+
 @Injectable()
 export class RecognitionService {
   constructor(
@@ -202,10 +207,7 @@ export class RecognitionService {
 
       if (passedChannel) {
         if (!widget.promotion) {
-          throw new BadRequestException({
-            message: 'This widget has no promotion',
-            key: GetPromotionErrorEnum.NO_PROMOTIONS,
-          });
+          throw new BadRequestException(NO_PROMOTION_ERROR);
         }
 
         this.notifyUserWithEmail(user, [widget], passedChannel);
@@ -233,10 +235,7 @@ export class RecognitionService {
           .filter(id => !!id);
 
         if (!promotionIds.length) {
-          throw new BadRequestException({
-            message: 'This widget has no promotion',
-            key: GetPromotionErrorEnum.NO_PROMOTIONS,
-          });
+          throw new BadRequestException(NO_PROMOTION_ERROR);
         }
 
         this.notifyUserWithEmail(user, passedChannel.widgets, passedChannel);

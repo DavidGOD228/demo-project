@@ -45,7 +45,7 @@ export class UserService {
     private readonly emailService: EmailsService,
   ) {}
 
-  public isProfileFilled(user: User) {
+  public isProfileFilledOut(user: User) {
     return !!(user.firstName && user.lastName && user.email);
   }
 

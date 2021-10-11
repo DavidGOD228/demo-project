@@ -7,11 +7,11 @@ export class UsersPromotion {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => User, user => user.usersPromotions)
+  @ManyToOne(() => User, user => user.userPromotions)
   @JoinColumn({ name: 'users_id' })
   user: User;
 
-  @ManyToOne(() => Promotion, promotion => promotion.usersPromotions)
+  @ManyToOne(() => Promotion, promotion => promotion.userPromotions)
   @JoinColumn({ name: 'promotions_id' })
   promotion: Promotion;
 

@@ -31,7 +31,7 @@ export class Promotion {
   buttonColor: string;
 
   @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.promotion, { onDelete: 'CASCADE' })
-  usersPromotions: UsersPromotion[];
+  userPromotions: UsersPromotion[];
 
   @ManyToMany(() => User, user => user.wonPromotions)
   @JoinTable({ name: 'winners' })

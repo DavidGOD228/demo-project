@@ -62,7 +62,7 @@ export class User {
   interests: Interest[];
 
   @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.user)
-  usersPromotions: UsersPromotion[];
+  userPromotions: UsersPromotion[];
 
   @ManyToMany(() => Widget, widget => widget.users)
   @JoinTable({ name: 'favorites' })

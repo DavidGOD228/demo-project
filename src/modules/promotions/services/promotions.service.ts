@@ -44,12 +44,12 @@ export class PromotionsService {
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
-    const isProfileFilled = this.userService.isProfileFilled(user);
+    const isProfileFilled = this.userService.isProfileFilledOut(user);
 
     if (!isProfileFilled) {
       throw new BadRequestException({
-        message: 'User profile is not filled up',
-        key: GetPromotionErrorEnum.NOT_FILLED_USERDATA,
+        message: 'User profile is not filled out',
+        key: GetPromotionErrorEnum.UNFILLED_USER_DATA,
       });
     }
 
