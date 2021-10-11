@@ -70,7 +70,7 @@ export class PromotionsService {
     const widget = await this.widgetRepository.findOne(widgetId, { relations: ['promotion'] });
 
     if (widget.promotion === null) {
-      throw new NotFoundException('This widget does not have promotion!');
+      throw new NotFoundException('This widget does not have a promotion!');
     }
 
     const promotion = await this.promotionRepository
