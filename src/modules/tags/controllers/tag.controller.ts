@@ -19,7 +19,7 @@ import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
 import { Tag } from '../entities/tag.entity';
 import { DeleteTagResponse } from '../interfaces';
-import { CreateTagDto, DeleteTagFromWidget, FilterTagsNameDto } from '../interfaces/tag.dto';
+import { CreateTagDto, DeleteTagFromWidget, TagNameFilterDto } from '../interfaces/tag.dto';
 import { TagsService } from '../services/tag.service';
 
 @ApiTags('Tags')
@@ -46,7 +46,7 @@ export class TagsController {
   @ApiBearerAuth()
   @BaseApiCreatedResponses()
   @Get('filteredTags')
-  async getFilteredTags(@Query(new ValidationPipe()) values: FilterTagsNameDto): Promise<Tag[]> {
+  async getFilteredTags(@Query(new ValidationPipe()) values: TagNameFilterDto): Promise<Tag[]> {
     try {
       return await this.tagsService.getFilteredTags(values);
     } catch (error) {
