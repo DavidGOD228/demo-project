@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
-import { FilterWidgetOrderEnum, StoryBlockTypeEnum } from './widget.enum';
+import { FilterWidgetOrderEnum, StoryBlockTypeEnum, WidgetStatusEnum } from './widget.enum';
 
 export class CreateWidgetDto {
   @ApiProperty()
@@ -47,8 +47,7 @@ export class CreateWidgetDto {
   @ApiPropertyOptional()
   tagIds?: string[];
 
-  @ApiProperty()
-  @IsString()
+  @ApiProperty({ enum: WidgetStatusEnum })
   status: string;
 
   @ApiProperty()
@@ -227,6 +226,9 @@ export class EditWidgetDto {
   @ApiPropertyOptional({ default: false })
   @IsBoolean()
   hasExpiration?: boolean;
+
+  @ApiPropertyOptional({ enum: WidgetStatusEnum })
+  status?: string;
 
   @ApiPropertyOptional()
   tagIds?: string[];
