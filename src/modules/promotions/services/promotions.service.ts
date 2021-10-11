@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { AssignWinnersDto } from '../interfaces/assignWinners.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Widget } from '../../widgets/entities/widget.entity';
@@ -10,6 +10,9 @@ import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum'
 import { FeedSubmission, PromotionMediaResponse, SubmissionsFilterTypeEnum } from '../interfaces';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
+import { GetPromotionErrorEnum } from '../interfaces/promotions.enum';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
+import { UserService } from '../../users/services/user.service';
 
 @Injectable()
 export class PromotionsService {
@@ -23,9 +26,14 @@ export class PromotionsService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
 
+    @InjectRepository(UsersPromotion)
+    private readonly usersPromotionRepository: Repository<UsersPromotion>,
+
     private readonly emailsService: EmailsService,
 
     private readonly fileService: FileService,
+
+    private readonly userService: UserService,
   ) {}
 
   public addFilterQuery(
@@ -90,6 +98,45 @@ export class PromotionsService {
     // making pagination with js array method because typeorm query builder methods
     // offset+limit/skip+take don't work with joins and getRawMany properly
     return submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+
+  public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    const isProfileFilled = this.userService.isProfileFilledOut(user);
+
+    if (!isProfileFilled) {
+      throw new BadRequestException({
+        message: 'User profile is not filled out',
+        key: GetPromotionErrorEnum.UNFILLED_USER_DATA,
+      });
+    }
+
+    const promotions = await this.promotionRepository.findByIds(promotionIds);
+
+    const userPromotions = promotions.map(async promotion => {
+      const userPromotion = await this.usersPromotionRepository.findOne({
+        where: {
+          promotion,
+          user,
+        },
+      });
+
+      if (userPromotion) {
+        userPromotion.isConfirmed = isProfileFilled;
+
+        return this.usersPromotionRepository.save(userPromotion);
+      } else {
+        const newUserPromotion = this.usersPromotionRepository.create({
+          user,
+          promotion,
+          isConfirmed: isProfileFilled,
+        });
+
+        return this.usersPromotionRepository.save(newUserPromotion);
+      }
+    });
+
+    return Promise.all(userPromotions);
   }
 
   public async assignWinners({ widgetId, winners }: AssignWinnersDto): Promise<Promotion> {

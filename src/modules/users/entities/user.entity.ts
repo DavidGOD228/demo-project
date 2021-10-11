@@ -14,6 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRoleEnum } from '../interfaces/user.enum';
+import { UsersPromotion } from './usersPromotions.entity';
 
 @Entity({ schema: 'usr', name: 'users' })
 export class User {
@@ -35,6 +36,9 @@ export class User {
   @Column()
   location: string;
 
+  @Column({ nullable: true, type: 'date' })
+  birthDate?: Date;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 
@@ -43,6 +47,9 @@ export class User {
 
   @Column({ default: false })
   onboarded: boolean;
+
+  @Column({ nullable: true })
+  authToken: string;
 
   @Column({ default: false })
   exclusiveSubscription: boolean;
@@ -60,9 +67,8 @@ export class User {
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];
 
-  @ManyToMany(() => Promotion, promotion => promotion.users)
-  @JoinTable({ name: 'users_promotions' })
-  promotions: Promotion[];
+  @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.user)
+  userPromotions: UsersPromotion[];
 
   @ManyToMany(() => Widget, widget => widget.users)
   @JoinTable({ name: 'favorites' })

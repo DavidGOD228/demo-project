@@ -1,24 +1,28 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
 import { FilterUserOrderEnum } from './user.enum';
 
 export class UpdateProfileDto {
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   firstName?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsString()
   @IsOptional()
   lastName?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
   @IsEmail()
   @IsOptional()
   email?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
+  birthDate?: Date;
+
+  @ApiPropertyOptional()
   @IsOptional()
   @IsBoolean()
   exclusiveSubscription?: boolean;
@@ -64,6 +68,16 @@ export class FilterUserPagesDto {
   @IsString()
   @IsOptional()
   order?: string = FilterUserOrderEnum.ASC;
+}
+
+export class LikesFilterDto {
+  @ApiProperty()
+  @IsNumber()
+  limit: number;
+
+  @ApiProperty()
+  @IsNumber()
+  pageNumber: number;
 }
 
 export class PromotionsFilterDto {

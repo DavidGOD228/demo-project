@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
-  Post,
   Query,
+  Patch,
+  Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -30,6 +32,9 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { FeedSubmission, PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
+import { ConfirmPromotionsDto } from '../interfaces/ConfirmPromotions.dto';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
+import { RequestWithUserParams } from '../../../common/interfaces';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -65,6 +70,20 @@ export class PromotionsController {
       return await this.promotionsService.getSubmissions(params);
     } catch (error) {
       handleError(error, 'getFeedSubmissions');
+    }
+  }
+
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Patch('confirm')
+  async confirmPromotions(
+    @Req() req: RequestWithUserParams,
+    @Body() body: ConfirmPromotionsDto,
+  ): Promise<UsersPromotion[]> {
+    try {
+      return this.promotionsService.confirmUserPromotions(req.user.id, body.promotionIds);
+    } catch (error) {
+      handleError(error, 'confirmPromotions');
     }
   }
 

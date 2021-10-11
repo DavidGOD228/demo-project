@@ -27,3 +27,7 @@ export interface AddStoryMedia {
 export interface DeleteWidgetResponse {
   message: string;
 }
+
+export interface AddAuthorAvatarResponse {
+  authorAvatarUrl: string;
+}

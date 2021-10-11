@@ -1,15 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
-import { UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
   UpdateUserInterestsDto,
   UpdateProfileDto,
   AddUserFavoriteDto,
+  LikesFilterDto,
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
@@ -19,6 +20,8 @@ import { ExportCsvService } from 'src/modules/config/services/csvExport.service'
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { EmailsService } from '../../emails/services/emails.service';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
+import { Channel } from 'src/modules/channels/entities/channel.entity';
+import { UserRoleEnum } from '../interfaces/user.enum';
 
 @Injectable()
 export class UserService {
@@ -35,10 +38,17 @@ export class UserService {
     @InjectRepository(Promotion)
     private readonly promotionsRepository: Repository<Promotion>,
 
+    @InjectRepository(Channel)
+    private readonly channelsRepository: Repository<Channel>,
+
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
     private readonly emailService: EmailsService,
   ) {}
+
+  public isProfileFilledOut(user: User) {
+    return !!(user.firstName && user.lastName && user.email);
+  }
 
   public async updateProfile(body: UpdateProfileDto, userId: string): Promise<User> {
     const user = await this.usersRepository.findOne(userId);
@@ -126,7 +136,40 @@ export class UserService {
     return { imageUrl: avatar };
   }
 
-  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto) {
+  public async getUserFavorites(userId: string, { limit, pageNumber }: LikesFilterDto): Promise<Widget[]> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return await this.widgetsRepository
+      .createQueryBuilder('widgets')
+      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
+      .leftJoin('widgets.users', 'user')
+      .andWhere('user.id = :userId', { userId: user.id })
+      .limit(limit)
+      .offset((pageNumber - 1) * limit)
+      .getMany();
+  }
+
+  public async getUserAvatar(userId: string): Promise<UserAvatarResponse> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    if (user?.imageUrl) {
+      const userAvatar = this.fileService.getImageUrl(user?.imageUrl);
+
+      return { userAvatar };
+    } else {
+      throw new NotFoundException('This user does not have avatar!');
+    }
+  }
+
+  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto): Promise<Promotion[]> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
@@ -142,6 +185,22 @@ export class UserService {
       .addSelect(['widget.title'])
       .limit(limit)
       .offset((pageNumber - 1) * limit)
+      .getMany();
+  }
+
+  public async getUserScans(userId: string): Promise<Channel[]> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return await this.channelsRepository
+      .createQueryBuilder('channels')
+      .select(['channels.id', 'channels.league'])
+      .leftJoin('channels.scans', 'scans')
+      .addSelect(['scans.number'])
+      .andWhere('scans.object_id = :userId', { userId: user.id })
       .getMany();
   }
 
@@ -172,5 +231,19 @@ export class UserService {
     const csv = await this.csvService.exportCsv(users, 'Users');
 
     return csv;
+  }
+
+  public async getUserById(userId: string, reqUserId: string): Promise<User> {
+    const user = await this.usersRepository.findOne(userId);
+
+    if (!user) {
+      throw new NotFoundException('There is no such user!');
+    }
+
+    if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
+      return user;
+    } else {
+      throw new ForbiddenException();
+    }
   }
 }

@@ -23,6 +23,9 @@ export class Channel {
   @Column({ name: 'league', enum: ChannelLeagueEnum })
   league: string;
 
+  @Column()
+  description: string;
+
   @Column({ enum: LeagueLabelEnum })
   leagueLabel: string;
 
