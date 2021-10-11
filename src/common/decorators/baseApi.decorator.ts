@@ -26,3 +26,13 @@ export function BaseApiUserOkResponses() {
     ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED }),
   );
 }
+
+export function BaseApiAdminOkResponses() {
+  return applyDecorators(
+    ApiOkResponse({ description: ReasonPhrases.OK }),
+    ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN }),
+    ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND }),
+    ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED }),
+    ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST }),
+  );
+}
