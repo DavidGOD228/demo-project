@@ -98,6 +98,7 @@ export class PromotionsService {
     // making pagination with js array method because typeorm query builder methods
     // offset+limit/skip+take don't work with joins and getRawMany properly
     return submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+  }
 
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
