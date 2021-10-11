@@ -2,10 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  Param,
+  ParseUUIDPipe,
   Query,
   Patch,
   Post,
-  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -18,6 +19,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AssignWinnersDto } from '../interfaces/assignWinners.dto';
 import { PromotionsService } from '../services/promotions.service';
@@ -31,6 +33,7 @@ import { ApiFile } from 'src/common/interceptors';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FeedSubmission, PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
+import { ReasonPhrases } from 'http-status-codes';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
 import { ConfirmPromotionsDto } from '../interfaces/ConfirmPromotions.dto';
 import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
@@ -74,29 +77,29 @@ export class PromotionsController {
   }
 
   @ApiBearerAuth()
-  @BaseApiCreatedResponses()
-  @Patch('confirm')
-  async confirmPromotions(
-    @Req() req: RequestWithUserParams,
-    @Body() body: ConfirmPromotionsDto,
-  ): Promise<UsersPromotion[]> {
-    try {
-      return this.promotionsService.confirmUserPromotions(req.user.id, body.promotionIds);
-    } catch (error) {
-      handleError(error, 'confirmPromotions');
-    }
-  }
-
-  @ApiBearerAuth()
-  @ApiOkResponse({ description: 'OK' })
-  @ApiBadRequestResponse({ description: 'Bad Request' })
-  @ApiNotFoundResponse({ description: 'Not found' })
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/winners')
   async assignWinners(@Body(new ValidationPipe()) body: AssignWinnersDto): Promise<Promotion> {
     try {
       return this.promotionsService.assignWinners(body);
     } catch (error) {
       handleError(error, 'assignWinners');
+    }
+  }
+
+  @ApiBearerAuth()
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @Get(':widgetId')
+  async getPromotionByWidgetId(
+    @Param('widgetId', new ParseUUIDPipe({ version: '4' })) widgetId: string,
+  ): Promise<Promotion> {
+    try {
+      return await this.promotionsService.getPromotionByWidgetId(widgetId);
+    } catch (error) {
+      handleError(error, 'getPromotionByWidgetId');
     }
   }
 }

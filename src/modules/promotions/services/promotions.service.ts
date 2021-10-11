@@ -170,4 +170,20 @@ export class PromotionsService {
 
     return this.promotionRepository.save(promotion);
   }
+
+  public async getPromotionByWidgetId(widgetId: string): Promise<Promotion> {
+    const widget = await this.widgetRepository.findOne(widgetId, { relations: ['promotion'] });
+
+    if (widget.promotion === null) {
+      throw new NotFoundException('This widget does not have a promotion!');
+    }
+
+    const promotion = await this.promotionRepository
+      .createQueryBuilder('promotion')
+      .leftJoin('promotion.widget', 'widget')
+      .where('widget.id = :widgetId', { widgetId: widget.id })
+      .getOne();
+
+    return promotion;
+  }
 }
