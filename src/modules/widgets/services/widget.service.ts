@@ -332,10 +332,7 @@ export class WidgetService {
   ): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
-    const widgetList = this.widgetsRepository
-      .createQueryBuilder('widget')
-      .where('widget.parent_id IS NULL')
-      .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() });
+    const widgetList = this.widgetsRepository.createQueryBuilder('widget');
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
       widgetList.andWhere('widget.isExclusive = FALSE');
@@ -374,6 +371,8 @@ export class WidgetService {
     }
 
     widgetList
+      .where('widget.parent_id IS NULL')
+      .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() })
       .orderBy('widget.expiresAt')
       .addOrderBy('widget.updatedAt', 'DESC')
       .leftJoinAndSelect('widget.stories', 'stories')
