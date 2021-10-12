@@ -1,0 +1,23 @@
+name: Deploy over SSH
+
+on: 
+  push:
+    branches:
+      - develop
+    
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via OPEN SSH Private Key
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: 'cd /var/www/app && git pull && npm install && chown -R www-data:www-data /var/www/app && pkill npm && npm run start:dev &'
+          host: ${{ secrets.DEV_BE_HOST }}
+          username: ${{ secrets.USER }}
+          privateKey: ${{ secrets.PRIVATE_KEY }}
+        env:
+          CI: true
+
+  
