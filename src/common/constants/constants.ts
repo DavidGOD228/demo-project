@@ -1,6 +1,8 @@
 export const phoneNumberRegex = /^\+?[1-9]\d{1,14}$/;
 export const MIN_TAG_NAME_LENGTH = 3;
 
+export const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20mb
+
 // ENVIRONMENT VARIABLES KEYS
 export const WILSON_BE_PORT = 'WILSON_BE_PORT';
 export const WILSON_BE_LOGGING = 'WILSON_BE_LOGGING';

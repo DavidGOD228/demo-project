@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsNumber } from 'class-validator';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsNumber, Length } from 'class-validator';
 import { FilterUserOrderEnum } from './user.enum';
+
+const MIN_EMAIL_LENGTH = 3;
+const MAX_EMAIL_LENGTH = 254;
 
 export class UpdateProfileDto {
   @ApiPropertyOptional()
@@ -15,6 +18,7 @@ export class UpdateProfileDto {
 
   @ApiPropertyOptional()
   @IsEmail()
+  @Length(MIN_EMAIL_LENGTH, MAX_EMAIL_LENGTH)
   @IsOptional()
   email?: string;
 
