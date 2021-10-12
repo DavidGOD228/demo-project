@@ -11,6 +11,7 @@
     "build": "nest build",
     "format": "prettier --write \"src//*.ts\" \"test//*.ts\"",
     "start": "cross-env NODE_ENV=development nest start",
+    "develop": "cross-env NODE_ENV=development nest start --watch",
     "start:dev": "npm run build && cross-env NODE_ENV=development node dist/src/main",
     "start:prod": "npm run build && cross-env NODE_ENV=production node dist/src/main",
     "start:debug": "nest start --debug --watch",
