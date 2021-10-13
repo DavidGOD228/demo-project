@@ -5,7 +5,6 @@ import {
   Param,
   ParseUUIDPipe,
   Query,
-  Patch,
   Post,
   UploadedFile,
   UseGuards,
@@ -35,9 +34,6 @@ import { FeedSubmission, PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
 import { ReasonPhrases } from 'http-status-codes';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
-import { ConfirmPromotionsDto } from '../interfaces/ConfirmPromotions.dto';
-import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
-import { RequestWithUserParams } from '../../../common/interfaces';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -92,6 +88,7 @@ export class PromotionsController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Get(':widgetId')
   async getPromotionByWidgetId(
     @Param('widgetId', new ParseUUIDPipe({ version: '4' })) widgetId: string,

@@ -98,6 +98,7 @@ export class PromotionsService {
     // making pagination with js array method because typeorm query builder methods
     // offset+limit/skip+take don't work with joins and getRawMany properly
     return submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+  }
 
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
@@ -174,7 +175,11 @@ export class PromotionsService {
   public async getPromotionByWidgetId(widgetId: string): Promise<Promotion> {
     const widget = await this.widgetRepository.findOne(widgetId, { relations: ['promotion'] });
 
-    if (widget.promotion === null) {
+    if (!widget) {
+      throw new NotFoundException('Widget with such id does not exist!');
+    }
+
+    if (!widget.promotion) {
       throw new NotFoundException('This widget does not have a promotion!');
     }
 
