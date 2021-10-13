@@ -1,6 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsArray, IsBoolean, IsInt, IsOptional, IsString, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsInt,
+  IsMilitaryTime,
+  IsOptional,
+  IsString,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 import { FilterWidgetOrderEnum, StoryBlockTypeEnum, WidgetStatusEnum } from './widget.enum';
 
 export class CreateWidgetDto {
@@ -17,6 +27,7 @@ export class CreateWidgetDto {
   type: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   backgroundColor?: string;
 
@@ -45,30 +56,37 @@ export class CreateWidgetDto {
   hasExpiration: boolean;
 
   @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
   tagIds?: string[];
 
   @ApiProperty({ enum: WidgetStatusEnum })
   status: string;
 
   @ApiProperty()
-  @IsString()
+  @IsDate()
+  @Type(() => Date)
   startDate: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsDate()
+  @Type(() => Date)
   expirationDate?: string;
 
   @ApiProperty()
-  @IsString()
+  @IsMilitaryTime()
   startTime: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsMilitaryTime()
   expirationTime?: string;
 
   @ApiProperty()
+  @IsArray()
+  @IsString({ each: true })
   channelIds: string[];
 
   @ApiProperty()
@@ -80,46 +98,57 @@ export class CreateWidgetDto {
   feedButtonColor: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsButtonText?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsButtonColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyAuthorName?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyAuthorAvatarUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyDescription?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   retailPrice?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   discount?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   discountedPrice?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionButtonText?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionButtonColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionMediaUrl?: string;
 
@@ -128,6 +157,7 @@ export class CreateWidgetDto {
   feedMediaUrl: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsMediaUrl?: string;
 
@@ -163,11 +193,13 @@ export class FilterWidgetsDto {
   @ApiProperty()
   @IsInt()
   @Type(() => Number)
+  @Min(1)
   limit: number;
 
   @ApiProperty()
   @IsInt()
   @Type(() => Number)
+  @Min(1)
   pageNumber: number;
 
   @ApiPropertyOptional({ default: 'title' })
@@ -181,6 +213,7 @@ export class FilterWidgetsDto {
   order?: string = FilterWidgetOrderEnum.ASC;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
   filteringType?: string[];
@@ -188,133 +221,166 @@ export class FilterWidgetsDto {
 
 export class EditWidgetDto {
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   title?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   description?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   type?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   backgroundColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   websiteUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsBoolean()
   isExclusive?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @IsOptional()
   @IsBoolean()
   canBeShared?: boolean;
 
   @ApiProperty({ default: false })
+  @IsOptional()
   @IsBoolean()
   canBeLiked?: boolean;
 
   @ApiProperty({ default: false })
+  @IsOptional()
   @IsBoolean()
   hasCountdown?: boolean;
 
   @ApiPropertyOptional({ default: false })
+  @IsOptional()
   @IsBoolean()
   hasExpiration?: boolean;
 
   @ApiPropertyOptional({ enum: WidgetStatusEnum })
+  @IsOptional()
   status?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   tagIds?: string[];
 
   @ApiPropertyOptional()
-  @IsString()
-  startDate?: string;
+  @IsOptional()
+  @IsDate()
+  @Type(() => Date)
+  startDate?: Date;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsDate()
+  @Type(() => Date)
   expirationDate?: string;
 
   @ApiPropertyOptional()
-  @IsString()
+  @IsOptional()
+  @IsMilitaryTime()
   startTime?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
-  @IsString()
+  @IsMilitaryTime()
   expirationTime?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   channelIds?: string[];
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   feedButtonText?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   feedButtonColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsButtonText?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsButtonColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyAuthorName?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyAuthorAvatarUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   storyDescription?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   retailPrice?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   discount?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   discountedPrice?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionButtonText?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionButtonColor?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   promotionMediaUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   feedMediaUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   detailsMediaUrl?: string;
 
   @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
   thumbnailUrl?: string;
 
