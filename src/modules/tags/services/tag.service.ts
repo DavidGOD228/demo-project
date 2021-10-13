@@ -64,8 +64,6 @@ export class TagsService {
     }
 
     if (!widget.tags.length) {
-      console.log(widget.tags);
-
       throw new BadRequestException('This widget does not have a tag with such id!');
     }
 
