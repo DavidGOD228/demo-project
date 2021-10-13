@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsString, IsUUID } from 'class-validator';
 
 export class TagNameFilterDto {
   @ApiProperty()
@@ -9,7 +9,7 @@ export class TagNameFilterDto {
 
 export class DeleteTagFromWidget {
   @ApiProperty()
-  @IsString()
+  @IsUUID()
   widgetId: string;
 }
 
