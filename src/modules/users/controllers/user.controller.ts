@@ -133,6 +133,7 @@ export class UserController {
     }
   }
 
+  @ApiBearerAuth()
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })

@@ -1,6 +1,6 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
 import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
@@ -55,6 +55,12 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException();
+    }
+
+    const userEmailExist = await this.usersRepository.findOne({ where: { id: Not(userId), email: body.email } });
+
+    if (userEmailExist) {
+      throw new BadRequestException('User with such email already exists!');
     }
 
     const updatedUser = { ...user, ...body };

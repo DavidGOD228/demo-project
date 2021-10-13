@@ -1,8 +1,10 @@
 # compiled output
 /dist
 /node_modules
+nohup
 
 # envs
+.env
 /.env.development
 /.env.staging
 /.env.production
