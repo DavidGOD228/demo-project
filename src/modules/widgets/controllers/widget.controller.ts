@@ -241,7 +241,9 @@ export class WidgetController {
   @Post('post')
   @ApiBearerAuth()
   @BaseApiCreatedResponses()
-  async createWidget(@Body() body: CreateWidgetDto): Promise<Widget> {
+  async createWidget(
+    @Body(new ValidationPipe({ transform: true, whitelist: true })) body: CreateWidgetDto,
+  ): Promise<Widget> {
     try {
       return await this.widgetsService.createWidget(body);
     } catch (error) {
