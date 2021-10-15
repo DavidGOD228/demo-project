@@ -37,7 +37,7 @@ export class PromotionsService {
   ) {}
 
   public addFilterQuery(
-    qb: SelectQueryBuilder<Promotion>,
+    qb: SelectQueryBuilder<UsersPromotion>,
     filterType: SubmissionsFilterTypeEnum,
     filterValue: string | string[] = [],
   ) {
@@ -76,10 +76,11 @@ export class PromotionsService {
     limit,
     pageNumber,
   }: GetFeedSubmissionsDto): Promise<FeedSubmission[]> {
-    const submissionsQuery = await this.promotionRepository
-      .createQueryBuilder('promotions')
+    const submissionsQuery = await this.usersPromotionRepository
+      .createQueryBuilder('userPromotions')
+      .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
-      .leftJoinAndSelect('promotions.users', 'users')
+      .leftJoinAndSelect('userPromotions.user', 'users')
       .select([
         'users.id as userId',
         'users.email as email',
