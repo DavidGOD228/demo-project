@@ -63,11 +63,11 @@ export class TagsService {
       throw new NotFoundException('There is no widget with such id!');
     }
 
-    widget.tags = widget.tags.filter(tag => tag.id !== tagToDelete.id);
-
     if (!widget.tags.length) {
       throw new BadRequestException('This widget does not have a tag with such id!');
     }
+
+    widget.tags = widget.tags.filter(tag => tag.id !== tagToDelete.id);
 
     await this.widgetsRepository.save(widget);
 

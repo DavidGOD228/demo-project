@@ -61,7 +61,7 @@ export class TagsController {
   @Delete(':tagId')
   async deleteTagFromWidget(
     @Param('tagId', new ParseUUIDPipe({ version: '4' })) tagId: string,
-    @Body() widgetId: DeleteTagFromWidget,
+    @Body(new ValidationPipe()) widgetId: DeleteTagFromWidget,
   ): Promise<DeleteTagResponse> {
     try {
       return await this.tagsService.deleteTagFromWidget(tagId, widgetId);
