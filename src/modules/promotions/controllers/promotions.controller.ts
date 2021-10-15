@@ -10,6 +10,8 @@ import {
   UseGuards,
   UseInterceptors,
   ValidationPipe,
+  Patch,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -34,6 +36,9 @@ import { FeedSubmission, PromotionMediaResponse } from '../interfaces';
 import { handleError } from 'src/common/errorHandler';
 import { ReasonPhrases } from 'http-status-codes';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
+import { ConfirmPromotionsDto } from '../interfaces/ConfirmPromotions.dto';
+import { RequestWithUserParams } from '../../../common/interfaces';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 
 @ApiTags('Promotions')
 @UseGuards(JwtAuthGuard)
@@ -73,6 +78,20 @@ export class PromotionsController {
   }
 
   @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Patch('confirm')
+  async confirmPromotions(
+    @Req() req: RequestWithUserParams,
+    @Body() body: ConfirmPromotionsDto,
+  ): Promise<UsersPromotion[]> {
+    try {
+      return this.promotionsService.confirmUserPromotions(req.user.id, body.promotionIds);
+    } catch (error) {
+      handleError(error, 'confirmPromotions');
+    }
+  }
+
+  @ApiBearerAuth()
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
@@ -88,6 +107,7 @@ export class PromotionsController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Get(':widgetId')
   async getPromotionByWidgetId(
     @Param('widgetId', new ParseUUIDPipe({ version: '4' })) widgetId: string,
