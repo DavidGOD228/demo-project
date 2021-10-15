@@ -19,9 +19,9 @@ import { FileService } from '../../aws/services/file.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { EmailsService } from '../../emails/services/emails.service';
-import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { UserRoleEnum } from '../interfaces/user.enum';
+import { UsersPromotion } from '../entities/usersPromotions.entity';
 
 @Injectable()
 export class UserService {
@@ -35,8 +35,8 @@ export class UserService {
     @InjectRepository(Widget)
     private readonly widgetsRepository: Repository<Widget>,
 
-    @InjectRepository(Promotion)
-    private readonly promotionsRepository: Repository<Promotion>,
+    @InjectRepository(UsersPromotion)
+    private readonly usersPromotionsRepository: Repository<UsersPromotion>,
 
     @InjectRepository(Channel)
     private readonly channelsRepository: Repository<Channel>,
@@ -175,17 +175,21 @@ export class UserService {
     }
   }
 
-  public async getUserPromotions(userId: string, { limit, pageNumber }: PromotionsFilterDto): Promise<Promotion[]> {
+  public async getUserPromotions(
+    userId: string,
+    { limit, pageNumber }: PromotionsFilterDto,
+  ): Promise<UsersPromotion[]> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    return await this.promotionsRepository
-      .createQueryBuilder('promotions')
-      .select(['promotions.id', 'promotions.imageUrl'])
-      .leftJoin('promotions.users', 'user')
+    return await this.usersPromotionsRepository
+      .createQueryBuilder('userPromotions')
+      .leftJoin('userPromotions.promotion', 'promotions')
+      .addSelect(['promotions.id', 'promotions.imageUrl'])
+      .leftJoin('userPromotions.user', 'user')
       .where('user.id = :userId', { userId: user.id })
       .leftJoin('promotions.widget', 'widget')
       .addSelect(['widget.title'])
@@ -211,7 +215,7 @@ export class UserService {
   }
 
   public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {
-    const { limit: take, page: skip, fieldName: sortField, order: sortOrder } = filterByPages;
+    const { limit: take, pageNumber: skip, fieldName: sortField, order: sortOrder } = filterByPages;
 
     const users = await this.usersRepository
       .createQueryBuilder('users')

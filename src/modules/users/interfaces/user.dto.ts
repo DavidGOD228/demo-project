@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, IsNumber, Length } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, Length, Min, IsInt } from 'class-validator';
 import { FilterUserOrderEnum } from './user.enum';
 
 const MIN_EMAIL_LENGTH = 3;
@@ -56,12 +57,16 @@ export class AddUserFavoriteDto {
 
 export class FilterUserPagesDto {
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
   limit: number;
 
   @ApiProperty()
-  @IsNumber()
-  page: number;
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
+  pageNumber: number;
 
   @ApiProperty({ default: 'id' })
   @IsString()
@@ -76,20 +81,28 @@ export class FilterUserPagesDto {
 
 export class LikesFilterDto {
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
   limit: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
   pageNumber: number;
 }
 
 export class PromotionsFilterDto {
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
   limit: number;
 
   @ApiProperty()
-  @IsNumber()
+  @IsInt()
+  @Type(() => Number)
+  @Min(1)
   pageNumber: number;
 }
