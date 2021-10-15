@@ -38,7 +38,7 @@ export class Channel {
   @OneToMany(() => Scan, scan => scan.channel)
   scans: Scan[];
 
-  @ManyToMany(() => Widget, widget => widget.channels)
+  @ManyToMany(() => Widget, widget => widget.channels, { onDelete: 'CASCADE' })
   @JoinTable({ name: 'channels_widgets' })
   widgets: Widget[];
 }

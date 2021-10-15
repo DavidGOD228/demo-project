@@ -176,7 +176,11 @@ export class PromotionsService {
   public async getPromotionByWidgetId(widgetId: string): Promise<Promotion> {
     const widget = await this.widgetRepository.findOne(widgetId, { relations: ['promotion'] });
 
-    if (widget.promotion === null) {
+    if (!widget) {
+      throw new NotFoundException('Widget with such id does not exist!');
+    }
+
+    if (!widget.promotion) {
       throw new NotFoundException('This widget does not have a promotion!');
     }
 

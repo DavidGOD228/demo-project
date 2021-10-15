@@ -107,6 +107,7 @@ export class PromotionsController {
   @ApiBearerAuth()
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Get(':widgetId')
   async getPromotionByWidgetId(
     @Param('widgetId', new ParseUUIDPipe({ version: '4' })) widgetId: string,
