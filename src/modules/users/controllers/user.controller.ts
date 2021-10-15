@@ -11,6 +11,7 @@ import {
   UseInterceptors,
   Param,
   ParseUUIDPipe,
+  ValidationPipe,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -45,9 +46,9 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
-import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
+import { UsersPromotion } from '../entities/usersPromotions.entity';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -125,7 +126,10 @@ export class UserController {
   @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Get('likes')
-  async getUserFavorites(@Req() req: RequestWithUserParams, @Query() likesFilter: LikesFilterDto): Promise<Widget[]> {
+  async getUserFavorites(
+    @Req() req: RequestWithUserParams,
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) likesFilter: LikesFilterDto,
+  ): Promise<Widget[]> {
     try {
       return await this.usersService.getUserFavorites(req.user.id, likesFilter);
     } catch (error) {
@@ -151,8 +155,8 @@ export class UserController {
   @Get('promotions')
   async getUserPromotions(
     @Req() req: RequestWithUserParams,
-    @Query() promotionsFilter: PromotionsFilterDto,
-  ): Promise<Promotion[]> {
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) promotionsFilter: PromotionsFilterDto,
+  ): Promise<UsersPromotion[]> {
     try {
       return await this.usersService.getUserPromotions(req.user.id, promotionsFilter);
     } catch (error) {
@@ -180,7 +184,9 @@ export class UserController {
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  async getUsersWithFilters(@Query() filterByPages: FilterUserPagesDto): Promise<User[]> {
+  async getUsersWithFilters(
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) filterByPages: FilterUserPagesDto,
+  ): Promise<User[]> {
     try {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
