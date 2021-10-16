@@ -1,4 +1,4 @@
-name: Deploy over SSH
+name: Deploy develop over SSH
 
 on: 
   push:
