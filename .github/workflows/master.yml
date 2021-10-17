@@ -1,4 +1,4 @@
-name: Deploy over SSH
+name: Deploy master over SSH
 
 on: 
   push:
