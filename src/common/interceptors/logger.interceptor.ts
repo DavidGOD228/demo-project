@@ -37,63 +37,28 @@ export class LoggingInterceptor implements NestInterceptor {
     const userAgent = req.get('user-agent') || '';
     const referer = req.get('referer') || '';
 
-    console.log(
-      '\n-----------------------------------------------REQUEST-----------------------------------------------',
-      '\n',
-    );
     logger.log(
       `\n[${sourceHost}] "${method} ${url}" \nRefer: "${referer}"\nUser agent: "${userAgent}"\nSource IP: "${ip}"\n`,
-    );
-
-    console.log('Request Headers:', headers, '\n');
-    console.log('Request Body:', body, '\n');
-    console.log('Request Params:', params, '\n');
-    console.log('Request Query', query, '\n');
-    console.log(
-      '\n------------------------------------------------------------------------------------------------------',
-      '\n',
     );
 
     return next
       .handle()
       .pipe(
         tap(() => {
-          console.log(
-            '\n-----------------------------------------------RESPONSE-----------------------------------------------',
-            '\n',
-          );
           logger.log(
             `\nDestination: [${hostname}]\nStatus Code: "${statusCode}"\nTime elapsed: ${Date.now() - start}ms\n`,
           );
         }),
       )
       .pipe(
-        map(data => {
-          console.log('Response Body:', JSON.stringify(data));
-          console.log(
-            '\n------------------------------------------------------------------------------------------------------',
-            '\n',
-          );
-
-          return data;
-        }),
+        map(data => data),
       )
       .pipe(
         catchError(error => {
-          console.log(
-            '\n-----------------------------------------------RESPONSE-----------------------------------------------',
-            '\n',
-          );
           logger.log(
             `\nDestination: [${hostname}]\nStatus: "${error.status} ${error.message}"\nTime elapsed: ${
               Date.now() - start
             }ms\n`,
-          );
-
-          console.error('Error:', error, '\n');
-          console.log(
-            '\n------------------------------------------------------------------------------------------------------',
-            '\n',
           );
 
           if (!error.status && !error.response) {
