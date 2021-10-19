@@ -28,7 +28,7 @@ export class AuthController {
   @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @Post('/login')
-  async login(@Body() body: LoginDto): Promise<void> {
+  async login(@Body() body: LoginDto) {
     try {
       return await this.authService.login(body);
     } catch (error) {
