@@ -14,7 +14,6 @@
     "develop": "cross-env NODE_ENV=development nest start --watch",
     "start:dev": "npm run build && cross-env NODE_ENV=development node dist/src/main",
     "start:prod": "npm run build && cross-env NODE_ENV=production node dist/src/main",
-    "develop": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
     "lint:husky": "eslint \"{src,apps,libs,test}/**/*.ts\" --max-warnings=0 --color",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",

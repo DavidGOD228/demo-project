@@ -165,6 +165,7 @@ export class CreateWidgetDto {
   @IsString()
   thumbnailUrl: string;
 
+  @ApiPropertyOptional()
   @IsArray()
   @IsOptional()
   @Type(() => AddStoryBlockToWidget)
