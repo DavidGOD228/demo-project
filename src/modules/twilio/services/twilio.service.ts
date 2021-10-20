@@ -44,7 +44,7 @@ export default class TwilioSmsService {
     const testPhoneNumber = this.configService.get<string>(constants.WILSON_TEST_PHONE_NUMBER);
 
     if (phoneNumber === testPhoneNumber) {
-      const userExist = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+      const userExist = await this.usersRepository.findOne({ where: { phoneNumber } });
 
       if (userExist) {
         const token = this.jwtService.sign({ id: userExist.id });
