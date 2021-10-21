@@ -161,9 +161,10 @@ export class CreateWidgetDto {
   @IsString()
   detailsMediaUrl?: string;
 
-  @ApiProperty()
+  @ApiPropertyOptional()
+  @IsOptional()
   @IsString()
-  thumbnailUrl: string;
+  thumbnailUrl?: string;
 
   @ApiPropertyOptional()
   @IsArray()

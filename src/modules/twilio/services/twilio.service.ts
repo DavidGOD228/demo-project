@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -112,6 +112,10 @@ export default class TwilioSmsService {
   public async confirmAdmin(body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
     const { phoneNumber, verificationCode } = body;
     const user = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+
+    if (!user) {
+      throw new NotFoundException('There is not Admin User with such phone number!');
+    }
 
     if (user.role !== UserRoleEnum.ADMIN) {
       throw new ForbiddenException();
