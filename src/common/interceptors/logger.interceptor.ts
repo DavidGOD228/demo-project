@@ -18,6 +18,7 @@ import {
 import { Observable } from 'rxjs';
 import { catchError, map, tap } from 'rxjs/operators';
 import * as os from 'os';
+import * as fs from 'fs';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
@@ -28,7 +29,7 @@ export class LoggingInterceptor implements NestInterceptor {
     const req = context.switchToHttp().getRequest();
     const res = context.switchToHttp().getResponse();
 
-    const { ip, method, originalUrl: url, body, params, query, headers } = req;
+    const { ip, method, originalUrl: url, headers } = req;
 
     const { statusCode } = res;
     const sourceHost = headers ? headers.host : '';
@@ -50,15 +51,21 @@ export class LoggingInterceptor implements NestInterceptor {
           );
         }),
       )
-      .pipe(
-        map(data => data),
-      )
+      .pipe(map(data => data))
       .pipe(
         catchError(error => {
           logger.log(
             `\nDestination: [${hostname}]\nStatus: "${error.status} ${error.message}"\nTime elapsed: ${
               Date.now() - start
             }ms\n`,
+          );
+
+          fs.appendFile(
+            'error.log',
+            `\nDestination: [${hostname}]\nStatus: "${error.status} ${error.message}"\nTime elapsed: ${
+              Date.now() - start
+            }ms\nDate: ${new Date()}\n`,
+            err => err,
           );
 
           if (!error.status && !error.response) {
