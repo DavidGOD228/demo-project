@@ -1,11 +1,8 @@
+import { Widget } from '../entities/widget.entity';
+
 export interface FilteredWidgetsResponse {
-  id: string;
-  title: string;
-  type: string;
-  startDate: string;
-  expirationDate: string;
-  isExclusive: boolean;
-  channels: string;
+  widgets: Partial<Widget>[];
+  length: number;
 }
 
 export interface AddThumbnailResponse {

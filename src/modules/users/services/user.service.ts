@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Not, Repository } from 'typeorm';
 import { Interest } from 'src/modules/interests/entities/interest.entity';
 import { User } from '../entities/user.entity';
-import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse, UsersWithFiltersResponse } from '../interfaces';
 import {
   FilterUserPagesDto,
   ChangeUserOnBoardedStatusDto,
@@ -214,7 +214,7 @@ export class UserService {
       .getMany();
   }
 
-  public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<User[]> {
+  public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<UsersWithFiltersResponse> {
     const { limit: take, pageNumber: skip, fieldName: sortField, order: sortOrder } = filterByPages;
 
     const users = await this.usersRepository
@@ -233,7 +233,9 @@ export class UserService {
       .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
       .getRawMany();
 
-    return users;
+    const length = await this.usersRepository.createQueryBuilder('usersAll').getCount();
+
+    return { users, length };
   }
 
   public async exportUsersCSV(body: FilterUserPagesDto): Promise<string> {

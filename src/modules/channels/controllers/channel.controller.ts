@@ -29,8 +29,6 @@ export class ChannelController {
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiBadRequestResponse({ description: ReasonPhrases.BAD_REQUEST })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
-  @ApiFile('file')
-  @UseInterceptors(FileInterceptor('file'))
   public getChannels(): Promise<IGetChannel[]> {
     try {
       return this.channelService.getChannels();

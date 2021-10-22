@@ -7,7 +7,12 @@ import { User } from '../../users/entities/user.entity';
 import { Promotion } from '../entities/promotion.entity';
 import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
-import { FeedSubmission, PromotionMediaResponse, SubmissionsFilterTypeEnum } from '../interfaces';
+import {
+  FeedSubmission,
+  FeedSubmissionResponse,
+  PromotionMediaResponse,
+  SubmissionsFilterTypeEnum,
+} from '../interfaces';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
 import { GetPromotionErrorEnum } from '../interfaces/promotions.enum';
@@ -75,8 +80,8 @@ export class PromotionsService {
     filterValue,
     limit,
     pageNumber,
-  }: GetFeedSubmissionsDto): Promise<FeedSubmission[]> {
-    const submissionsQuery = await this.usersPromotionRepository
+  }: GetFeedSubmissionsDto): Promise<FeedSubmissionResponse> {
+    const submissionsQuery = this.usersPromotionRepository
       .createQueryBuilder('userPromotions')
       .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
@@ -98,7 +103,10 @@ export class PromotionsService {
 
     // making pagination with js array method because typeorm query builder methods
     // offset+limit/skip+take don't work with joins and getRawMany properly
-    return submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+    const submissionsAll = submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+    const length = await this.usersPromotionRepository.createQueryBuilder('userPromotionsAll').getCount();
+
+    return { submissions: submissionsAll, length };
   }
 
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
