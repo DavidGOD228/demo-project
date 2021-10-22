@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
-import { TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_VERIFICATION_SERVICE_SID } from 'src/common/constants/constants';
+import * as constants from 'src/common/constants/constants';
+import { handleError } from 'src/common/errorHandler';
 import { ConfirmPasswordResponse } from 'src/modules/auth/interfaces/interfaces';
-import { ConfirmUserDto } from 'src/modules/auth/interfaces/login.dto';
+import { ConfirmAdminDto, ConfirmUserDto } from 'src/modules/auth/interfaces/login.dto';
 import { User } from 'src/modules/users/entities/user.entity';
+import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
 import { Twilio } from 'twilio';
 import { Repository } from 'typeorm';
 
@@ -18,42 +20,125 @@ export default class TwilioSmsService {
     private readonly jwtService: JwtService,
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {
-    const accountSid = configService.get<string>(TWILIO_ACCOUNT_SID);
-    const authToken = configService.get<string>(TWILIO_AUTH_TOKEN);
+    const accountSid = configService.get<string>(constants.TWILIO_ACCOUNT_SID);
+    const authToken = configService.get<string>(constants.TWILIO_AUTH_TOKEN);
 
     this.twilioClient = new Twilio(accountSid, authToken);
   }
 
   public async verifyPhoneNumber(phoneNumber: string) {
-    const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
+    const serviceSid = this.configService.get<string>(constants.TWILIO_VERIFICATION_SERVICE_SID);
 
     return await this.twilioClient.verify
       .services(serviceSid)
       .verifications.create({ to: phoneNumber, channel: 'sms' });
   }
 
-  public async confirmPhoneNumber(body: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
-    const { phoneNumber, verificationCode, location } = body;
-    const serviceSid = this.configService.get<string>(TWILIO_VERIFICATION_SERVICE_SID);
+  public async confirmPhoneNumber({
+    phoneNumber,
+    verificationCode,
+    location,
+  }: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
+    const serviceSid = this.configService.get<string>(constants.TWILIO_VERIFICATION_SERVICE_SID);
+
+    const testPhoneNumber = this.configService.get<string>(constants.WILSON_TEST_PHONE_NUMBER);
+
+    if (phoneNumber === testPhoneNumber) {
+      const userExist = await this.usersRepository.findOne({ where: { phoneNumber } });
+
+      if (userExist) {
+        const token = this.jwtService.sign({ id: userExist.id });
+
+        await this.usersRepository.update(userExist.id, { lastLoginAt: new Date(), authToken: token });
+
+        return { authToken: token, onBoarded: userExist.onboarded };
+      }
+
+      const user = this.usersRepository.create({
+        phoneNumber: phoneNumber,
+        lastLoginAt: new Date(),
+        location: location,
+        role: UserRoleEnum.ADMIN,
+      });
+
+      const token = this.jwtService.sign({ id: user.id });
+
+      user.authToken = token;
+
+      await this.usersRepository.save(user);
+
+      return { authToken: token };
+    }
 
     try {
-      await this.twilioClient.verify
+      const verifyCode = await this.twilioClient.verify
         .services(serviceSid)
         .verificationChecks.create({ to: phoneNumber, code: verificationCode });
+
+      if (verifyCode.valid === false) {
+        throw new BadRequestException('Verification code is incorrect!');
+      }
+
+      const userPhoneNumber = verifyCode.to;
+
+      const userExist = await this.usersRepository.findOne({ where: { phoneNumber: userPhoneNumber } });
+
+      if (userExist) {
+        const token = this.jwtService.sign({ id: userExist.id });
+
+        await this.usersRepository.update(userExist.id, { lastLoginAt: new Date(), authToken: token });
+
+        return { authToken: token, onBoarded: userExist.onboarded };
+      }
+
+      const user = this.usersRepository.create({
+        phoneNumber: userPhoneNumber,
+        lastLoginAt: new Date(),
+        location: location,
+      });
+
+      const token = this.jwtService.sign({ id: user.id });
+
+      user.authToken = token;
+
+      await this.usersRepository.save(user);
+
+      return { authToken: token };
+    } catch (error) {
+      handleError(error, 'confirmPhoneNumber');
+    }
+  }
+
+  public async confirmAdmin(body: ConfirmAdminDto): Promise<ConfirmPasswordResponse> {
+    const { phoneNumber, verificationCode } = body;
+    const user = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
+
+    if (!user) {
+      throw new NotFoundException('There is not Admin User with such phone number!');
+    }
+
+    if (user.role !== UserRoleEnum.ADMIN) {
+      throw new ForbiddenException();
+    }
+
+    const serviceSid = this.configService.get<string>(constants.TWILIO_VERIFICATION_SERVICE_SID);
+
+    try {
+      const verifyCode = await this.twilioClient.verify
+        .services(serviceSid)
+        .verificationChecks.create({ to: phoneNumber, code: verificationCode });
+
+      if (verifyCode.valid === false) {
+        throw new BadRequestException('Verification code is incorrect!');
+      }
     } catch (error) {
       throw new BadRequestException('Verification code is incorrect!');
     }
 
-    const userExist = await this.usersRepository.findOne({ where: { phoneNumber: phoneNumber } });
-    if (userExist) {
-      await this.usersRepository.update(userExist.id, { lastLoginAt: new Date() });
-      const token = this.jwtService.sign({ id: userExist.id });
-      return { authToken: token };
-    }
-
-    const user = this.usersRepository.create({ phoneNumber: phoneNumber, lastLoginAt: new Date(), location: location });
-    await this.usersRepository.save(user);
     const token = this.jwtService.sign({ id: user.id });
+
+    await this.usersRepository.update(user.id, { authToken: token });
+
     return { authToken: token };
   }
 }

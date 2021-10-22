@@ -4,6 +4,7 @@
 nohup
 
 # envs
+.env
 /.env.development
 /.env.staging
 /.env.production

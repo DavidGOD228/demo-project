@@ -16,7 +16,10 @@ export class StoryBlock {
   @Column()
   assetUrl: string;
 
-  @ManyToOne(() => Widget, widget => widget.storyBlock)
+  @Column()
+  priority: number;
+
+  @ManyToOne(() => Widget, widget => widget.stories, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'widget_id' })
   widget: Widget;
 }

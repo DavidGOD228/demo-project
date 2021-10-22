@@ -14,6 +14,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserRoleEnum } from '../interfaces/user.enum';
+import { UsersPromotion } from './usersPromotions.entity';
 
 @Entity({ schema: 'usr', name: 'users' })
 export class User {
@@ -26,7 +27,7 @@ export class User {
   @Column({ nullable: true })
   lastName?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   email?: string;
 
   @Column()
@@ -34,6 +35,9 @@ export class User {
 
   @Column()
   location: string;
+
+  @Column({ nullable: true, type: 'date' })
+  birthDate?: Date;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
@@ -44,25 +48,36 @@ export class User {
   @Column({ default: false })
   onboarded: boolean;
 
+  @Column({ nullable: true })
+  authToken: string;
+
+  @Column({ default: false })
+  exclusiveSubscription: boolean;
+
   @Column({ name: 'role', enum: UserRoleEnum, insert: true, default: UserRoleEnum.USER })
   role: string;
 
   @Column({ nullable: true })
   lastLoginAt?: Date;
 
+  @Column({ nullable: true })
+  imageUrl?: string;
+
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];
 
-  @ManyToMany(() => Promotion, promotion => promotion.users)
-  @JoinTable({ name: 'users_promotions' })
-  promotions: Promotion[];
+  @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.user)
+  userPromotions: UsersPromotion[];
 
   @ManyToMany(() => Widget, widget => widget.users)
   @JoinTable({ name: 'favorites' })
   widgets: Widget[];
 
-  @OneToMany(() => Scan, scan => scan.objectId)
+  @OneToMany(() => Scan, scan => scan.user)
   @JoinColumn({ name: 'object_id' })
   scans: Scan[];
+
+  @ManyToMany(() => Promotion, promotion => promotion.winners)
+  wonPromotions: Promotion[];
 }
