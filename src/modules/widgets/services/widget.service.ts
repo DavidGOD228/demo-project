@@ -234,7 +234,7 @@ export class WidgetService {
     }
   }
 
-  public async getFilteredWidgets(filterWidgets: FilterWidgetsDto): Promise<FilteredWidgetsResponse[]> {
+  public async getFilteredWidgets(filterWidgets: FilterWidgetsDto): Promise<FilteredWidgetsResponse> {
     const { limit: take, pageNumber: skip, fieldName: sortField, order: sortOrder, filteringType } = filterWidgets;
     const query = this.widgetsRepository
       .createQueryBuilder('widgets')
@@ -259,7 +259,9 @@ export class WidgetService {
 
     const widgets = await query.getRawMany();
 
-    return widgets;
+    const length = await this.widgetsRepository.createQueryBuilder('widgetsAll').getCount();
+
+    return { widgets, length };
   }
 
   public async editWidgets(widgetId: string, body: EditWidgetDto): Promise<Widget> {

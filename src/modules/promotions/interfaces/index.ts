@@ -14,6 +14,11 @@ export interface FeedSubmission {
   title: string;
 }
 
+export interface FeedSubmissionResponse {
+  submissions: FeedSubmission[];
+  length: number;
+}
+
 export interface PromotionMediaResponse {
   promotionMedia: string;
 }
