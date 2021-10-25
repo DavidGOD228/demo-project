@@ -3,6 +3,7 @@ export enum SubmissionsFilterTypeEnum {
   EMAIL = 'email',
   TITLE = 'title',
   TYPE = 'type',
+  WINNER = 'winner',
 }
 
 export interface FeedSubmission {

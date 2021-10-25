@@ -1,4 +1,4 @@
-import { Controller, Get, Param, ParseUUIDPipe, UseGuards, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
@@ -7,9 +7,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
 import { ReasonPhrases } from 'http-status-codes';
-import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { ChannelService } from '../services/channel.service';
 import { handleError } from '../../../common/errorHandler';

@@ -66,6 +66,9 @@ export class PromotionsService {
         return qb.where('widget.type IN (:...widgetTypes)', {
           widgetTypes: typeof filterValue === 'string' ? [filterValue] : filterValue,
         });
+
+      case SubmissionsFilterTypeEnum.WINNER:
+        return qb.andWhere(`winners.id IS ${filterValue === 'true' ? 'NOT' : ''} NULL`);
     }
   }
 
@@ -86,12 +89,14 @@ export class PromotionsService {
       .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
       .leftJoinAndSelect('userPromotions.user', 'users')
+      .leftJoinAndSelect('users.wonPromotions', 'winners', 'winners.id = promotions.id')
       .select([
         'users.id as userId',
         'users.email as email',
         'widget.id as widgetId',
         'widget.title as title',
         'widget.type as type',
+        'winners.id as winner',
       ])
       .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name');
 
@@ -104,7 +109,7 @@ export class PromotionsService {
     // making pagination with js array method because typeorm query builder methods
     // offset+limit/skip+take don't work with joins and getRawMany properly
     const submissionsAll = submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
-    const length = await this.usersPromotionRepository.createQueryBuilder('userPromotionsAll').getCount();
+    const length = await submissionsQuery.getCount();
 
     return { submissions: submissionsAll, length };
   }
