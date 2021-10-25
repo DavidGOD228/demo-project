@@ -9,10 +9,11 @@ import { PromotionsController } from './controllers/promotions.controller';
 import { EmailsModule } from '../emails/emails.module';
 import { UserModule } from '../users/user.module';
 import { UsersPromotion } from '../users/entities/usersPromotions.entity';
+import { ExportCsvService } from '../config/services/csvExport.service';
 
 @Module({
   imports: [EmailsModule, UserModule, TypeOrmModule.forFeature([Promotion, Widget, User, UsersPromotion])],
-  providers: [PromotionsService, FileService],
+  providers: [PromotionsService, FileService, ExportCsvService],
   controllers: [PromotionsController],
   exports: [PromotionsService],
 })
