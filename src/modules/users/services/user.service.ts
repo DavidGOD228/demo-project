@@ -240,7 +240,8 @@ export class UserService {
 
   public async exportUsersCSV(body: FilterUserPagesDto): Promise<string> {
     const users = await this.getUsersWithFilters(body);
-    const csv = await this.csvService.exportCsv(users, 'Users');
+
+    const csv = await this.csvService.exportCsv(users.users, 'Users');
 
     return csv;
   }

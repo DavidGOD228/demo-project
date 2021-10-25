@@ -328,7 +328,7 @@ export class WidgetService {
   public async exportWidgetCsv(body: FilterWidgetsDto): Promise<string> {
     const widgets = await this.getFilteredWidgets(body);
 
-    const csv = await this.csvService.exportCsv(widgets, 'Widgets');
+    const csv = await this.csvService.exportCsv(widgets.widgets, 'Widgets');
 
     return csv;
   }
