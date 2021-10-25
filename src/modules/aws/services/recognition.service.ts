@@ -243,17 +243,19 @@ export class RecognitionService {
         const promotionsPromises = passedChannel.widgets.map(async widget => {
           await this.increaseScanTimes(widget, user, passedChannel);
 
-          return {
-            ...widget.promotion,
-            imageUrl: this.getImageUrl(widget.promotion.imageUrl),
-          };
+          if (widget.promotion) {
+            return {
+              ...widget.promotion,
+              imageUrl: this.getImageUrl(widget.promotion.imageUrl),
+            };
+          }
         });
 
         const promotions = await Promise.all(promotionsPromises);
 
         await this.promotionsService.confirmUserPromotions(user.id, promotionIds);
 
-        return promotions;
+        return promotions.filter(promotion => !!promotion);
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
       }

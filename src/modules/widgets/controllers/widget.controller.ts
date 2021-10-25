@@ -68,7 +68,7 @@ export class WidgetController {
   @Get('/')
   async getFilteredWidgets(
     @Query(new ValidationPipe({ transform: true })) filterWidgets: FilterWidgetsDto,
-  ): Promise<FilteredWidgetsResponse[]> {
+  ): Promise<FilteredWidgetsResponse> {
     try {
       return await this.widgetsService.getFilteredWidgets(filterWidgets);
     } catch (error) {

@@ -187,7 +187,8 @@ export class AddStoryBlockToWidget {
   type: string;
 
   @ApiProperty()
-  @IsString()
+  @IsInt()
+  @Type(() => Number)
   priority: number;
 }
 

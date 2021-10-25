@@ -37,7 +37,7 @@ import {
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithAuthorization, RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
-import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
+import { UserAvatarResponse, UserAvatarUploadResponse, UsersWithFiltersResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
@@ -186,7 +186,7 @@ export class UserController {
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
   async getUsersWithFilters(
     @Query(new ValidationPipe({ transform: true, whitelist: true })) filterByPages: FilterUserPagesDto,
-  ): Promise<User[]> {
+  ): Promise<UsersWithFiltersResponse> {
     try {
       return await this.usersService.getUsersWithFilters(filterByPages);
     } catch (error) {
