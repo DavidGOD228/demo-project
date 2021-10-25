@@ -44,7 +44,6 @@ import {
 } from '../interfaces';
 import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import { WidgetService } from '../services/widget.service';
-import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { RequestWithUserParams } from '../../../common/interfaces';
 import { handleError } from '../../../common/errorHandler';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
@@ -106,12 +105,9 @@ export class WidgetController {
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get('feed')
-  async getWidgetFeed(
-    @Req() req: RequestWithUserParams,
-    @Query(new ValidationPipe({ transform: true })) params: GetWidgetFeedDto,
-  ) {
+  async getWidgetFeed(@Req() req: RequestWithUserParams) {
     try {
-      return this.widgetsService.generateWidgetFeed(req.user.id, params);
+      return this.widgetsService.generateWidgetFeed(req.user.id);
     } catch (error) {
       handleError(error, 'getWidgetFeed');
     }
