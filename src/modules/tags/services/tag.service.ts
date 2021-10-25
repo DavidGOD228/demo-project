@@ -83,4 +83,8 @@ export class TagsService {
 
     return { message: 'Tag was successfully deleted from a widget!' };
   }
+
+  public async getAllTags() {
+    return await this.tagsRepository.find();
+  }
 }

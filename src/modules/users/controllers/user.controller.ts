@@ -210,6 +210,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @BaseApiUserOkResponses()
   @Get('me')
   async getUserByToken(@Req() req: RequestWithAuthorization) {
     try {
@@ -220,6 +221,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @BaseApiUserOkResponses()
   @Get(':id')
   async getUserById(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

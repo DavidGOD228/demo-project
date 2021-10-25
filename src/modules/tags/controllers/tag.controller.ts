@@ -11,7 +11,11 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { BaseApiAdminOkResponses, BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import {
+  BaseApiAdminOkResponses,
+  BaseApiCreatedResponses,
+  BaseApiUserOkResponses,
+} from 'src/common/decorators/baseApi.decorator';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { handleError } from 'src/common/errorHandler';
 import { JwtAuthGuard } from 'src/modules/auth/guards/jwt-auth.guard';
@@ -27,6 +31,17 @@ import { TagsService } from '../services/tag.service';
 @Controller('tags')
 export class TagsController {
   constructor(private readonly tagsService: TagsService) {}
+
+  @ApiBearerAuth()
+  @BaseApiUserOkResponses()
+  @Get('/')
+  async getAllTags() {
+    try {
+      return await this.tagsService.getAllTags();
+    } catch (error) {
+      handleError(error, 'getAllTags');
+    }
+  }
 
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
