@@ -85,7 +85,7 @@ export class PromotionsController {
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  async exportUsersCSV(
+  async exportSubmissionsCSV(
     @Query(new ValidationPipe({ transform: true, whitelist: true })) params: GetFeedSubmissionsDto,
   ): Promise<string> {
     try {
