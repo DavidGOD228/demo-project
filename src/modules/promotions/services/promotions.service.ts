@@ -114,7 +114,6 @@ export class PromotionsService {
 
   public async exportSubmissionsCSV(body: GetFeedSubmissionsDto) {
     const submissions = await this.getSubmissions(body);
-
     const csv = await this.csvService.exportCsv(submissions.submissions, 'Submissions');
 
     return csv;
