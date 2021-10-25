@@ -18,6 +18,7 @@ import { GetFeedSubmissionsDto } from '../interfaces/getFeedSubmissions.dto';
 import { GetPromotionErrorEnum } from '../interfaces/promotions.enum';
 import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 import { UserService } from '../../users/services/user.service';
+import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 
 @Injectable()
 export class PromotionsService {
@@ -39,6 +40,8 @@ export class PromotionsService {
     private readonly fileService: FileService,
 
     private readonly userService: UserService,
+
+    private readonly csvService: ExportCsvService,
   ) {}
 
   public addFilterQuery(
@@ -112,6 +115,13 @@ export class PromotionsService {
     const length = await submissionsQuery.getCount();
 
     return { submissions: submissionsAll, length };
+  }
+
+  public async exportSubmissionsCSV(body: GetFeedSubmissionsDto) {
+    const submissions = await this.getSubmissions(body);
+    const csv = await this.csvService.exportCsv(submissions.submissions, 'Submissions');
+
+    return csv;
   }
 
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {

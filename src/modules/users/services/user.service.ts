@@ -240,22 +240,26 @@ export class UserService {
 
   public async exportUsersCSV(body: FilterUserPagesDto): Promise<string> {
     const users = await this.getUsersWithFilters(body);
-    const csv = await this.csvService.exportCsv(users, 'Users');
+    const csv = await this.csvService.exportCsv(users.users, 'Users');
 
     return csv;
   }
 
-  public async getUserById(userId: string, reqUserId: string): Promise<User> {
+  public async getUserById(userId: string, reqUserId?: string): Promise<User> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
       throw new NotFoundException('There is no such user!');
     }
 
-    if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
-      return user;
-    } else {
-      throw new ForbiddenException();
+    if (reqUserId) {
+      if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
+        return user;
+      } else {
+        throw new ForbiddenException();
+      }
     }
+
+    return user;
   }
 }

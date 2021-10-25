@@ -210,6 +210,18 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @BaseApiUserOkResponses()
+  @Get('me')
+  async getUserByToken(@Req() req: RequestWithUserParams) {
+    try {
+      return await this.usersService.getUserById(req.user.id);
+    } catch (error) {
+      handleError(error, 'getUserByToken');
+    }
+  }
+
+  @ApiBearerAuth()
+  @BaseApiUserOkResponses()
   @Get(':id')
   async getUserById(
     @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,

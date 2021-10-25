@@ -17,6 +17,7 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConsumes,
+  ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags,
@@ -74,6 +75,23 @@ export class PromotionsController {
       return await this.promotionsService.getSubmissions(params);
     } catch (error) {
       handleError(error, 'getFeedSubmissions');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @Get('submissions/exportCsv')
+  @ApiOkResponse({ description: ReasonPhrases.OK })
+  @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
+  @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
+  async exportSubmissionsCSV(
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) params: GetFeedSubmissionsDto,
+  ): Promise<string> {
+    try {
+      return await this.promotionsService.exportSubmissionsCSV(params);
+    } catch (error) {
+      handleError(error, 'exportSubmissionsCSV');
     }
   }
 
