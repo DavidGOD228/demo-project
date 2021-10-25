@@ -72,4 +72,8 @@ export class FileService {
 
     return s3Bucket.getSignedUrl('getObject', requestObject);
   }
+
+  public getPublicImageUrl(fileKey: string) {
+    return `https://${this.configService.get(constants.WILSON_AWS_S3_BUCKET)}.s3.amazonaws.com${fileKey}`;
+  }
 }

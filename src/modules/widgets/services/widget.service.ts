@@ -19,7 +19,6 @@ import {
 } from '../interfaces';
 import { User } from '../../users/entities/user.entity';
 import { UserRoleEnum } from '../../users/interfaces/user.enum';
-import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from '../entities/storyBlock.entity';
@@ -39,7 +38,7 @@ export class WidgetService {
     private readonly csvService: ExportCsvService,
   ) {}
 
-  public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget>[] {
+  public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget & { isFavorite: boolean }>[] {
     return widgets
       .map(widget => {
         const { stories, childWidgets } = widget;
@@ -50,9 +49,29 @@ export class WidgetService {
 
         return {
           ...widget,
-          stories: stories?.length ? stories.sort((a, b) => a.priority - b.priority) : undefined,
+          isFavorite: !!widget.users.length,
+          feedMediaUrl: this.fileService.getPublicImageUrl(widget.feedMediaUrl),
+          detailsMediaUrl: this.fileService.getPublicImageUrl(widget.detailsMediaUrl),
+          thumbnailUrl: this.fileService.getPublicImageUrl(widget.thumbnailUrl),
+          storyAuthorAvatarUrl: this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl),
+          stories: stories?.length
+            ? stories
+                .sort((a, b) => a.priority - b.priority)
+                .map(story => ({
+                  ...story,
+                  assetUrl: this.fileService.getPublicImageUrl(story.assetUrl),
+                }))
+            : undefined,
           childWidgets: childWidgets.length
-            ? childWidgets.sort((a, b) => a.carouselPriority - b.carouselPriority)
+            ? childWidgets
+                .sort((a, b) => a.carouselPriority - b.carouselPriority)
+                .map(childWidget => ({
+                  ...childWidget,
+                  feedMediaUrl: this.fileService.getPublicImageUrl(widget.feedMediaUrl),
+                  detailsMediaUrl: this.fileService.getPublicImageUrl(widget.detailsMediaUrl),
+                  thumbnailUrl: this.fileService.getPublicImageUrl(widget.thumbnailUrl),
+                  storyAuthorAvatarUrl: this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl),
+                }))
             : undefined,
         };
       })
@@ -347,10 +366,7 @@ export class WidgetService {
     return this.widgetsRepository.find(query);
   }
 
-  public async generateWidgetFeed(
-    userId: string,
-    { tags, pageNumber, limit }: GetWidgetFeedDto,
-  ): Promise<Partial<Widget>[]> {
+  public async generateWidgetFeed(userId: string): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const widgetList = this.widgetsRepository.createQueryBuilder('widget');
@@ -369,34 +385,14 @@ export class WidgetService {
       widgetList.andWhere('widget.isExclusive = false');
     }
 
-    if (tags?.length) {
-      widgetList
-        .leftJoin('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
-          tagIds: tags,
-        })
-        .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
-          carouselType: WidgetTypeEnum.CAROUSEL,
-        })
-        .leftJoin(
-          'widget.childWidgets',
-          'childWidgets',
-          '(childWidgets.expires_at IS NULL OR childWidgets.expires_at > :startDate)',
-          {
-            startDate: new Date(),
-          },
-        )
-        .leftJoin('childWidgets.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
-        .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
-          carouselType: WidgetTypeEnum.CAROUSEL,
-        });
-    }
-
     widgetList
       .where('widget.parent_id IS NULL')
       .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() })
       .orderBy('widget.expiresAt')
       .addOrderBy('widget.updatedAt', 'DESC')
-      .leftJoinAndSelect('widget.stories', 'stories')
+      .leftJoinAndSelect('widget.stories', 'stories');
+
+    widgetList
       .leftJoinAndSelect(
         'widget.childWidgets',
         'children',
@@ -404,13 +400,12 @@ export class WidgetService {
         {
           startDate: new Date(),
         },
-      );
+      )
+      .leftJoinAndSelect('children.stories', 'childStories')
+      .leftJoinAndSelect('widget.tags', 'tags')
+      .leftJoinAndSelect('children.tags', 'child_tags');
 
-    if (limit && pageNumber) {
-      widgetList.skip((pageNumber - 1) * limit).take(limit);
-    }
-
-    widgetList.leftJoinAndSelect('children.stories', 'childStories');
+    widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
     const widgets = await widgetList.getMany();
 
