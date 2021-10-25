@@ -10,3 +10,9 @@ export interface RequestWithUserParams extends Request {
 export interface SuccessResponseMessage {
   message: string;
 }
+
+export interface RequestWithAuthorization extends Request {
+  headers: {
+    authorization: string;
+  };
+}

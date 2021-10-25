@@ -36,7 +36,7 @@ import {
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
+import { RequestWithAuthorization, RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { UserAvatarResponse, UserAvatarUploadResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
@@ -206,6 +206,16 @@ export class UserController {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {
       handleError(error, 'exportUsersCSV');
+    }
+  }
+
+  @ApiBearerAuth()
+  @Get('me')
+  async getUserByToken(@Req() req: RequestWithAuthorization) {
+    try {
+      return await this.usersService.getUserByToken(req.headers.authorization);
+    } catch (error) {
+      handleError(error, 'getUserByToken');
     }
   }
 

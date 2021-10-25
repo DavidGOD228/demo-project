@@ -20,6 +20,7 @@ import { EmailsModule } from '../emails/emails.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>(WILSON_JWT_SECRET),
+        signOptions: { expiresIn: '30d' },
       }),
       inject: [ConfigService],
     }),

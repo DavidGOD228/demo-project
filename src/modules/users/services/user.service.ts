@@ -22,6 +22,7 @@ import { EmailsService } from '../../emails/services/emails.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { UsersPromotion } from '../entities/usersPromotions.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
@@ -44,6 +45,7 @@ export class UserService {
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
     private readonly emailService: EmailsService,
+    private readonly jwtService: JwtService,
   ) {}
 
   public isProfileFilledOut(user: User) {
@@ -255,5 +257,12 @@ export class UserService {
     } else {
       throw new ForbiddenException();
     }
+  }
+
+  public async getUserByToken(authToken: string) {
+    const token = authToken.split(' ')[1];
+    const decodedToken = this.jwtService.verify(token);
+
+    return await this.usersRepository.findOne(decodedToken.id);
   }
 }

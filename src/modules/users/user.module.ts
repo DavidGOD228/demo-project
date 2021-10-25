@@ -13,7 +13,9 @@ import { EmailsModule } from '../emails/emails.module';
 import { Promotion } from '../promotions/entities/promotion.entity';
 import { Channel } from '../channels/entities/channel.entity';
 import { UsersPromotion } from './entities/usersPromotions.entity';
-import { MAX_FILE_SIZE } from '../../common/constants/constants';
+import { MAX_FILE_SIZE, WILSON_JWT_SECRET } from '../../common/constants/constants';
+import { JwtModule } from '@nestjs/jwt';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 @Module({
   controllers: [UserController],
@@ -25,6 +27,14 @@ import { MAX_FILE_SIZE } from '../../common/constants/constants';
       limits: {
         fileSize: MAX_FILE_SIZE,
       },
+    }),
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>(WILSON_JWT_SECRET),
+        signOptions: { expiresIn: '30d' },
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([User, UsersPromotion, Interest, Widget, Scan, Promotion, Channel]),
   ],
