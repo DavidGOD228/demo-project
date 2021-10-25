@@ -36,7 +36,7 @@ import {
   PromotionsFilterDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { RequestWithAuthorization, RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
+import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
 import { UserAvatarResponse, UserAvatarUploadResponse, UsersWithFiltersResponse } from '../interfaces';
 import { UserService } from '../services/user.service';
 import { handleError } from '../../../common/errorHandler';
@@ -212,9 +212,9 @@ export class UserController {
   @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Get('me')
-  async getUserByToken(@Req() req: RequestWithAuthorization) {
+  async getUserByToken(@Req() req: RequestWithUserParams) {
     try {
-      return await this.usersService.getUserByToken(req.headers.authorization);
+      return await this.usersService.getUserById(req.user.id);
     } catch (error) {
       handleError(error, 'getUserByToken');
     }

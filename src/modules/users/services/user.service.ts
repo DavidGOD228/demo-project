@@ -247,24 +247,21 @@ export class UserService {
     return csv;
   }
 
-  public async getUserById(userId: string, reqUserId: string): Promise<User> {
+  public async getUserById(userId: string, reqUserId?: string): Promise<User> {
     const user = await this.usersRepository.findOne(userId);
 
     if (!user) {
       throw new NotFoundException('There is no such user!');
     }
 
-    if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
-      return user;
-    } else {
-      throw new ForbiddenException();
+    if (reqUserId) {
+      if (user.id === reqUserId || user.role === UserRoleEnum.ADMIN) {
+        return user;
+      } else {
+        throw new ForbiddenException();
+      }
     }
-  }
 
-  public async getUserByToken(authToken: string) {
-    const token = authToken.split(' ')[1];
-    const decodedToken = this.jwtService.verify(token);
-
-    return await this.usersRepository.findOne(decodedToken.id);
+    return user;
   }
 }
