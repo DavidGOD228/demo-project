@@ -201,7 +201,9 @@ export class UserController {
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
   @ApiForbiddenResponse({ description: ReasonPhrases.FORBIDDEN })
-  async exportUsersCSV(@Query() filterByPages: FilterUserPagesDto): Promise<string> {
+  async exportUsersCSV(
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) filterByPages: FilterUserPagesDto,
+  ): Promise<string> {
     try {
       return await this.usersService.exportUsersCSV(filterByPages);
     } catch (error) {

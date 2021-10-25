@@ -92,7 +92,9 @@ export class WidgetController {
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
   @Get('exportCsv')
-  async exportWidgetCsv(@Query() filterWidgets: FilterWidgetsDto): Promise<string> {
+  async exportWidgetCsv(
+    @Query(new ValidationPipe({ transform: true, whitelist: true })) filterWidgets: FilterWidgetsDto,
+  ): Promise<string> {
     try {
       return await this.widgetsService.exportWidgetCsv(filterWidgets);
     } catch (error) {
