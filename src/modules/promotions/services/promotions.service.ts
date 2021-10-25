@@ -10,6 +10,7 @@ import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum'
 import {
   FeedSubmission,
   FeedSubmissionResponse,
+  GetSubmissionsWinnersEnum,
   PromotionMediaResponse,
   SubmissionsFilterTypeEnum,
 } from '../interfaces';
@@ -79,8 +80,11 @@ export class PromotionsService {
   }
 
   public async getSubmissions({
-    filterType,
-    filterValue,
+    fieldName,
+    filteringWinner,
+    filteringType,
+    filteringTitle,
+    order,
     limit,
     pageNumber,
   }: GetFeedSubmissionsDto): Promise<FeedSubmissionResponse> {
@@ -100,8 +104,23 @@ export class PromotionsService {
       ])
       .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name');
 
-    if (filterType) {
-      this.addFilterQuery(submissionsQuery, filterType, filterValue);
+    if (fieldName && order) {
+      submissionsQuery.orderBy(`${fieldName}`, order);
+    }
+
+    if (filteringWinner?.length === 1) {
+      submissionsQuery.andWhere(
+        `winners.id IS ${filteringWinner[0] === GetSubmissionsWinnersEnum.WINNER ? 'NOT' : ''} NULL`,
+        { types: filteringWinner },
+      );
+    }
+
+    if (filteringType) {
+      submissionsQuery.where('widget.type IN (:...types)', { types: filteringType });
+    }
+
+    if (filteringTitle) {
+      submissionsQuery.where('widget.id IN (:...titles)', { titles: filteringTitle });
     }
 
     const submissions = await submissionsQuery.getRawMany<FeedSubmission>();

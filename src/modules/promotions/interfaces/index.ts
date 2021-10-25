@@ -23,3 +23,8 @@ export interface FeedSubmissionResponse {
 export interface PromotionMediaResponse {
   promotionMedia: string;
 }
+
+export enum GetSubmissionsWinnersEnum {
+  WINNER = 'WINNER',
+  ASSIGN = 'ASSIGN',
+}

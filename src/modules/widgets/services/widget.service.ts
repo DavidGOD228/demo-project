@@ -278,7 +278,7 @@ export class WidgetService {
 
     const widgets = await query.getRawMany();
 
-    const length = await this.widgetsRepository.createQueryBuilder('widgetsAll').getCount();
+    const length = await query.getCount();
 
     return { widgets, length };
   }

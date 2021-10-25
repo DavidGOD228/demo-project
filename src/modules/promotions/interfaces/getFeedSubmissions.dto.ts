@@ -1,19 +1,37 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsArray, IsInt, IsOptional, IsString, Min } from 'class-validator';
 import { Type } from 'class-transformer';
-import { SubmissionsFilterTypeEnum } from './index';
+import { GetSubmissionsWinnersEnum, SubmissionsFilterTypeEnum } from './index';
+import { FilterWidgetOrderEnum } from '../../widgets/interfaces/widget.enum';
 
 export class GetFeedSubmissionsDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
-  filterType?: SubmissionsFilterTypeEnum;
+  fieldName?: SubmissionsFilterTypeEnum;
+
+  @ApiPropertyOptional({ enum: FilterWidgetOrderEnum, default: FilterWidgetOrderEnum.ASC })
+  @IsString()
+  @IsOptional()
+  order?: FilterWidgetOrderEnum = FilterWidgetOrderEnum.ASC;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  filteringType?: string[];
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  filteringTitle?: string[];
 
   @ApiPropertyOptional()
   @IsOptional()
   @IsString({ each: true })
   @Type(() => String)
-  filterValue?: string[];
+  filteringWinner?: GetSubmissionsWinnersEnum[];
 
   @ApiPropertyOptional()
   @IsOptional()
