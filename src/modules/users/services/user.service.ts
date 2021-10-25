@@ -240,9 +240,14 @@ export class UserService {
 
   public async exportUsersCSV(body: FilterUserPagesDto): Promise<string> {
     const users = await this.getUsersWithFilters(body);
-    const csv = await this.csvService.exportCsv(users.users, 'Users');
 
-    return csv;
+    if (users.users.length) {
+      const csv = await this.csvService.exportCsv(users.users, 'Users');
+
+      return csv;
+    }
+
+    return 'There is no available data for such parameters';
   }
 
   public async getUserById(userId: string, reqUserId?: string): Promise<User> {

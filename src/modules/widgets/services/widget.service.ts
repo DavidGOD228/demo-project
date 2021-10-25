@@ -346,9 +346,14 @@ export class WidgetService {
 
   public async exportWidgetCsv(body: FilterWidgetsDto): Promise<string> {
     const widgets = await this.getFilteredWidgets(body);
-    const csv = await this.csvService.exportCsv(widgets.widgets, 'Widgets');
 
-    return csv;
+    if (widgets.widgets.length) {
+      const csv = await this.csvService.exportCsv(widgets.widgets, 'Widgets');
+
+      return csv;
+    }
+
+    return 'There is no available data for such parameters';
   }
 
   public async filterWidgetByTitle({ filterValue }: FilterWidgetByTitleDto): Promise<Widget[]> {
