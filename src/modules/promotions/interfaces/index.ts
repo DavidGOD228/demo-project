@@ -13,6 +13,8 @@ export interface FeedSubmission {
   widgetId: string;
   type: string;
   title: string;
+  promotionId: string;
+  winner: boolean;
 }
 
 export interface FeedSubmissionResponse {
