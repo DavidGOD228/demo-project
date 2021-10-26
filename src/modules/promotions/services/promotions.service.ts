@@ -45,6 +45,8 @@ export class PromotionsService {
     private readonly csvService: ExportCsvService,
   ) {}
 
+  public concatenatedField = 'name';
+
   public addFilterQuery(
     qb: SelectQueryBuilder<UsersPromotion>,
     filterType: SubmissionsFilterTypeEnum,
@@ -96,19 +98,14 @@ export class PromotionsService {
       .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
       .leftJoinAndSelect('userPromotions.user', 'users')
-      .leftJoinAndSelect('users.wonPromotions', 'winners', 'winners.id = promotions.id')
-      .select([
-        'users.id as userId',
-        'users.email as email',
-        'widget.id as widgetId',
-        'widget.title as title',
-        'widget.type as type',
-        'winners.id as winner',
-      ])
-      .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name');
+      .leftJoinAndSelect('users.wonPromotions', 'wonPromotions', 'wonPromotions.id = promotions.id');
 
     if (fieldName && order) {
-      submissionsQuery.orderBy(`${fieldName}`, order);
+      if (fieldName === this.concatenatedField) {
+        submissionsQuery.orderBy('users.firstName', order).addOrderBy('users.lastName', order);
+      } else {
+        submissionsQuery.orderBy(`${fieldName}`, order);
+      }
     }
 
     if (filteringWinner?.length === 1) {
@@ -126,12 +123,21 @@ export class PromotionsService {
       submissionsQuery.where('widget.id IN (:...titles)', { titles: filteringTitle });
     }
 
-    const submissions = await submissionsQuery.getRawMany<FeedSubmission>();
+    submissionsQuery.take(limit).skip((pageNumber - 1) * limit);
 
-    // making pagination with js array method because typeorm query builder methods
-    // offset+limit/skip+take don't work with joins and getRawMany properly
-    const submissionsAll = submissions.slice((pageNumber - 1) * limit, pageNumber * limit);
+    const submissions = await submissionsQuery.getMany();
     const length = await submissionsQuery.getCount();
+
+    const submissionsAll: FeedSubmission[] = submissions.map(item => ({
+      name: `${item.user.firstName} ${item.user.lastName}`,
+      email: item.user.email,
+      title: item.promotion.widget.title,
+      type: item.promotion.widget.type,
+      userId: item.user.id,
+      promotionId: item.promotion.id,
+      widgetId: item.promotion.widget.id,
+      winner: !!item.user.wonPromotions.length,
+    }));
 
     return { submissions: submissionsAll, length };
   }
