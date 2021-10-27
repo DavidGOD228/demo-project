@@ -79,13 +79,30 @@ export class WidgetService {
   }
 
   public async getWidgetById(id: string): Promise<Widget> {
-    const widget = await this.widgetsRepository.findOne({ where: { id }, relations: ['scans'] });
+    const widget = await this.widgetsRepository.findOne({
+      where: { id },
+      relations: ['scans', 'tags', 'stories', 'channels'],
+    });
 
     if (!widget) {
-      throw new NotFoundException();
+      throw new NotFoundException('There is no widget with such id!');
     }
 
-    return widget;
+    return {
+      ...widget,
+      feedMediaUrl: widget.feedMediaUrl ? this.fileService.getPublicImageUrl(widget.feedMediaUrl) : undefined,
+      detailsMediaUrl: widget.detailsMediaUrl ? this.fileService.getPublicImageUrl(widget.detailsMediaUrl) : undefined,
+      thumbnailUrl: widget.thumbnailUrl ? this.fileService.getPublicImageUrl(widget.thumbnailUrl) : undefined,
+      storyAuthorAvatarUrl: widget.storyAuthorAvatarUrl
+        ? this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl)
+        : undefined,
+      stories: widget.stories?.length
+        ? widget.stories.map(story => ({
+            ...story,
+            assetUrl: this.fileService.getPublicImageUrl(story.assetUrl),
+          }))
+        : undefined,
+    };
   }
 
   public async addFeedMedia({ buffer, filename }: Express.Multer.File): Promise<AddFeedMediaResponse> {
