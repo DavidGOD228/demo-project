@@ -30,7 +30,7 @@ import { Promotion } from '../entities/promotion.entity';
 import { RolesGuard } from 'src/modules/auth/guards/roles.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
-import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
+import { BaseApiAdminOkResponses, BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 import { ApiFile } from 'src/common/interceptors';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { FeedSubmissionResponse, PromotionMediaResponse } from '../interfaces';
@@ -66,7 +66,7 @@ export class PromotionsController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
-  @BaseApiCreatedResponses()
+  @BaseApiAdminOkResponses()
   @Get('submissions')
   async getFeedSubmissions(
     @Query(new ValidationPipe({ transform: true, whitelist: true })) params: GetFeedSubmissionsDto,
