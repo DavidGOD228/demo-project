@@ -98,7 +98,7 @@ export class PromotionsService {
       .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
       .leftJoinAndSelect('userPromotions.user', 'users')
-      .leftJoinAndSelect('users.wonPromotions', 'wonPromotions', 'wonPromotions.id = promotions.id');
+      .leftJoinAndSelect('users.wonPromotions', 'wonPromotions');
 
     if (fieldName && order) {
       if (fieldName === this.concatenatedField) {
@@ -109,18 +109,19 @@ export class PromotionsService {
     }
 
     if (filteringWinner?.length === 1) {
-      submissionsQuery.andWhere(
-        `winners.id IS ${filteringWinner[0] === GetSubmissionsWinnersEnum.WINNER ? 'NOT' : ''} NULL`,
-        { types: filteringWinner },
-      );
+      if (filteringWinner[0] === GetSubmissionsWinnersEnum.WINNER) {
+        submissionsQuery.andWhere('wonPromotions.id = promotions.id');
+      } else {
+        submissionsQuery.andWhere('wonPromotions.id IS NULL');
+      }
     }
 
     if (filteringType) {
-      submissionsQuery.where('widget.type IN (:...types)', { types: filteringType });
+      submissionsQuery.andWhere('widget.type IN (:...types)', { types: filteringType });
     }
 
     if (filteringTitle) {
-      submissionsQuery.where('widget.id IN (:...titles)', { titles: filteringTitle });
+      submissionsQuery.andWhere('widget.title IN (:...titles)', { titles: filteringTitle });
     }
 
     submissionsQuery.take(limit).skip((pageNumber - 1) * limit);
