@@ -177,7 +177,7 @@ export class RecognitionService {
     body: GetWidgetPromotionDto,
     file: Express.Multer.File,
     userId: string,
-  ): Promise<Promotion | Promotion[]> {
+  ): Promise<(Promotion & { widgetId: string }) | Promotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const recognizeResult = await this.recognize(file);
@@ -217,7 +217,7 @@ export class RecognitionService {
           this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]),
         ]);
 
-        return { ...widget.promotion, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };
+        return { ...widget.promotion, widgetId: widget.id, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
       }
@@ -246,6 +246,7 @@ export class RecognitionService {
           if (widget.promotion) {
             return {
               ...widget.promotion,
+              widgetId: widget.id,
               imageUrl: this.getImageUrl(widget.promotion.imageUrl),
             };
           }
