@@ -47,7 +47,7 @@ export class RecognitionService {
     private readonly promotionsService: PromotionsService,
   ) {}
 
-  public readonly SIGNED_URL_EXPIRATION_TIME = 5;
+  public readonly SIGNED_URL_EXPIRATION_TIME = 604800; //7 days
 
   public isWidgetExclusiveForUser(widget: Widget, user: User): boolean {
     if (!widget.isExclusive) return false;
