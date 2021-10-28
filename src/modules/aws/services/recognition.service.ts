@@ -15,13 +15,13 @@ import { EmailsService } from '../../emails/services/emails.service';
 import { MailTemplateTypeEnum } from '../../emails/interfaces/mailTemplate.enum';
 import { GetChannelByImage } from '../interfaces/interfaces';
 import { UserService } from '../../users/services/user.service';
-import { GetPromotionErrorEnum } from '../../promotions/interfaces/promotions.enum';
+// import { GetPromotionErrorEnum } from '../../promotions/interfaces/promotions.enum';
 import { PromotionsService } from '../../promotions/services/promotions.service';
 
-const NO_PROMOTION_ERROR = {
-  message: 'This widget has no promotion',
-  key: GetPromotionErrorEnum.NO_PROMOTIONS,
-};
+// const NO_PROMOTION_ERROR = {
+//   message: 'This widget has no promotion',
+//   key: GetPromotionErrorEnum.NO_PROMOTIONS,
+// };
 
 @Injectable()
 export class RecognitionService {
@@ -207,7 +207,8 @@ export class RecognitionService {
 
       if (passedChannel) {
         if (!widget.promotion) {
-          throw new BadRequestException(NO_PROMOTION_ERROR);
+          // throw new BadRequestException(NO_PROMOTION_ERROR);
+          return [];
         }
 
         this.notifyUserWithEmail(user, [widget], passedChannel);
@@ -235,7 +236,8 @@ export class RecognitionService {
           .filter(id => !!id);
 
         if (!promotionIds.length) {
-          throw new BadRequestException(NO_PROMOTION_ERROR);
+          // throw new BadRequestException(NO_PROMOTION_ERROR);
+          return [];
         }
 
         this.notifyUserWithEmail(user, passedChannel.widgets, passedChannel);
