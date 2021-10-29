@@ -8,18 +8,15 @@ import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/interceptors';
 import * as constants from './common/constants/constants';
+import { CorsMiddleware } from './common/middlewares/cors.middleware';
 
 config({ path: `.env.${process.env.NODE_ENV}` });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: ['https://dev-cms.wilsonlive.app', 'https://cms.wilsonlive.app'],
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-    credentials: true,
-    maxAge: 86400,
-  });
+  app.use(CorsMiddleware);
+
   app.use(morgan('dev'));
 
   const configService = app.get<ConfigService>(ConfigService);
