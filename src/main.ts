@@ -8,14 +8,14 @@ import * as Sentry from '@sentry/node';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/interceptors';
 import * as constants from './common/constants/constants';
-import { CorsMiddleware } from './common/middlewares/cors.middleware';
+import { corsMiddleware } from './common/middlewares/cors.middleware';
 
 config({ path: `.env.${process.env.NODE_ENV}` });
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(CorsMiddleware);
+  app.use(corsMiddleware);
 
   app.use(morgan('dev'));
 
