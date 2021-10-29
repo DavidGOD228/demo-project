@@ -14,7 +14,12 @@ config({ path: `.env.${process.env.NODE_ENV}` });
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors();
+  app.enableCors({
+    origin: ['https://dev-cms.wilsonlive.app', 'https://cms.wilsonlive.app'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    maxAge: 86400,
+  });
   app.use(morgan('dev'));
 
   const configService = app.get<ConfigService>(ConfigService);
