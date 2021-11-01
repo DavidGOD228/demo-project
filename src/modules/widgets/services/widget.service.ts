@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, In, Like, Not, Repository } from 'typeorm';
+import { FindManyOptions, ILike, In, Not, Repository } from 'typeorm';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
@@ -283,7 +283,7 @@ export class WidgetService {
         'widgets.isExclusive as isExclusive',
       ])
       .leftJoin('widgets.channels', 'channel')
-      .addSelect("array_to_string(array_agg(CONCAT_WS(' ', channel.league, channel.type)), ', ')", 'channels')
+      .addSelect("array_to_string(array_agg(CONCAT_WS(' ', channel.leagueLabel, channel.type)), ', ')", 'channels')
       .limit(take)
       .offset((skip - 1) * take)
       .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
@@ -379,7 +379,7 @@ export class WidgetService {
     };
 
     if (filterValue.trim().length) {
-      query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: Like(`${filterValue}%`) };
+      query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: ILike(`${filterValue}%`) };
     } else {
       query.where = { type: Not(WidgetTypeEnum.CAROUSEL) };
     }
