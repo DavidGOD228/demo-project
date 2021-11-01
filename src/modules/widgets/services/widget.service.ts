@@ -106,7 +106,7 @@ export class WidgetService {
   }
 
   public async addFeedMedia({ buffer, filename }: Express.Multer.File): Promise<AddFeedMediaResponse> {
-    const feedMedia = await this.fileService.uploadRawMedia(buffer, filename, 'channels');
+    const feedMedia = await this.fileService.uploadRawMedia(buffer, filename, 'widgets');
 
     return { feedMedia };
   }
