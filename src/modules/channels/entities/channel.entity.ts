@@ -35,6 +35,12 @@ export class Channel {
   @Column({ enum: TypeLabelEnum })
   typeLabel: string;
 
+  @Column()
+  imageUrl: string;
+
+  @Column()
+  buttonLinkUrl: string;
+
   @OneToMany(() => Scan, scan => scan.channel)
   scans: Scan[];
 

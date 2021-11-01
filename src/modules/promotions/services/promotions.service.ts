@@ -104,7 +104,7 @@ export class PromotionsService {
       if (fieldName === this.concatenatedField) {
         submissionsQuery.orderBy('users.firstName', order).addOrderBy('users.lastName', order);
       } else {
-        submissionsQuery.orderBy(`${fieldName}`, order);
+        submissionsQuery.orderBy(`users.${fieldName}`, order);
       }
     }
 

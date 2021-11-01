@@ -50,16 +50,16 @@ export class WidgetService {
         return {
           ...widget,
           isFavorite: !!widget.users.length,
-          feedMediaUrl: this.fileService.getPublicImageUrl(widget.feedMediaUrl),
-          detailsMediaUrl: this.fileService.getPublicImageUrl(widget.detailsMediaUrl),
-          thumbnailUrl: this.fileService.getPublicImageUrl(widget.thumbnailUrl),
-          storyAuthorAvatarUrl: this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl),
+          feedMediaUrl: this.fileService.getImageUrl(widget.feedMediaUrl),
+          detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
+          thumbnailUrl: this.fileService.getImageUrl(widget.thumbnailUrl),
+          storyAuthorAvatarUrl: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
           stories: stories?.length
             ? stories
                 .sort((a, b) => a.priority - b.priority)
                 .map(story => ({
                   ...story,
-                  assetUrl: this.fileService.getPublicImageUrl(story.assetUrl),
+                  assetUrl: this.fileService.getImageUrl(story.assetUrl),
                 }))
             : undefined,
           childWidgets: childWidgets.length
@@ -67,10 +67,10 @@ export class WidgetService {
                 .sort((a, b) => a.carouselPriority - b.carouselPriority)
                 .map(childWidget => ({
                   ...childWidget,
-                  feedMediaUrl: this.fileService.getPublicImageUrl(widget.feedMediaUrl),
-                  detailsMediaUrl: this.fileService.getPublicImageUrl(widget.detailsMediaUrl),
-                  thumbnailUrl: this.fileService.getPublicImageUrl(widget.thumbnailUrl),
-                  storyAuthorAvatarUrl: this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl),
+                  feedMediaUrl: this.fileService.getImageUrl(widget.feedMediaUrl),
+                  detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
+                  thumbnailUrl: this.fileService.getImageUrl(widget.thumbnailUrl),
+                  storyAuthorAvatarUrl: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
                 }))
             : undefined,
         };
@@ -78,7 +78,7 @@ export class WidgetService {
       .filter(widget => !!widget);
   }
 
-  public async getWidgetById(id: string): Promise<Widget> {
+  public async getWidgetById(id: string) {
     const widget = await this.widgetsRepository.findOne({
       where: { id },
       relations: ['scans', 'tags', 'stories', 'channels'],
@@ -90,23 +90,23 @@ export class WidgetService {
 
     return {
       ...widget,
-      feedMediaUrl: widget.feedMediaUrl ? this.fileService.getPublicImageUrl(widget.feedMediaUrl) : undefined,
-      detailsMediaUrl: widget.detailsMediaUrl ? this.fileService.getPublicImageUrl(widget.detailsMediaUrl) : undefined,
-      thumbnailUrl: widget.thumbnailUrl ? this.fileService.getPublicImageUrl(widget.thumbnailUrl) : undefined,
-      storyAuthorAvatarUrl: widget.storyAuthorAvatarUrl
-        ? this.fileService.getPublicImageUrl(widget.storyAuthorAvatarUrl)
+      feedMediaLink: widget.feedMediaUrl ? this.fileService.getImageUrl(widget.feedMediaUrl) : undefined,
+      detailsMediaLink: widget.detailsMediaUrl ? this.fileService.getImageUrl(widget.detailsMediaUrl) : undefined,
+      thumbnailLink: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
+      storyAuthorAvatarLink: widget.storyAuthorAvatarUrl
+        ? this.fileService.getImageUrl(widget.storyAuthorAvatarUrl)
         : undefined,
       stories: widget.stories?.length
         ? widget.stories.map(story => ({
             ...story,
-            assetUrl: this.fileService.getPublicImageUrl(story.assetUrl),
+            assetLink: this.fileService.getImageUrl(story.assetUrl),
           }))
         : undefined,
     };
   }
 
   public async addFeedMedia({ buffer, filename }: Express.Multer.File): Promise<AddFeedMediaResponse> {
-    const feedMedia = await this.fileService.uploadRawMedia(buffer, filename, 'widgets');
+    const feedMedia = await this.fileService.uploadRawMedia(buffer, filename, 'channels');
 
     return { feedMedia };
   }
