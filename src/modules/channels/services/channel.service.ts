@@ -3,12 +3,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Channel } from '../entities/channel.entity';
 import { Repository } from 'typeorm';
 import { IGetChannel } from '../interfaces/interfaces';
+import { FileService } from 'src/modules/aws/services/file.service';
 
 @Injectable()
 export class ChannelService {
   constructor(
     @InjectRepository(Channel)
     private readonly channelRepository: Repository<Channel>,
+    private readonly fileService: FileService,
   ) {}
 
   public async getChannels(): Promise<IGetChannel[]> {
@@ -25,7 +27,7 @@ export class ChannelService {
   public async getChannelById(channelId: string): Promise<Channel> {
     const channel = await this.channelRepository
       .createQueryBuilder('channel')
-      .select(['channel.id', 'channel.league', 'channel.description'])
+      .select(['channel.id', 'channel.league', 'channel.description', 'channel.imageUrl', 'channel.buttonLinkUrl'])
       .where('channel.id = :channelId', { channelId: channelId })
       .getOne();
 
@@ -33,6 +35,6 @@ export class ChannelService {
       throw new NotFoundException('There is no channel with such id!');
     }
 
-    return channel;
+    return { ...channel, imageUrl: channel.imageUrl ? this.fileService.getImageUrl(channel.imageUrl) : undefined };
   }
 }

@@ -265,6 +265,6 @@ export class UserService {
       }
     }
 
-    return user;
+    return { ...user, imageUrl: user.imageUrl ? this.fileService.getImageUrl(user.imageUrl) : undefined };
   }
 }
