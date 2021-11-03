@@ -49,6 +49,7 @@ export class WidgetService {
 
         return {
           ...widget,
+          users: undefined,
           isFavorite: !!widget.users.length,
           feedMediaUrl: this.fileService.getImageUrl(widget.feedMediaUrl),
           detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
@@ -71,6 +72,14 @@ export class WidgetService {
                   detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
                   thumbnailUrl: this.fileService.getImageUrl(widget.thumbnailUrl),
                   storyAuthorAvatarUrl: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
+                  stories: childWidget.stories?.length
+                    ? childWidget.stories
+                        .sort((a, b) => a.priority - b.priority)
+                        .map(story => ({
+                          ...story,
+                          assetUrl: this.fileService.getImageUrl(story.assetUrl),
+                        }))
+                    : undefined,
                 }))
             : undefined,
         };
@@ -431,6 +440,30 @@ export class WidgetService {
     const widgets = await widgetList.getMany();
 
     return this.serializeWidgetList(widgets);
+  }
+
+  public async getCarousel(): Promise<Partial<Omit<Widget, 'childWidgets'> & { childWidgets: Partial<Widget>[] }>> {
+    const carousel = await this.widgetsRepository.findOne({
+      where: { type: WidgetTypeEnum.CAROUSEL },
+      join: {
+        alias: 'carousel',
+        leftJoinAndSelect: {
+          childWidgets: 'carousel.childWidgets',
+        },
+      },
+    });
+
+    return {
+      id: carousel.id,
+      type: carousel.type,
+      title: carousel.title,
+      childWidgets: carousel.childWidgets.map(item => ({
+        id: item.id,
+        title: item.title,
+        carouselTitle: item.title,
+        carouselPriority: item.carouselPriority,
+      })),
+    };
   }
 
   public async updateCarousel({

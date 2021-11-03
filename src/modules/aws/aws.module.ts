@@ -12,6 +12,7 @@ import { EmailsModule } from '../emails/emails.module';
 import { UserModule } from '../users/user.module';
 import { PromotionModule } from '../promotions/promotion.module';
 import { MAX_FILE_SIZE } from '../../common/constants/constants';
+import { FileService } from './services/file.service';
 
 @Module({
   imports: [
@@ -25,8 +26,8 @@ import { MAX_FILE_SIZE } from '../../common/constants/constants';
     PromotionModule,
     TypeOrmModule.forFeature([Channel, Widget, Scan, User]),
   ],
-  providers: [RecognitionService, ConfigService],
+  providers: [RecognitionService, ConfigService, FileService],
   controllers: [RecognitionController],
-  exports: [RecognitionService],
+  exports: [RecognitionService, FileService],
 })
 export class AwsModule {}
