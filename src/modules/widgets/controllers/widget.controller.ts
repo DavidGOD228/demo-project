@@ -115,6 +115,36 @@ export class WidgetController {
     }
   }
 
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @Get('/carousel')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async getCarouselWidget(): Promise<Partial<Omit<Widget, 'childWidgets'> & { childWidgets: Partial<Widget>[] }>> {
+    try {
+      return this.widgetsService.getCarousel();
+    } catch (error) {
+      handleError(error, 'getCarousel');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
+  @Put('/carousel')
+  @ApiOkResponse({ description: 'OK' })
+  @ApiNotFoundResponse({ description: 'Not Found' })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
+  async updateCarouselWidget(@Body(new ValidationPipe({ whitelist: true })) body: UpdateCarouselDto): Promise<Widget> {
+    try {
+      return this.widgetsService.updateCarousel(body);
+    } catch (error) {
+      handleError(error, 'updateCarouselWidget');
+    }
+  }
+
   @ApiBearerAuth()
   @Get(':id')
   @ApiOkResponse({ description: ReasonPhrases.OK })
@@ -138,19 +168,6 @@ export class WidgetController {
       return await this.widgetsService.deleteWidgetById(id);
     } catch (error) {
       handleError(error, 'getWidgetById');
-    }
-  }
-
-  @ApiBearerAuth()
-  @Put('/carousel')
-  @ApiOkResponse({ description: 'OK' })
-  @ApiNotFoundResponse({ description: 'Not Found' })
-  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  async updateCarouselWidget(@Body(new ValidationPipe({ whitelist: true })) body: UpdateCarouselDto): Promise<Widget> {
-    try {
-      return this.widgetsService.updateCarousel(body);
-    } catch (error) {
-      handleError(error, 'updateCarouselWidget');
     }
   }
 

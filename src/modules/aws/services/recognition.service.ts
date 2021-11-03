@@ -17,6 +17,7 @@ import { GetChannelByImage } from '../interfaces/interfaces';
 import { UserService } from '../../users/services/user.service';
 // import { GetPromotionErrorEnum } from '../../promotions/interfaces/promotions.enum';
 import { PromotionsService } from '../../promotions/services/promotions.service';
+import { FileService } from './file.service';
 
 // const NO_PROMOTION_ERROR = {
 //   message: 'This widget has no promotion',
@@ -45,9 +46,9 @@ export class RecognitionService {
     private readonly userService: UserService,
 
     private readonly promotionsService: PromotionsService,
-  ) {}
 
-  public readonly SIGNED_URL_EXPIRATION_TIME = 604800; //7 days
+    private readonly fileService: FileService,
+  ) {}
 
   public isWidgetExclusiveForUser(widget: Widget, user: User): boolean {
     if (!widget.isExclusive) return false;
@@ -66,18 +67,6 @@ export class RecognitionService {
     });
 
     return passedChannel;
-  }
-
-  public getImageUrl(fileKey: string) {
-    const s3Bucket = new sdk.S3();
-
-    const requestObject: Record<string, any> = {
-      Expires: this.SIGNED_URL_EXPIRATION_TIME,
-      Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
-      Key: fileKey,
-    };
-
-    return s3Bucket.getSignedUrl('getObject', requestObject);
   }
 
   public async increaseScanTimes(widget: Widget, user: User, channel: Channel): Promise<void> {
@@ -218,7 +207,11 @@ export class RecognitionService {
           this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]),
         ]);
 
-        return { ...widget.promotion, widgetId: widget.id, imageUrl: this.getImageUrl(widget.promotion.imageUrl) };
+        return {
+          ...widget.promotion,
+          widgetId: widget.id,
+          imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
+        };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
       }
@@ -249,7 +242,7 @@ export class RecognitionService {
             return {
               ...widget.promotion,
               widgetId: widget.id,
-              imageUrl: this.getImageUrl(widget.promotion.imageUrl),
+              imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
             };
           }
         });

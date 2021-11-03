@@ -16,7 +16,7 @@ export class FileService {
     @InjectRepository(User) private readonly usersRepository: Repository<User>,
   ) {}
 
-  public SIGNED_URL_EXPIRATION_TIME = 5;
+  public SIGNED_URL_EXPIRATION_TIME = 604800; //7 days
 
   public async uploadRawMedia(dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
     const encryptedName = crypto.AES.encrypt(filename, constants.WILSON_NAME_SECRET);
@@ -62,6 +62,10 @@ export class FileService {
   }
 
   public getImageUrl(fileKey: string) {
+    if (!fileKey) {
+      return undefined;
+    }
+
     const s3Bucket = new sdk.S3();
 
     const requestObject: Record<string, any> = {
