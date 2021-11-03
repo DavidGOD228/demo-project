@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindManyOptions, ILike, In, Not, Repository } from 'typeorm';
+import { FindManyOptions, ILike, In, IsNull, Not, Repository } from 'typeorm';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
@@ -466,13 +466,7 @@ export class WidgetService {
     };
   }
 
-  public async updateCarousel({
-    title,
-    isExclusive,
-    status,
-    widgetsToAdd,
-    widgetsToRemove,
-  }: UpdateCarouselDto): Promise<Widget> {
+  public async updateCarousel({ title, isExclusive, status, widgetsToAdd }: UpdateCarouselDto): Promise<Widget> {
     const carousel = await this.widgetsRepository.findOne({ where: { type: WidgetTypeEnum.CAROUSEL } });
 
     if (title) {
@@ -488,6 +482,15 @@ export class WidgetService {
       carousel.isExclusive = isExclusive;
     }
 
+    await this.widgetsRepository.update(
+      { id: Not(IsNull()) },
+      {
+        parentWidget: null,
+        carouselTitle: null,
+        carouselPriority: null,
+      },
+    );
+
     if (widgetsToAdd?.length) {
       await Promise.all(
         widgetsToAdd.map(item =>
@@ -498,14 +501,6 @@ export class WidgetService {
           }),
         ),
       );
-    }
-
-    if (widgetsToRemove?.length) {
-      await this.widgetsRepository.update(widgetsToRemove, {
-        parentWidget: null,
-        carouselTitle: null,
-        carouselPriority: null,
-      });
     }
 
     await this.widgetsRepository.save(carousel);
