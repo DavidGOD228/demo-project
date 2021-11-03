@@ -469,6 +469,7 @@ export class WidgetService {
   public async updateCarousel({
     title,
     isExclusive,
+    status,
     widgetsToAdd,
     widgetsToRemove,
   }: UpdateCarouselDto): Promise<Widget> {
@@ -476,6 +477,10 @@ export class WidgetService {
 
     if (title) {
       carousel.title = title;
+    }
+
+    if (status) {
+      carousel.status = status;
     }
 
     // != used for checking if exclusive value is neither null nor undefined
