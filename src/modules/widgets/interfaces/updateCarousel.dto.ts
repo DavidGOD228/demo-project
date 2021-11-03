@@ -36,10 +36,4 @@ export class UpdateCarouselDto {
   @Type(() => AddToCarouselWidget)
   @ValidateNested({ each: true })
   widgetsToAdd?: AddToCarouselWidget[];
-
-  @ApiPropertyOptional()
-  @IsArray()
-  @IsOptional()
-  @IsUUID(4, { each: true })
-  widgetsToRemove?: string[];
 }
