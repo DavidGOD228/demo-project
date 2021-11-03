@@ -460,7 +460,7 @@ export class WidgetService {
       childWidgets: carousel.childWidgets.map(item => ({
         id: item.id,
         title: item.title,
-        carouselTitle: item.title,
+        carouselTitle: item.carouselTitle,
         carouselPriority: item.carouselPriority,
       })),
     };
