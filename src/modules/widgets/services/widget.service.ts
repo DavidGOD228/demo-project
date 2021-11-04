@@ -295,8 +295,13 @@ export class WidgetService {
       .addSelect("array_to_string(array_agg(CONCAT_WS(' ', channel.leagueLabel, channel.type)), ', ')", 'channels')
       .limit(take)
       .offset((skip - 1) * take)
-      .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
       .groupBy('widgets.id');
+
+    if (sortField === 'title') {
+      query.orderBy(`LOWER(${sortField})`, sortOrder === 'DESC' ? 'DESC' : 'ASC');
+    } else {
+      query.orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC');
+    }
 
     if (filteringType) {
       query.where('widgets.type IN (:...types)', { types: filteringType });

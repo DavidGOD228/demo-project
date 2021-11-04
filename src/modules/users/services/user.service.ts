@@ -46,6 +46,8 @@ export class UserService {
     private readonly emailService: EmailsService,
   ) {}
 
+  public concatenatedField = 'name';
+
   public isProfileFilledOut(user: User) {
     return !!(user.firstName && user.lastName && user.email);
   }
@@ -217,7 +219,7 @@ export class UserService {
   public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<UsersWithFiltersResponse> {
     const { limit: take, pageNumber: skip, fieldName: sortField, order: sortOrder } = filterByPages;
 
-    const users = await this.usersRepository
+    const usersQuery = await this.usersRepository
       .createQueryBuilder('users')
       .select([
         'users.id as id',
@@ -229,9 +231,17 @@ export class UserService {
       ])
       .addSelect("CONCAT_WS(' ', users.firstName, users.lastName)", 'name')
       .limit(take)
-      .offset((skip - 1) * take)
-      .orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC')
-      .getRawMany();
+      .offset((skip - 1) * take);
+
+    if (sortField === this.concatenatedField) {
+      usersQuery
+        .orderBy('LOWER(users.firstName)', sortOrder === 'DESC' ? 'DESC' : 'ASC')
+        .addOrderBy('LOWER(users.firstName)', sortOrder === 'DESC' ? 'DESC' : 'ASC');
+    } else {
+      usersQuery.orderBy(`LOWER(${sortField})`, sortOrder === 'DESC' ? 'DESC' : 'ASC');
+    }
+
+    const users = await usersQuery.getRawMany();
 
     const length = await this.usersRepository.createQueryBuilder('usersAll').getCount();
 
