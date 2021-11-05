@@ -412,7 +412,7 @@ export class WidgetService {
 
     if (user.scans?.length) {
       widgetList
-        .leftJoin('widget.channels', 'channels')
+        .leftJoinAndSelect('widget.channels', 'channels')
         .andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
           userChannels: user.scans.map(item => item.channel.id),
         });
@@ -438,7 +438,10 @@ export class WidgetService {
       )
       .leftJoinAndSelect('children.stories', 'childStories')
       .leftJoinAndSelect('widget.tags', 'tags')
-      .leftJoinAndSelect('children.tags', 'child_tags');
+      .leftJoinAndSelect('children.tags', 'child_tags')
+      .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
+      .leftJoinAndSelect('children.channels', 'child_channels')
+      .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
 
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
