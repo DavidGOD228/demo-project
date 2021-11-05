@@ -54,7 +54,7 @@ export default class TwilioSmsService {
         return { authToken: token, onBoarded: userExist.onboarded };
       }
 
-      const user = this.usersRepository.create({
+      const user = await this.usersRepository.save({
         phoneNumber: phoneNumber,
         lastLoginAt: new Date(),
         location: location,
@@ -91,7 +91,7 @@ export default class TwilioSmsService {
         return { authToken: token, onBoarded: userExist.onboarded };
       }
 
-      const user = this.usersRepository.create({
+      const user = await this.usersRepository.save({
         phoneNumber: userPhoneNumber,
         lastLoginAt: new Date(),
         location: location,
