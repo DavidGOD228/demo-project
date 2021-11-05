@@ -102,9 +102,9 @@ export class PromotionsService {
 
     if (fieldName && order) {
       if (fieldName === this.concatenatedField) {
-        submissionsQuery.orderBy('users.firstName', order).addOrderBy('users.lastName', order);
+        submissionsQuery.orderBy('LOWER(users.firstName)', order).addOrderBy('LOWER(users.lastName)', order);
       } else {
-        submissionsQuery.orderBy(`users.${fieldName}`, order);
+        submissionsQuery.orderBy(`LOWER(users.${fieldName})`, order);
       }
     }
 
@@ -124,21 +124,23 @@ export class PromotionsService {
       submissionsQuery.andWhere('widget.title IN (:...titles)', { titles: filteringTitle });
     }
 
-    submissionsQuery.take(limit).skip((pageNumber - 1) * limit);
-
     const submissions = await submissionsQuery.getMany();
     const length = await submissionsQuery.getCount();
 
-    const submissionsAll: FeedSubmission[] = submissions.map(item => ({
-      name: `${item.user.firstName} ${item.user.lastName}`,
-      email: item.user.email,
-      title: item.promotion.widget.title,
-      type: item.promotion.widget.type,
-      userId: item.user.id,
-      promotionId: item.promotion.id,
-      widgetId: item.promotion.widget.id,
-      winner: !!item.user.wonPromotions.length,
-    }));
+    // making pagination with js array method because typeorm query builder methods
+    // offset+limit/skip+take don't work with joins and LOWER() properly
+    const submissionsAll: FeedSubmission[] = submissions
+      .slice((pageNumber - 1) * limit, pageNumber * limit)
+      .map(item => ({
+        name: `${item.user.firstName} ${item.user.lastName}`,
+        email: item.user.email,
+        title: item.promotion.widget.title,
+        type: item.promotion.widget.type,
+        userId: item.user.id,
+        promotionId: item.promotion.id,
+        widgetId: item.promotion.widget.id,
+        winner: !!item.user.wonPromotions.length,
+      }));
 
     return { submissions: submissionsAll, length };
   }
