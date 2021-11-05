@@ -236,7 +236,7 @@ export class UserService {
     if (sortField === this.concatenatedField) {
       usersQuery
         .orderBy('LOWER(users.firstName)', sortOrder === 'DESC' ? 'DESC' : 'ASC')
-        .addOrderBy('LOWER(users.firstName)', sortOrder === 'DESC' ? 'DESC' : 'ASC');
+        .addOrderBy('LOWER(users.lastName)', sortOrder === 'DESC' ? 'DESC' : 'ASC');
     } else if (sortField === 'email' || sortField === 'location') {
       usersQuery.orderBy(`LOWER${sortField})`, sortOrder === 'DESC' ? 'DESC' : 'ASC');
     } else {
