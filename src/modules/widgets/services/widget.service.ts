@@ -478,6 +478,7 @@ export class WidgetService {
       id: carousel.id,
       type: carousel.type,
       title: carousel.title,
+      status: carousel.status,
       childWidgets: carousel.childWidgets.map(item => ({
         id: item.id,
         title: item.title,
