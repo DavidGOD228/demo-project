@@ -44,7 +44,23 @@ export class WidgetService {
         const { stories, childWidgets } = widget;
 
         if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
-          return widget.childWidgets[0];
+          const childWidget = widget.childWidgets[0];
+
+          return {
+            ...childWidget,
+            feedMediaUrl: this.fileService.getImageUrl(childWidget.feedMediaUrl),
+            detailsMediaUrl: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
+            thumbnailUrl: this.fileService.getImageUrl(childWidget.thumbnailUrl),
+            storyAuthorAvatarUrl: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
+            stories: childWidget.stories?.length
+              ? childWidget.stories
+                  .sort((a, b) => a.priority - b.priority)
+                  .map(story => ({
+                    ...story,
+                    assetUrl: this.fileService.getImageUrl(story.assetUrl),
+                  }))
+              : undefined,
+          };
         }
 
         return {
@@ -68,10 +84,10 @@ export class WidgetService {
                 .sort((a, b) => a.carouselPriority - b.carouselPriority)
                 .map(childWidget => ({
                   ...childWidget,
-                  feedMediaUrl: this.fileService.getImageUrl(widget.feedMediaUrl),
-                  detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
-                  thumbnailUrl: this.fileService.getImageUrl(widget.thumbnailUrl),
-                  storyAuthorAvatarUrl: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
+                  feedMediaUrl: this.fileService.getImageUrl(childWidget.feedMediaUrl),
+                  detailsMediaUrl: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
+                  thumbnailUrl: this.fileService.getImageUrl(childWidget.thumbnailUrl),
+                  storyAuthorAvatarUrl: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
                   stories: childWidget.stories?.length
                     ? childWidget.stories
                         .sort((a, b) => a.priority - b.priority)
