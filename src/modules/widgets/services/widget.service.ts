@@ -38,10 +38,34 @@ export class WidgetService {
     private readonly csvService: ExportCsvService,
   ) {}
 
+  public groupWidgetScans(widgetChannels: Channel[]) {
+    const channels = widgetChannels
+      .map(channel => {
+        if (channel.league && channel.scans.length) {
+          return {
+            league: channel.league,
+            number: channel.scans.map(item => item.number).reduce((prev, next) => prev + next, 0),
+          };
+        }
+      })
+      .filter(e => !!e);
+
+    const result = channels.reduce((acc, { league, number }) => {
+      acc[league] ??= { league: league, number: 0 };
+      acc[league].number = acc[league].number + number;
+
+      return acc;
+    }, {});
+
+    return Object.values(result);
+  }
+
   public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget & { isFavorite: boolean }>[] {
     return widgets
       .map(widget => {
-        const { stories, childWidgets } = widget;
+        const { stories, childWidgets, channels } = widget;
+
+        const scans = this.groupWidgetScans(channels);
 
         if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
           const childWidget = widget.childWidgets[0];
@@ -98,6 +122,7 @@ export class WidgetService {
                     : undefined,
                 }))
             : undefined,
+          groupedScans: scans,
         };
       })
       .filter(widget => !!widget);
