@@ -98,7 +98,7 @@ export class PromotionsService {
       .leftJoinAndSelect('userPromotions.promotion', 'promotions')
       .leftJoinAndSelect('promotions.widget', 'widget')
       .leftJoinAndSelect('userPromotions.user', 'users')
-      .leftJoinAndSelect('users.wonPromotions', 'wonPromotions');
+      .leftJoinAndSelect('users.wonPromotions', 'wonPromotions', 'wonPromotions.id = promotions.id');
 
     if (fieldName && order) {
       if (fieldName === this.concatenatedField) {
