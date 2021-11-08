@@ -4,6 +4,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsEnum,
   IsInt,
   IsMilitaryTime,
   IsOptional,
@@ -62,7 +63,8 @@ export class CreateWidgetDto {
   tagIds?: string[];
 
   @ApiProperty({ enum: WidgetStatusEnum })
-  status: string;
+  @IsEnum(WidgetStatusEnum)
+  status: WidgetStatusEnum;
 
   @ApiProperty()
   @IsDate()
