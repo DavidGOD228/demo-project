@@ -116,12 +116,13 @@ export class WidgetService {
     return {
       ...widget,
       feedMediaLink: widget.feedMediaUrl ? this.fileService.getImageUrl(widget.feedMediaUrl) : undefined,
-      promotionButtonColor: widget.promotion.buttonColor,
-      promotionButtonText: widget.promotion.buttonText,
-      promotionImageUrl: widget.promotion.imageUrl,
-      promotionMediaLink: widget.promotion.imageUrl
-        ? this.fileService.getImageUrl(widget.promotion.imageUrl)
-        : undefined,
+      promotionButtonColor: widget.promotion && widget.promotion.buttonColor,
+      promotionButtonText: widget.promotion && widget.promotion.buttonText,
+      promotionImageUrl: widget.promotion && widget.promotion.imageUrl,
+      promotionMediaLink:
+        widget.promotion && widget.promotion.imageUrl
+          ? this.fileService.getImageUrl(widget.promotion.imageUrl)
+          : undefined,
       detailsMediaLink: widget.detailsMediaUrl ? this.fileService.getImageUrl(widget.detailsMediaUrl) : undefined,
       thumbnailLink: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
       storyAuthorAvatarLink: widget.storyAuthorAvatarUrl
