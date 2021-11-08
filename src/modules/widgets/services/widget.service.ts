@@ -106,7 +106,7 @@ export class WidgetService {
   public async getWidgetById(id: string) {
     const widget = await this.widgetsRepository.findOne({
       where: { id },
-      relations: ['scans', 'tags', 'stories', 'channels'],
+      relations: ['scans', 'tags', 'stories', 'channels', 'promotion'],
     });
 
     if (!widget) {
@@ -116,6 +116,12 @@ export class WidgetService {
     return {
       ...widget,
       feedMediaLink: widget.feedMediaUrl ? this.fileService.getImageUrl(widget.feedMediaUrl) : undefined,
+      promotionButtonColor: widget.promotion.buttonColor,
+      promotionButtonText: widget.promotion.buttonText,
+      promotionImageUrl: widget.promotion.imageUrl,
+      promotionMediaLink: widget.promotion.imageUrl
+        ? this.fileService.getImageUrl(widget.promotion.imageUrl)
+        : undefined,
       detailsMediaLink: widget.detailsMediaUrl ? this.fileService.getImageUrl(widget.detailsMediaUrl) : undefined,
       thumbnailLink: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
       storyAuthorAvatarLink: widget.storyAuthorAvatarUrl
