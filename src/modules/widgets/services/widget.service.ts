@@ -121,6 +121,7 @@ export class WidgetService {
                           assetUrl: this.fileService.getImageUrl(story.assetUrl),
                         }))
                     : undefined,
+                  groupedScans: this.groupWidgetScans(childWidget.channels),
                 }))
             : undefined,
           groupedScans: scans,
