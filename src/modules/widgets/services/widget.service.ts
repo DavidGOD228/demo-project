@@ -38,10 +38,34 @@ export class WidgetService {
     private readonly csvService: ExportCsvService,
   ) {}
 
+  public groupWidgetScans(widgetChannels: Channel[]) {
+    const channels = widgetChannels
+      .map(channel => {
+        if (channel.league && channel.scans.length) {
+          return {
+            league: channel.league,
+            number: channel.scans.map(item => item.number).reduce((prev, next) => prev + next, 0),
+          };
+        }
+      })
+      .filter(e => !!e);
+
+    const result = channels.reduce((acc, { league, number }) => {
+      acc[league] ??= { league: league, number: 0 };
+      acc[league].number = acc[league].number + number;
+
+      return acc;
+    }, {});
+
+    return Object.values(result);
+  }
+
   public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget & { isFavorite: boolean }>[] {
     return widgets
       .map(widget => {
-        const { stories, childWidgets } = widget;
+        const { stories, childWidgets, channels } = widget;
+
+        const scans = this.groupWidgetScans(channels);
 
         if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
           const childWidget = widget.childWidgets[0];
@@ -60,6 +84,7 @@ export class WidgetService {
                     assetUrl: this.fileService.getImageUrl(story.assetUrl),
                   }))
               : undefined,
+            groupedScans: this.groupWidgetScans(childWidget.channels),
           };
         }
 
@@ -96,8 +121,10 @@ export class WidgetService {
                           assetUrl: this.fileService.getImageUrl(story.assetUrl),
                         }))
                     : undefined,
+                  groupedScans: this.groupWidgetScans(childWidget.channels),
                 }))
             : undefined,
+          groupedScans: scans,
         };
       })
       .filter(widget => !!widget);
@@ -435,7 +462,7 @@ export class WidgetService {
 
     if (user.scans?.length) {
       widgetList
-        .leftJoin('widget.channels', 'channels')
+        .leftJoinAndSelect('widget.channels', 'channels')
         .andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
           userChannels: user.scans.map(item => item.channel.id),
         });
@@ -461,7 +488,10 @@ export class WidgetService {
       )
       .leftJoinAndSelect('children.stories', 'childStories')
       .leftJoinAndSelect('widget.tags', 'tags')
-      .leftJoinAndSelect('children.tags', 'child_tags');
+      .leftJoinAndSelect('children.tags', 'child_tags')
+      .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
+      .leftJoinAndSelect('children.channels', 'child_channels')
+      .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
 
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
