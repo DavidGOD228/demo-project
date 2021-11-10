@@ -241,7 +241,7 @@ export class UserService {
         .orderBy('LOWER(users.firstName)', sortOrder === 'DESC' ? 'DESC' : 'ASC')
         .addOrderBy('LOWER(users.lastName)', sortOrder === 'DESC' ? 'DESC' : 'ASC');
     } else if (sortField === 'email' || sortField === 'location') {
-      usersQuery.orderBy(`LOWER${sortField})`, sortOrder === 'DESC' ? 'DESC' : 'ASC');
+      usersQuery.orderBy(`LOWER(${sortField})`, sortOrder === 'DESC' ? 'DESC' : 'ASC');
     } else {
       usersQuery.orderBy(sortField, sortOrder === 'DESC' ? 'DESC' : 'ASC');
     }
