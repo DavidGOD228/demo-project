@@ -368,7 +368,7 @@ export class WidgetService {
     const { channelIds, tagIds, storiesToAdd } = body;
     const widget = await this.widgetsRepository.findOne({
       where: { id: widgetId },
-      relations: ['channels', 'tags', 'stories'],
+      relations: ['channels', 'tags', 'stories', 'promotion'],
     });
 
     if (channelIds) {
@@ -381,6 +381,18 @@ export class WidgetService {
       const tags = await this.tagsRepository.find({ where: { id: In(tagIds) } });
 
       widget.tags = tags;
+    }
+
+    if (body.promotionButtonColor) {
+      widget.promotion.buttonColor = body.promotionButtonColor;
+    }
+
+    if (body.promotionButtonText) {
+      widget.promotion.buttonText = body.promotionButtonText;
+    }
+
+    if (body.promotionMediaUrl) {
+      widget.promotion.imageUrl = body.promotionMediaUrl;
     }
 
     if (storiesToAdd?.length) {
