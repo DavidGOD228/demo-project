@@ -80,7 +80,10 @@ export class UserService {
       ]);
     }
 
-    return updatedUser;
+    return {
+      ...updatedUser,
+      imageUrl: updatedUser.imageUrl ? this.fileService.getImageUrl(updatedUser.imageUrl) : undefined,
+    };
   }
 
   public async updateUserInterests(body: UpdateUserInterestsDto, userId: string): Promise<User> {
