@@ -472,12 +472,12 @@ export class WidgetService {
       widgetList.andWhere('widget.isExclusive = FALSE');
     }
 
+    widgetList.leftJoinAndSelect('widget.channels', 'channels');
+
     if (user.scans?.length) {
-      widgetList
-        .leftJoinAndSelect('widget.channels', 'channels')
-        .andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
-          userChannels: user.scans.map(item => item.channel.id),
-        });
+      widgetList.andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
+        userChannels: user.scans.map(item => item.channel.id),
+      });
     } else {
       widgetList.andWhere('widget.isExclusive = false');
     }
