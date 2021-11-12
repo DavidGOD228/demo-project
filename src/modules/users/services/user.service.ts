@@ -154,7 +154,7 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    return await this.widgetsRepository
+    const favorites = await this.widgetsRepository
       .createQueryBuilder('widgets')
       .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
       .leftJoin('widgets.users', 'user')
@@ -162,6 +162,11 @@ export class UserService {
       .limit(limit)
       .offset((pageNumber - 1) * limit)
       .getMany();
+
+    return favorites.map(item => ({
+      ...item,
+      thumbnailUrl: this.fileService.getImageUrl(item.thumbnailUrl),
+    }));
   }
 
   public async getUserAvatar(userId: string): Promise<UserAvatarResponse> {
@@ -190,7 +195,7 @@ export class UserService {
       throw new NotFoundException();
     }
 
-    return await this.usersPromotionsRepository
+    const userPromotions = await this.usersPromotionsRepository
       .createQueryBuilder('userPromotions')
       .leftJoin('userPromotions.promotion', 'promotions')
       .addSelect(['promotions.id', 'promotions.imageUrl'])
@@ -201,6 +206,14 @@ export class UserService {
       .limit(limit)
       .offset((pageNumber - 1) * limit)
       .getMany();
+
+    return userPromotions.map(item => ({
+      ...item,
+      promotion: {
+        ...item.promotion,
+        imageUrl: this.fileService.getImageUrl(item.promotion.imageUrl),
+      },
+    }));
   }
 
   public async getUserScans(userId: string): Promise<Channel[]> {
@@ -212,11 +225,11 @@ export class UserService {
 
     return await this.channelsRepository
       .createQueryBuilder('channels')
-      .select(['channels.id', 'channels.league'])
-      .leftJoin('channels.scans', 'scans')
-      .addSelect(['scans.number'])
-      .andWhere('scans.object_id = :userId', { userId: user.id })
-      .getMany();
+      .select(['channels.league as league'])
+      .leftJoin('channels.scans', 'scans', 'scans.object_id = :userId', { userId: user.id })
+      .addSelect('COALESCE(SUM(scans.number), 0)::integer', 'number')
+      .groupBy('channels.league')
+      .getRawMany();
   }
 
   public async getUsersWithFilters(filterByPages: FilterUserPagesDto): Promise<UsersWithFiltersResponse> {
