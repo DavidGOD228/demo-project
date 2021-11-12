@@ -5,6 +5,7 @@ const allowedOrigins = ['https://dev-cms.wilsonlive.app', 'https://cms.wilsonliv
 export function corsMiddleware(req: Request, res: Response, next: NextFunction) {
   if (allowedOrigins.includes(req.headers.origin)) {
     res.setHeader('Access-Control-Allow-Origin', req.headers.origin);
+    res.setHeader('Vary', 'Origin');
   }
 
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, X-XSRF-TOKEN');
