@@ -38,6 +38,8 @@ export class WidgetService {
     private readonly csvService: ExportCsvService,
   ) {}
 
+  MAX_FILTERED_OPTIONS = 10;
+
   public groupWidgetScans(widgetChannels: Channel[]) {
     const channels = widgetChannels
       .map(channel => {
@@ -452,10 +454,11 @@ export class WidgetService {
   public async filterWidgetByTitle({ filterValue }: FilterWidgetByTitleDto): Promise<Widget[]> {
     const query: FindManyOptions<Widget> = {
       select: ['id', 'title', 'type'],
+      take: this.MAX_FILTERED_OPTIONS,
     };
 
     if (filterValue.trim().length) {
-      query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: ILike(`${filterValue}%`) };
+      query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: ILike(`${filterValue.toLowerCase().trim()}%`) };
     } else {
       query.where = { type: Not(WidgetTypeEnum.CAROUSEL) };
     }
