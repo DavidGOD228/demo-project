@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { MIN_TAG_NAME_LENGTH } from 'src/common/constants/constants';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { Repository } from 'typeorm';
 import { Tag } from '../entities/tag.entity';
@@ -16,6 +15,8 @@ export class TagsService {
     @InjectRepository(Widget)
     private readonly widgetsRepository: Repository<Widget>,
   ) {}
+
+  MAX_FILTERED_OPTIONS = 10;
 
   public async addTag({ name }: CreateTagDto): Promise<Tag> {
     const tag = await this.tagsRepository
@@ -35,14 +36,11 @@ export class TagsService {
   }
 
   public async getFilteredTags({ filterValue }: TagNameFilterDto): Promise<Tag[]> {
-    if (filterValue.trim().length >= MIN_TAG_NAME_LENGTH) {
-      return await this.tagsRepository
-        .createQueryBuilder('tags')
-        .where('LOWER(tags.name) LIKE :name', { name: `${filterValue.toLowerCase()}%` })
-        .getMany();
-    }
-
-    return [];
+    return await this.tagsRepository
+      .createQueryBuilder('tags')
+      .where('LOWER(tags.name) LIKE :name', { name: `${filterValue.toLowerCase().trim()}%` })
+      .take(this.MAX_FILTERED_OPTIONS)
+      .getMany();
   }
 
   public async deleteTagFromWidget(tagId: string, { widgetId }: DeleteTagFromWidget): Promise<DeleteTagResponse> {
