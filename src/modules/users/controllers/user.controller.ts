@@ -96,7 +96,7 @@ export class UserController {
   @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Patch('likes')
-  async addUserFavorite(@Body() body: AddUserFavoriteDto, @Req() req: RequestWithUserParams): Promise<User> {
+  async addUserFavorite(@Body() body: AddUserFavoriteDto, @Req() req: RequestWithUserParams): Promise<Partial<Widget>> {
     try {
       return await this.usersService.addUserFavorite(body, req.user.id);
     } catch (error) {

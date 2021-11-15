@@ -110,7 +110,7 @@ export class UserService {
     return { message: 'User on-boarded status successfully updated!' };
   }
 
-  public async addUserFavorite(body: AddUserFavoriteDto, userId: string): Promise<User> {
+  public async addUserFavorite(body: AddUserFavoriteDto, userId: string): Promise<Partial<Widget>> {
     const { likeExist, widgetId } = body;
     const widget = await this.widgetsRepository.findOne({ where: { id: widgetId } });
 
@@ -127,12 +127,22 @@ export class UserService {
     if (likeExist) {
       user.widgets = user.widgets.filter(widgetLike => widgetLike.id !== widgetId);
 
-      return await this.usersRepository.save(user);
+      return {
+        id: widget.id,
+        title: widget.title,
+        thumbnailUrl: widget.thumbnailUrl,
+      };
     }
 
     user.widgets.push(widget);
 
-    return await this.usersRepository.save(user);
+    await this.usersRepository.save(user);
+
+    return {
+      id: widget.id,
+      title: widget.title,
+      thumbnailUrl: widget.thumbnailUrl,
+    };
   }
 
   public async addUserAvatar(userId: string, imageBuffer: Buffer, filename: string): Promise<UserAvatarUploadResponse> {
