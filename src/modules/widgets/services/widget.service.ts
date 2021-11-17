@@ -184,10 +184,11 @@ export class WidgetService {
     return { thumbnail };
   }
 
-  public async addStoryMedia({ buffer, filename }: Express.Multer.File): Promise<AddStoryMedia> {
+  public async addStoryMedia({ buffer, filename, mimetype }: Express.Multer.File): Promise<AddStoryMedia> {
     const storyAssetUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories');
+    const type = this.fileService.checkFileType(mimetype);
 
-    return { storyAssetUrl };
+    return { storyAssetUrl, type };
   }
 
   public async addAuthorAvatar({ buffer, filename }: Express.Multer.File): Promise<AddAuthorAvatarResponse> {

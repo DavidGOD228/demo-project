@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import * as constants from '../../../common/constants/constants';
+import { StoryBlockTypeEnum } from '../../widgets/interfaces/widget.enum';
 
 @Injectable()
 export class FileService {
@@ -17,6 +18,15 @@ export class FileService {
   ) {}
 
   public SIGNED_URL_EXPIRATION_TIME = 604800; //7 days
+
+  public checkFileType(mimetype: string): StoryBlockTypeEnum {
+    const videoType = 'video';
+    const imageType = 'image';
+
+    if (mimetype.includes(videoType)) return StoryBlockTypeEnum.VIDEO;
+
+    if (mimetype.includes(imageType)) return StoryBlockTypeEnum.IMAGE;
+  }
 
   public async uploadRawMedia(dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
     const encryptedName = crypto.AES.encrypt(filename, constants.WILSON_NAME_SECRET);

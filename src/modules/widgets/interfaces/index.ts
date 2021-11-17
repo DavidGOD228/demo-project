@@ -1,4 +1,5 @@
 import { Widget } from '../entities/widget.entity';
+import { StoryBlockTypeEnum } from './widget.enum';
 
 export interface FilteredWidgetsResponse {
   widgets: Partial<Widget>[];
@@ -19,6 +20,7 @@ export interface AddFeedMediaResponse {
 
 export interface AddStoryMedia {
   storyAssetUrl: string;
+  type: StoryBlockTypeEnum;
 }
 
 export interface DeleteWidgetResponse {
