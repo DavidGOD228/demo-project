@@ -126,13 +126,13 @@ export class UserService {
 
     if (likeExist) {
       user.widgets = user.widgets.filter(widgetLike => widgetLike.id !== widgetId);
-      
+
       await this.usersRepository.save(user);
 
       return {
         id: widget.id,
         title: widget.title,
-        thumbnailUrl: widget.thumbnailUrl,
+        thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
       };
     }
 
@@ -143,7 +143,7 @@ export class UserService {
     return {
       id: widget.id,
       title: widget.title,
-      thumbnailUrl: widget.thumbnailUrl,
+      thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
     };
   }
 
