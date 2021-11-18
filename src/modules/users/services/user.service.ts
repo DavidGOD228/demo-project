@@ -130,7 +130,7 @@ export class UserService {
       return {
         id: widget.id,
         title: widget.title,
-        thumbnailUrl: widget.thumbnailUrl,
+        thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
       };
     }
 
@@ -141,7 +141,7 @@ export class UserService {
     return {
       id: widget.id,
       title: widget.title,
-      thumbnailUrl: widget.thumbnailUrl,
+      thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
     };
   }
 
