@@ -21,11 +21,6 @@ export class ConfirmUserDto {
   @IsString()
   @IsNotEmpty()
   verificationCode: string;
-
-  @ApiProperty()
-  @IsString()
-  @IsNotEmpty()
-  location: string;
 }
 
 export class ConfirmAdminDto {

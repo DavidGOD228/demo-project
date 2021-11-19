@@ -24,6 +24,11 @@ export class UpdateProfileDto {
   email?: string;
 
   @ApiPropertyOptional()
+  @IsString()
+  @IsOptional()
+  location?: string;
+
+  @ApiPropertyOptional()
   @IsOptional()
   birthDate?: Date;
 

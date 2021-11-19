@@ -33,7 +33,7 @@ export class User {
   @Column()
   phoneNumber: string;
 
-  @Column()
+  @Column({ nullable: true })
   location: string;
 
   @Column({ nullable: true, type: 'date' })
