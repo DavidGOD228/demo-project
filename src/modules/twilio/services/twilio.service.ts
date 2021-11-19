@@ -34,11 +34,7 @@ export default class TwilioSmsService {
       .verifications.create({ to: phoneNumber, channel: 'sms' });
   }
 
-  public async confirmPhoneNumber({
-    phoneNumber,
-    verificationCode,
-    location,
-  }: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
+  public async confirmPhoneNumber({ phoneNumber, verificationCode }: ConfirmUserDto): Promise<ConfirmPasswordResponse> {
     const serviceSid = this.configService.get<string>(constants.TWILIO_VERIFICATION_SERVICE_SID);
 
     const testPhoneNumber = this.configService.get<string>(constants.WILSON_TEST_PHONE_NUMBER);
@@ -57,7 +53,6 @@ export default class TwilioSmsService {
       const user = await this.usersRepository.save({
         phoneNumber: phoneNumber,
         lastLoginAt: new Date(),
-        location: location,
         role: UserRoleEnum.ADMIN,
       });
 
@@ -94,7 +89,6 @@ export default class TwilioSmsService {
       const user = await this.usersRepository.save({
         phoneNumber: userPhoneNumber,
         lastLoginAt: new Date(),
-        location: location,
       });
 
       const token = this.jwtService.sign({ id: user.id });
