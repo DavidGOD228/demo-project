@@ -1,13 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, ILike, In, IsNull, Not, Repository } from 'typeorm';
+import Vibrant from 'node-vibrant';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { Promotion } from 'src/modules/promotions/entities/promotion.entity';
 import { Tag } from 'src/modules/tags/entities/tag.entity';
 import { Widget } from '../entities/widget.entity';
-import { CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
+import { AddStoryBlockToWidget, CreateWidgetDto, EditWidgetDto, FilterWidgetsDto } from '../interfaces/widget.dto';
 import {
   AddAuthorAvatarResponse,
   AddDetailsMediaResponse,
@@ -20,7 +21,7 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { UserRoleEnum } from '../../users/interfaces/user.enum';
 import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
-import { WidgetTypeEnum } from '../interfaces/widget.enum';
+import { StoryBlockTypeEnum, WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from '../entities/storyBlock.entity';
 import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 
@@ -39,6 +40,7 @@ export class WidgetService {
   ) {}
 
   MAX_FILTERED_OPTIONS = 10;
+  DEFAULT_BACKGROUND_COLOR = '#636160';
 
   public groupWidgetScans(widgetChannels: Channel[]) {
     const channels = widgetChannels
@@ -197,6 +199,35 @@ export class WidgetService {
     return { authorAvatarUrl };
   }
 
+  public async createStoryBlocks(storiesToAdd?: AddStoryBlockToWidget[]): Promise<StoryBlock[]> {
+    const stories = await Promise.all(
+      storiesToAdd.map(async story => {
+        const storyBlock: Partial<StoryBlock> = {
+          assetUrl: story.assetUrl,
+          swipeUrl: story.swipeUrl,
+          type: story.type,
+          priority: story.priority,
+        };
+
+        if (story.type === StoryBlockTypeEnum.IMAGE) {
+          let palette;
+
+          try {
+            palette = await Vibrant.from(this.fileService.getImageUrl(story.assetUrl)).getPalette();
+          } catch (e) {
+            console.log('ERROR: failed to define background color', e.message);
+          }
+
+          storyBlock.backgroundColor = palette ? palette.DarkMuted.getHex() : this.DEFAULT_BACKGROUND_COLOR;
+        }
+
+        return this.storyRepository.create(storyBlock);
+      }),
+    );
+
+    return stories;
+  }
+
   public async createWidget({
     promotionButtonColor,
     promotionButtonText,
@@ -309,14 +340,7 @@ export class WidgetService {
         storyDescription,
       });
 
-      const stories = storiesToAdd.map(story =>
-        this.storyRepository.create({
-          assetUrl: story.assetUrl,
-          swipeUrl: story.swipeUrl,
-          type: story.type,
-          priority: story.priority,
-        }),
-      );
+      const stories = await this.createStoryBlocks(storiesToAdd);
 
       await this.storyRepository.save(stories);
 
@@ -406,15 +430,7 @@ export class WidgetService {
         .where('widget.id = :widgetId', { widgetId: widget.id })
         .execute();
 
-      const stories = storiesToAdd.map(story =>
-        this.storyRepository.create({
-          assetUrl: story.assetUrl,
-          swipeUrl: story.swipeUrl,
-          type: story.type,
-          priority: story.priority,
-          widget,
-        }),
-      );
+      const stories = await this.createStoryBlocks(storiesToAdd);
 
       await this.storyRepository.save(stories);
 
