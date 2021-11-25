@@ -84,6 +84,15 @@ export class PromotionsService {
     return { promotionMedia };
   }
 
+  public async addPromotionCollaborationImage({
+    buffer,
+    filename,
+  }: Express.Multer.File): Promise<PromotionMediaResponse> {
+    const promotionMedia = await this.fileService.uploadRawMedia(buffer, filename, 'promotions/collaborations');
+
+    return { promotionMedia };
+  }
+
   public async getSubmissions({
     fieldName,
     filteringWinner,
@@ -246,6 +255,15 @@ export class PromotionsService {
       .where('widget.id = :widgetId', { widgetId: widget.id })
       .getOne();
 
-    return promotion;
+    return {
+      ...promotion,
+      imageUrl: this.fileService.getImageUrl(promotion.imageUrl),
+      collaborationImgUrl: widget.promotion.collaborationImgUrl
+        ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+        : undefined,
+      modalImgUrl: widget.promotion.modalImgUrl
+        ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+        : undefined,
+    };
   }
 }
