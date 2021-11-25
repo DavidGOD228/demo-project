@@ -211,6 +211,12 @@ export class RecognitionService {
           ...widget.promotion,
           widgetId: widget.id,
           imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
+          collaborationImgUrl: widget.promotion.collaborationImgUrl
+            ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+            : undefined,
+          modalImgUrl: widget.promotion.modalImgUrl
+            ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+            : undefined,
         };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
@@ -243,6 +249,12 @@ export class RecognitionService {
               ...widget.promotion,
               widgetId: widget.id,
               imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
+              collaborationImgUrl: widget.promotion.collaborationImgUrl
+                ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+                : undefined,
+              modalImgUrl: widget.promotion.modalImgUrl
+                ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+                : undefined,
             };
           }
         });
