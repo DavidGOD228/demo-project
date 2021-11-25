@@ -154,6 +154,36 @@ export class CreateWidgetDto {
   @IsString()
   promotionMediaUrl?: string;
 
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionCollaborationMediaUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionDescription?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionModalMediaUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionModalTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionBackgroundColor?: string;
+
   @ApiProperty()
   @IsString()
   feedMediaUrl: string;
@@ -373,6 +403,35 @@ export class EditWidgetDto {
   @IsOptional()
   @IsString()
   promotionMediaUrl?: string;
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionCollaborationMediaUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionDescription?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionModalMediaUrl?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionModalTitle?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  promotionBackgroundColor?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

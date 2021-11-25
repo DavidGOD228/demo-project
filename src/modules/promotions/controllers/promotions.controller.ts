@@ -66,6 +66,22 @@ export class PromotionsController {
   @UseGuards(RolesGuard)
   @Roles(UserRoleEnum.ADMIN)
   @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @ApiConsumes('multipart/form-data')
+  @ApiFile('file')
+  @UseInterceptors(FileInterceptor('file'))
+  @Post('promotionCollaborationImage')
+  async addPromotionCollaborationImage(@UploadedFile() file: Express.Multer.File): Promise<PromotionMediaResponse> {
+    try {
+      return await this.promotionsService.addPromotionCollaborationImage(file);
+    } catch (error) {
+      handleError(error, 'addPromotionImage');
+    }
+  }
+
+  @UseGuards(RolesGuard)
+  @Roles(UserRoleEnum.ADMIN)
+  @ApiBearerAuth()
   @BaseApiAdminOkResponses()
   @Get('submissions')
   async getFeedSubmissions(

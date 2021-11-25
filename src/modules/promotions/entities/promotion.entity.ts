@@ -30,6 +30,24 @@ export class Promotion {
   @Column()
   buttonColor: string;
 
+  @Column()
+  collaborationImgUrl: string;
+
+  @Column()
+  title: string;
+
+  @Column()
+  description: string;
+
+  @Column()
+  modalImgUrl: string;
+
+  @Column()
+  modalTitle: string;
+
+  @Column()
+  backgroundColor: string;
+
   @OneToMany(() => UsersPromotion, usersPromotion => usersPromotion.promotion, { onDelete: 'CASCADE' })
   userPromotions: UsersPromotion[];
 

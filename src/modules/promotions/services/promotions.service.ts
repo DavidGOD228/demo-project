@@ -84,6 +84,15 @@ export class PromotionsService {
     return { promotionMedia };
   }
 
+  public async addPromotionCollaborationImage({
+    buffer,
+    filename,
+  }: Express.Multer.File): Promise<PromotionMediaResponse> {
+    const promotionMedia = await this.fileService.uploadRawMedia(buffer, filename, 'promotions/collaborations');
+
+    return { promotionMedia };
+  }
+
   public async getSubmissions({
     fieldName,
     filteringWinner,

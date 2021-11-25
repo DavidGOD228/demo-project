@@ -254,6 +254,12 @@ export class WidgetService {
     discount,
     discountedPrice,
     promotionMediaUrl,
+    promotionBackgroundColor,
+    promotionCollaborationMediaUrl,
+    promotionDescription,
+    promotionModalMediaUrl,
+    promotionModalTitle,
+    promotionTitle,
     feedMediaUrl,
     detailsMediaUrl,
     thumbnailUrl,
@@ -269,6 +275,12 @@ export class WidgetService {
         buttonColor: promotionButtonColor,
         buttonText: promotionButtonText,
         imageUrl: promotionMediaUrl,
+        backgroundColor: promotionBackgroundColor,
+        description: promotionDescription,
+        title: promotionTitle,
+        collaborationImgUrl: promotionCollaborationMediaUrl,
+        modalImgUrl: promotionModalMediaUrl,
+        modalTitle: promotionModalTitle,
       });
 
       await this.promotionsRepository.save(promotion);
@@ -420,6 +432,30 @@ export class WidgetService {
 
     if (body.promotionMediaUrl) {
       widget.promotion.imageUrl = body.promotionMediaUrl;
+    }
+
+    if (body.promotionDescription) {
+      widget.promotion.description = body.promotionDescription;
+    }
+
+    if (body.promotionTitle) {
+      widget.promotion.title = body.promotionTitle;
+    }
+
+    if (body.promotionBackgroundColor) {
+      widget.promotion.backgroundColor = body.promotionBackgroundColor;
+    }
+
+    if (body.promotionModalTitle) {
+      widget.promotion.modalTitle = body.promotionModalTitle;
+    }
+
+    if (body.promotionCollaborationMediaUrl) {
+      widget.promotion.collaborationImgUrl = body.promotionCollaborationMediaUrl;
+    }
+
+    if (body.promotionModalMediaUrl) {
+      widget.promotion.modalImgUrl = body.promotionModalMediaUrl;
     }
 
     if (storiesToAdd?.length) {
