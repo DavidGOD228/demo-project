@@ -214,7 +214,7 @@ export class UserService {
       .leftJoin('userPromotions.user', 'user')
       .where('user.id = :userId', { userId: user.id })
       .leftJoin('promotions.widget', 'widget')
-      .addSelect(['widget.title'])
+      .addSelect(['widget.title', 'widget.id'])
       .limit(limit)
       .offset((pageNumber - 1) * limit)
       .getMany();
