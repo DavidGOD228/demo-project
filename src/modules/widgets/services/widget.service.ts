@@ -154,6 +154,20 @@ export class WidgetService {
         widget.promotion && widget.promotion.imageUrl
           ? this.fileService.getImageUrl(widget.promotion.imageUrl)
           : undefined,
+      promotionCollaborationImgUrl: widget.promotion && widget.promotion.collaborationImgUrl,
+      promotionCollaborationImgLink:
+        widget.promotion && widget.promotion.collaborationImgUrl
+          ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+          : undefined,
+      promotionModalImgUrl: widget.promotion && widget.promotion.modalImgUrl,
+      promotionModalImgLink:
+        widget.promotion && widget.promotion.modalImgUrl
+          ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+          : undefined,
+      promotionTitle: widget.promotion && widget.promotion.title,
+      promotionDescription: widget.promotion && widget.promotion.description,
+      promotionModalTitle: widget.promotion && widget.promotion.modalTitle,
+      promotionBackgroundColor: widget.promotion && widget.promotion.backgroundColor,
       detailsMediaLink: widget.detailsMediaUrl ? this.fileService.getImageUrl(widget.detailsMediaUrl) : undefined,
       thumbnailLink: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
       storyAuthorAvatarLink: widget.storyAuthorAvatarUrl
