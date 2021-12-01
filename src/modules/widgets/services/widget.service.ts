@@ -42,7 +42,7 @@ export class WidgetService {
   MAX_FILTERED_OPTIONS = 10;
   DEFAULT_BACKGROUND_COLOR = '#636160';
 
-  public groupWidgetScans(widgetChannels: Channel[]) {
+  public groupWidgetScans(widgetChannels: Channel[] = []) {
     const channels = widgetChannels
       .map(channel => {
         if (channel.league && channel.scans.length) {
@@ -76,16 +76,16 @@ export class WidgetService {
 
           return {
             ...childWidget,
-            feedMediaUrl: this.fileService.getImageUrl(childWidget.feedMediaUrl),
-            detailsMediaUrl: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
-            thumbnailUrl: this.fileService.getImageUrl(childWidget.thumbnailUrl),
-            storyAuthorAvatarUrl: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
+            feedMediaLink: this.fileService.getImageUrl(childWidget.feedMediaUrl),
+            detailsMediaLink: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
+            thumbnailLink: this.fileService.getImageUrl(childWidget.thumbnailUrl),
+            storyAuthorAvatarLink: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
             stories: childWidget.stories?.length
               ? childWidget.stories
                   .sort((a, b) => a.priority - b.priority)
                   .map(story => ({
                     ...story,
-                    assetUrl: this.fileService.getImageUrl(story.assetUrl),
+                    assetLink: this.fileService.getImageUrl(story.assetUrl),
                   }))
               : undefined,
             groupedScans: this.groupWidgetScans(childWidget.channels),
@@ -96,16 +96,16 @@ export class WidgetService {
           ...widget,
           users: undefined,
           isFavorite: !!widget.users.length,
-          feedMediaUrl: this.fileService.getImageUrl(widget.feedMediaUrl),
-          detailsMediaUrl: this.fileService.getImageUrl(widget.detailsMediaUrl),
-          thumbnailUrl: this.fileService.getImageUrl(widget.thumbnailUrl),
-          storyAuthorAvatarUrl: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
+          feedMediaLink: this.fileService.getImageUrl(widget.feedMediaUrl),
+          detailsMediaLink: this.fileService.getImageUrl(widget.detailsMediaUrl),
+          thumbnailLink: this.fileService.getImageUrl(widget.thumbnailUrl),
+          storyAuthorAvatarLink: this.fileService.getImageUrl(widget.storyAuthorAvatarUrl),
           stories: stories?.length
             ? stories
                 .sort((a, b) => a.priority - b.priority)
                 .map(story => ({
                   ...story,
-                  assetUrl: this.fileService.getImageUrl(story.assetUrl),
+                  assetLink: this.fileService.getImageUrl(story.assetUrl),
                 }))
             : undefined,
           childWidgets: childWidgets.length
@@ -113,16 +113,16 @@ export class WidgetService {
                 .sort((a, b) => a.carouselPriority - b.carouselPriority)
                 .map(childWidget => ({
                   ...childWidget,
-                  feedMediaUrl: this.fileService.getImageUrl(childWidget.feedMediaUrl),
-                  detailsMediaUrl: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
-                  thumbnailUrl: this.fileService.getImageUrl(childWidget.thumbnailUrl),
-                  storyAuthorAvatarUrl: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
+                  feedMediaLink: this.fileService.getImageUrl(childWidget.feedMediaUrl),
+                  detailsMediaLink: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
+                  thumbnailLink: this.fileService.getImageUrl(childWidget.thumbnailUrl),
+                  storyAuthorAvatarLink: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
                   stories: childWidget.stories?.length
                     ? childWidget.stories
                         .sort((a, b) => a.priority - b.priority)
                         .map(story => ({
                           ...story,
-                          assetUrl: this.fileService.getImageUrl(story.assetUrl),
+                          assetLink: this.fileService.getImageUrl(story.assetUrl),
                         }))
                     : undefined,
                   groupedScans: this.groupWidgetScans(childWidget.channels),
@@ -137,12 +137,14 @@ export class WidgetService {
   public async getWidgetById(id: string) {
     const widget = await this.widgetsRepository.findOne({
       where: { id },
-      relations: ['scans', 'tags', 'stories', 'channels', 'promotion'],
+      relations: ['tags', 'stories', 'channels', 'channels.scans', 'promotion'],
     });
 
     if (!widget) {
       throw new NotFoundException('There is no widget with such id!');
     }
+
+    const scans = this.groupWidgetScans(widget.channels);
 
     return {
       ...widget,
@@ -179,6 +181,7 @@ export class WidgetService {
             assetLink: this.fileService.getImageUrl(story.assetUrl),
           }))
         : undefined,
+      groupedScans: scans,
     };
   }
 
