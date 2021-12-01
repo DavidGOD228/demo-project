@@ -123,10 +123,10 @@ export class Widget {
   @Column({ nullable: true })
   expiresAt: Date;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', default: new Date() })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', default: new Date() })
   updatedAt: Date;
 
   @OneToOne(() => Promotion, promotion => promotion.widget)
