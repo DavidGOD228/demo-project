@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, Length, Min, IsInt } from 'class-validator';
-import { FilterUserOrderEnum } from './user.enum';
+import { IsBoolean, IsEmail, IsNotEmpty, IsOptional, IsString, Length, Min, IsInt, IsEnum } from 'class-validator';
+import { FilterUserOrderEnum, UserPlatformOS } from './user.enum';
 
 const MIN_EMAIL_LENGTH = 3;
 const MAX_EMAIL_LENGTH = 254;
@@ -110,4 +110,16 @@ export class PromotionsFilterDto {
   @Type(() => Number)
   @Min(1)
   pageNumber: number;
+}
+
+export class UpdateNotificationInfoDto {
+  @ApiProperty()
+  @IsString()
+  @Type(() => String)
+  deviceToken: string;
+
+  @ApiProperty()
+  @IsEnum(UserPlatformOS)
+  @Type(() => String)
+  platformOs: string;
 }

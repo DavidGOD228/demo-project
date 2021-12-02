@@ -63,6 +63,12 @@ export class User {
   @Column({ nullable: true })
   imageUrl?: string;
 
+  @Column({ nullable: true })
+  deviceToken?: string;
+
+  @Column({ nullable: true })
+  platformOs?: string;
+
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];

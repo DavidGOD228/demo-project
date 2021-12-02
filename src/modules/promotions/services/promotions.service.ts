@@ -20,6 +20,7 @@ import { GetPromotionErrorEnum } from '../interfaces/promotions.enum';
 import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 import { UserService } from '../../users/services/user.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
+import { FirebaseService } from '../../firebase/services/firebase.service';
 
 @Injectable()
 export class PromotionsService {
@@ -43,6 +44,8 @@ export class PromotionsService {
     private readonly userService: UserService,
 
     private readonly csvService: ExportCsvService,
+
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   public concatenatedField = 'name';
@@ -222,6 +225,7 @@ export class PromotionsService {
     const users = await this.userRepository.findByIds(winners);
 
     const usersWithEmail = users.filter(user => user.email);
+    const usersWithDeviceTokens = users.filter(user => user.deviceToken);
 
     this.emailsService
       .sendEmail(
@@ -234,6 +238,13 @@ export class PromotionsService {
       .catch(e => console.log(e.message));
 
     promotion.winners = [...(promotion.winners || []), ...users];
+
+    this.firebaseService
+      .notify(
+        usersWithDeviceTokens.map(user => user.deviceToken),
+        { notification: { title: 'Wilson', body: 'Hey, seems like you are winner ! Congrats :D' } },
+      )
+      .catch(console.error);
 
     return this.promotionRepository.save(promotion);
   }
