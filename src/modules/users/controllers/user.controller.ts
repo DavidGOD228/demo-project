@@ -34,6 +34,7 @@ import {
   UpdateUserInterestsDto,
   LikesFilterDto,
   PromotionsFilterDto,
+  UpdateNotificationInfoDto,
 } from '../interfaces/user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { RequestWithUserParams, SuccessResponseMessage } from 'src/common/interfaces';
@@ -46,7 +47,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { UserRoleEnum } from '../interfaces/user.enum';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
-import { BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
+import { BaseApiCreatedResponses, BaseApiUserOkResponses } from 'src/common/decorators/baseApi.decorator';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
 import { UsersPromotion } from '../entities/usersPromotions.entity';
 
@@ -101,6 +102,20 @@ export class UserController {
       return await this.usersService.addUserFavorite(body, req.user.id);
     } catch (error) {
       handleError(error, 'addUserFavorite');
+    }
+  }
+
+  @ApiBearerAuth()
+  @BaseApiCreatedResponses()
+  @Patch('notifications')
+  updateNotificationInfo(
+    @Req() req: RequestWithUserParams,
+    @Body(new ValidationPipe({ transform: true, whitelist: true })) body: UpdateNotificationInfoDto,
+  ): Promise<User> {
+    try {
+      return this.usersService.updateNotificationInfo(body, req.user.id);
+    } catch (error) {
+      handleError(error, 'editWidgets');
     }
   }
 

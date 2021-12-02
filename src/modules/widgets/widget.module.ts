@@ -11,10 +11,11 @@ import { WidgetController } from './controllers/widget.controller';
 import { StoryBlock } from './entities/storyBlock.entity';
 import { Widget } from './entities/widget.entity';
 import { WidgetService } from './services/widget.service';
+import { FirebaseModule } from '../firebase/firebase.module';
 
 @Module({
   controllers: [WidgetController],
   providers: [WidgetService, FileService, ExportCsvService],
-  imports: [TypeOrmModule.forFeature([StoryBlock, Widget, Tag, User, Scan, Channel, Promotion])],
+  imports: [FirebaseModule, TypeOrmModule.forFeature([StoryBlock, Widget, Tag, User, Scan, Channel, Promotion])],
 })
 export class WidgetModule {}

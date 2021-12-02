@@ -24,6 +24,7 @@ import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { StoryBlockTypeEnum, WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from '../entities/storyBlock.entity';
 import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
+import { FirebaseService } from '../../firebase/services/firebase.service';
 
 @Injectable()
 export class WidgetService {
@@ -37,6 +38,7 @@ export class WidgetService {
     private readonly userRepository: Repository<User>,
     private readonly fileService: FileService,
     private readonly csvService: ExportCsvService,
+    private readonly firebaseService: FirebaseService,
   ) {}
 
   MAX_FILTERED_OPTIONS = 10;
@@ -380,6 +382,10 @@ export class WidgetService {
       }
 
       widget.stories = stories;
+
+      this.firebaseService
+        .notifyAll({ notification: { title: 'Hey there', body: 'New widget is already live' } })
+        .catch(console.error);
 
       return this.widgetsRepository.save(widget);
     }

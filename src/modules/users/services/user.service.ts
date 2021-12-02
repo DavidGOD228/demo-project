@@ -12,6 +12,7 @@ import {
   AddUserFavoriteDto,
   LikesFilterDto,
   PromotionsFilterDto,
+  UpdateNotificationInfoDto,
 } from '../interfaces/user.dto';
 import { SuccessResponseMessage } from 'src/common/interfaces';
 import { Widget } from 'src/modules/widgets/entities/widget.entity';
@@ -145,6 +146,22 @@ export class UserService {
       title: widget.title,
       thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
     };
+  }
+
+  public async updateNotificationInfo(
+    { platformOs, deviceToken }: UpdateNotificationInfoDto,
+    userId: string,
+  ): Promise<User> {
+    const user = await this.usersRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      new NotFoundException();
+    }
+
+    user.deviceToken = deviceToken;
+    user.platformOs = platformOs;
+
+    return this.usersRepository.save(user);
   }
 
   public async addUserAvatar(userId: string, imageBuffer: Buffer, filename: string): Promise<UserAvatarUploadResponse> {

@@ -9,6 +9,9 @@ nohup
 /.env.staging
 /.env.production
 
+# firebase admin json
+/wilson-alfa-firebase-admin.json
+
 # Logs
 logs
 *.log
