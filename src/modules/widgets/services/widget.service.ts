@@ -383,11 +383,19 @@ export class WidgetService {
 
       widget.stories = stories;
 
+      const toReturn = await this.widgetsRepository.save(widget);
+
       this.firebaseService
-        .notifyAll({ notification: { title: 'Hey there', body: 'New widget is already live' } })
+        .notifyAll({
+          notification: { title: 'Hey there', body: 'New widget is already live' },
+          data: {
+            id: toReturn.id,
+            type: toReturn.type,
+          },
+        })
         .catch(console.error);
 
-      return this.widgetsRepository.save(widget);
+      return toReturn;
     }
   }
 
@@ -503,6 +511,16 @@ export class WidgetService {
       tags: widget.tags,
       stories: widget.stories,
     };
+
+    this.firebaseService
+      .notifyAll({
+        notification: { title: 'Hey there', body: 'New widget is already live' },
+        data: {
+          id: widgetUpdated.id,
+          type: widgetUpdated.type,
+        },
+      })
+      .catch(console.error);
 
     return await this.widgetsRepository.save(widgetUpdated);
   }

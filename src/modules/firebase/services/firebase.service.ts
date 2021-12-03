@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import admin from 'firebase-admin';
+import { MessagingPayload } from 'firebase-admin/lib/messaging/messaging-api';
 import { ConfigService } from '@nestjs/config';
 import { IsNull, Not, Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
@@ -20,8 +21,8 @@ export class FirebaseService {
     });
   }
 
-  public async notifyAll(message: { notification: { title: string; body: string } }) {
-    const users = await this.usersRepository.find({ where: { deviceToken: Not(IsNull()) } });
+  public async notifyAll(message: MessagingPayload) {
+    const users = await this.usersRepository.find({ where: { deviceToken: Not(IsNull()), notificationEnabled: true } });
 
     await this.notify(
       users.map(user => user.deviceToken),
@@ -29,7 +30,7 @@ export class FirebaseService {
     );
   }
 
-  public async notify(tokens: string[], message: { notification: { title: string; body: string } }) {
+  public async notify(tokens: string[], message: MessagingPayload) {
     const options = {
       priority: 'high',
       timeToLive: 60 * 60 * 24,

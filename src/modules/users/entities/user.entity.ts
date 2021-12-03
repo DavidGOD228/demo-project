@@ -69,6 +69,9 @@ export class User {
   @Column({ nullable: true })
   platformOs?: string;
 
+  @Column({ default: true })
+  notificationEnabled: boolean;
+
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })
   interests: Interest[];
