@@ -238,6 +238,16 @@ export class UserController {
   }
 
   @ApiBearerAuth()
+  @Get('interests')
+  async getUserInterests(@Req() req: RequestWithUserParams) {
+    try {
+      return await this.usersService.getUserInterests(req.user.id);
+    } catch (error) {
+      handleError(error, 'getUserInterests');
+    }
+  }
+
+  @ApiBearerAuth()
   @BaseApiUserOkResponses()
   @Get(':id')
   async getUserById(

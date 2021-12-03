@@ -324,4 +324,20 @@ export class UserService {
 
     return { ...user, imageUrl: user.imageUrl ? this.fileService.getImageUrl(user.imageUrl) : undefined };
   }
+
+  public async getUserInterests(userId: string) {
+    const interests = await this.interestsRepository
+      .createQueryBuilder('interests')
+      .select(['interests.id', 'interests.name', 'interests.priority'])
+      .leftJoin('interests.users', 'user')
+      .addSelect(['user.id'])
+      .getMany();
+
+    return interests.map(interest => {
+      return {
+        ...interest,
+        isActive: interest.users.map(user => user.id === userId)[0] ? true : false,
+      };
+    });
+  }
 }
