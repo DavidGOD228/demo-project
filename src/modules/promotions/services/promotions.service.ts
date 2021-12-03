@@ -225,7 +225,7 @@ export class PromotionsService {
     const users = await this.userRepository.findByIds(winners);
 
     const usersWithEmail = users.filter(user => user.email);
-    const usersWithDeviceTokens = users.filter(user => user.deviceToken);
+    const usersWithDeviceTokens = users.filter(user => user.deviceToken && user.notificationEnabled);
 
     this.emailsService
       .sendEmail(
