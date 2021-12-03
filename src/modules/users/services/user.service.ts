@@ -312,14 +312,15 @@ export class UserService {
     const interests = await this.interestsRepository
       .createQueryBuilder('interests')
       .select(['interests.id', 'interests.name', 'interests.priority'])
-      .leftJoin('interests.users', 'user')
+      .leftJoin('interests.users', 'user', 'user.id = :userId', { userId })
       .addSelect(['user.id'])
       .getMany();
 
     return interests.map(interest => {
       return {
         ...interest,
-        isActive: interest.users.map(user => user.id === userId)[0] ? true : false,
+        isActive: !!interest.users.length,
+        users: undefined,
       };
     });
   }
