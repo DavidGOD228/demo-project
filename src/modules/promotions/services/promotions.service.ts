@@ -174,14 +174,15 @@ export class PromotionsService {
 
     const isProfileFilled = this.userService.isProfileFilledOut(user);
 
+    const promotions = await this.promotionRepository.findByIds(promotionIds);
+
     if (!isProfileFilled) {
       throw new BadRequestException({
         message: 'User profile is not filled out',
         key: GetPromotionErrorEnum.UNFILLED_USER_DATA,
+        promotions: promotions,
       });
     }
-
-    const promotions = await this.promotionRepository.findByIds(promotionIds);
 
     const userPromotions = promotions.map(async promotion => {
       const userPromotion = await this.usersPromotionRepository.findOne({
