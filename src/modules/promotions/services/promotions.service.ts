@@ -169,6 +169,23 @@ export class PromotionsService {
     return 'There is no available data for such parameters';
   }
 
+  public getPromotionsWithImages(promotions: Promotion[]) {
+    return promotions
+      .map(promotion => {
+        const { imageUrl, collaborationImgUrl, modalImgUrl } = promotion;
+
+        return {
+          ...promotion,
+          imageUrl: promotion.imageUrl ? this.fileService.getImageUrl(imageUrl) : undefined,
+          collaborationImgUrl: promotion.collaborationImgUrl
+            ? this.fileService.getImageUrl(collaborationImgUrl)
+            : undefined,
+          modalImgUrl: promotion.modalImgUrl ? this.fileService.getImageUrl(modalImgUrl) : undefined,
+        };
+      })
+      .filter(promotion => !!promotion);
+  }
+
   public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
@@ -180,7 +197,7 @@ export class PromotionsService {
       throw new BadRequestException({
         message: 'User profile is not filled out',
         key: GetPromotionErrorEnum.UNFILLED_USER_DATA,
-        promotions: promotions,
+        promotions: this.getPromotionsWithImages(promotions),
       });
     }
 
