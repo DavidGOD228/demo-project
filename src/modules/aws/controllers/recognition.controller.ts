@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Req, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
+import { Controller, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors, ValidationPipe } from '@nestjs/common';
 import { ApiBearerAuth, ApiConsumes, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiFile } from 'src/common/interceptors/apiFile.interceptor';
@@ -27,11 +27,11 @@ export class RecognitionController {
   @UseInterceptors(FileInterceptor('file'))
   public async recognize(
     @Req() req: RequestWithUserParams,
-    @Body(new ValidationPipe()) body: GetWidgetPromotionDto,
+    @Query(new ValidationPipe()) query: GetWidgetPromotionDto,
     @UploadedFile() file: Express.Multer.File,
   ): Promise<Promotion | Promotion[]> {
     try {
-      return this.recognitionService.getBallPromotion(body, file, req.user.id);
+      return this.recognitionService.getBallPromotion(query, file, req.user.id);
     } catch (error) {
       handleError(error, 'recognize');
     }
