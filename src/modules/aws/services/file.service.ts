@@ -28,7 +28,12 @@ export class FileService {
     if (mimetype.includes(imageType)) return StoryBlockTypeEnum.IMAGE;
   }
 
-  public async uploadRawMedia(dataBuffer: Buffer, filename: string, entityName: string): Promise<string> {
+  public async uploadRawMedia(
+    dataBuffer: Buffer,
+    filename: string,
+    entityName: string,
+    type?: StoryBlockTypeEnum,
+  ): Promise<string> {
     const encryptedName = crypto.AES.encrypt(filename, constants.WILSON_NAME_SECRET);
     const uuid = uuidv4();
     const s3Bucket = new S3();
@@ -37,6 +42,7 @@ export class FileService {
         Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
         Body: dataBuffer,
         Key: `/${entityName}/${uuid}-${encryptedName}`,
+        ContentType: type === StoryBlockTypeEnum.VIDEO ? 'video/mp4' : 'application/octet-stream',
       })
       .promise();
 
