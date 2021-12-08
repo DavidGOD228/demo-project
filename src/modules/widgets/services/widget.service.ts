@@ -206,8 +206,8 @@ export class WidgetService {
   }
 
   public async addStoryMedia({ buffer, filename, mimetype }: Express.Multer.File): Promise<AddStoryMedia> {
-    const storyAssetUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories');
     const type = this.fileService.checkFileType(mimetype);
+    const storyAssetUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories', type);
 
     return { storyAssetUrl, type };
   }
