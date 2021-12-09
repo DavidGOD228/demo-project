@@ -181,11 +181,25 @@ export class RecognitionService {
       // logic for current widget available promotion
       const widget = await this.widgetRepository.findOne({
         where: { id: query.widgetId },
-        relations: ['channels', 'promotion', 'scans', 'scans.channel'],
+        relations: [
+          'channels',
+          'promotion',
+          'promotion.userPromotions',
+          'promotion.userPromotions.user',
+          'scans',
+          'scans.channel',
+        ],
       });
 
       if (!widget) {
         throw new BadRequestException(`Widget with id ${query.widgetId} does not exist`);
+      }
+
+      const userPromotion = widget?.promotion.userPromotions.find(userPromotion => userPromotion.user.id === userId);
+
+      if (userPromotion && userPromotion.isConfirmed) {
+        // returning empty array because this widget was already scanned by this user
+        return [];
       }
 
       const channels = await this.channelRepository.find({
@@ -227,14 +241,32 @@ export class RecognitionService {
     } else {
       // logic for all available promotions
       const channels = await this.channelRepository.find({
-        relations: ['widgets', 'widgets.channels', 'widgets.promotion', 'widgets.scans', 'widgets.scans.channel'],
+        relations: [
+          'widgets',
+          'widgets.channels',
+          'widgets.promotion',
+          'widgets.promotion.userPromotions',
+          'widgets.promotion.userPromotions.user',
+          'widgets.scans',
+          'widgets.scans.channel',
+        ],
       });
 
       const passedChannel = this.passConfidence(labelsInfo, channels);
 
       if (passedChannel) {
         const promotionIds = passedChannel.widgets
-          .map(widget => widget.promotion && widget.promotion.id)
+          .map(widget => {
+            if (widget.promotion) {
+              const userPromotion = widget?.promotion.userPromotions.find(
+                userPromotion => userPromotion.user.id === userId,
+              );
+
+              if (!userPromotion || !userPromotion.isConfirmed) {
+                return widget.promotion.id;
+              }
+            }
+          })
           .filter(id => !!id);
 
         if (!promotionIds.length) {
