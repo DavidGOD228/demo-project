@@ -163,7 +163,7 @@ export class RecognitionService {
   }
 
   public async getBallPromotion(
-    body: GetWidgetPromotionDto,
+    query: GetWidgetPromotionDto,
     file: Express.Multer.File,
     userId: string,
   ): Promise<(Promotion & { widgetId: string }) | Promotion[]> {
@@ -177,19 +177,22 @@ export class RecognitionService {
       return gen;
     }, {} as Record<string, sdk.Rekognition.CustomLabel>);
 
-    if (body.widgetId) {
+    if (query.widgetId) {
       // logic for current widget available promotion
       const widget = await this.widgetRepository.findOne({
-        where: { id: body.widgetId },
+        where: { id: query.widgetId },
         relations: ['channels', 'promotion', 'scans', 'scans.channel'],
       });
 
       if (!widget) {
-        throw new BadRequestException(`Widget with id ${body.widgetId} does not exist`);
+        throw new BadRequestException(`Widget with id ${query.widgetId} does not exist`);
       }
 
       const channels = await this.channelRepository.find({
-        where: { id: In(widget.channels.map(channel => channel.id)) },
+        where: {
+          id: In(widget.channels.map(channel => channel.id)),
+        },
+        relations: ['widgets', 'widgets.channels', 'widgets.promotion', 'widgets.scans', 'widgets.scans.channel'],
       });
 
       const passedChannel = this.passConfidence(labelsInfo, channels);
