@@ -25,6 +25,10 @@ export class CreateWidgetDto {
 
   @ApiProperty()
   @IsString()
+  terms: string;
+
+  @ApiProperty()
+  @IsString()
   type: string;
 
   @ApiPropertyOptional()
@@ -264,6 +268,11 @@ export class EditWidgetDto {
   @IsOptional()
   @IsString()
   description?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  terms?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -129,6 +129,9 @@ export class Widget {
   @UpdateDateColumn({ name: 'updated_at', default: new Date() })
   updatedAt: Date;
 
+  @Column({ nullable: true })
+  terms: string;
+
   @OneToOne(() => Promotion, promotion => promotion.widget)
   promotion: Promotion;
 
