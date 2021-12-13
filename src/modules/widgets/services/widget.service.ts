@@ -288,6 +288,7 @@ export class WidgetService {
     storyAuthorName,
     storyAuthorAvatarUrl,
     storyDescription,
+    terms,
   }: CreateWidgetDto): Promise<Widget> {
     if (type === WidgetTypeEnum.POST) {
       const promotion = this.promotionsRepository.create({
@@ -334,6 +335,7 @@ export class WidgetService {
         thumbnailUrl,
         canBeLiked,
         hasCountdown,
+        terms,
       });
 
       if (tagIds) {
