@@ -1,4 +1,12 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { StoryBlockTypeEnum } from '../interfaces/widget.enum';
 import { Widget } from './widget.entity';
 
@@ -21,6 +29,12 @@ export class StoryBlock {
 
   @Column({ nullable: true })
   backgroundColor?: string;
+
+  @CreateDateColumn({ name: 'created_at', default: new Date() })
+  createdAt: Date;
+
+  @UpdateDateColumn({ name: 'updated_at', default: new Date() })
+  updatedAt: Date;
 
   @ManyToOne(() => Widget, widget => widget.stories, { cascade: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'widget_id' })
