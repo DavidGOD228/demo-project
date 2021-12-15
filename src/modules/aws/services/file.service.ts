@@ -6,6 +6,7 @@ import { S3 } from 'aws-sdk';
 import * as crypto from 'crypto-js';
 import { v4 as uuidv4 } from 'uuid';
 import { Repository } from 'typeorm';
+import * as sharp from 'sharp';
 import { User } from '../../users/entities/user.entity';
 import * as constants from '../../../common/constants/constants';
 import { StoryBlockTypeEnum } from '../../widgets/interfaces/widget.enum';
@@ -75,6 +76,28 @@ export class FileService {
     const user = await this.usersRepository.findOne(userId);
 
     return user.imageUrl;
+  }
+
+  public resizeImage(dataBuffer: Buffer): Promise<Buffer> {
+    return sharp(dataBuffer)
+      .resize({
+        width: 50,
+        withoutEnlargement: true,
+      })
+      .sharpen()
+      .toBuffer();
+  }
+
+  public getFile(fileKey: string) {
+    const s3Bucket = new S3();
+    const file = s3Bucket
+      .getObject({
+        Bucket: this.configService.get(constants.WILSON_AWS_S3_BUCKET),
+        Key: fileKey,
+      })
+      .promise();
+
+    return file;
   }
 
   public getImageUrl(fileKey: string) {
