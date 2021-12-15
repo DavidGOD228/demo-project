@@ -150,9 +150,12 @@ export class WidgetController {
   @ApiOkResponse({ description: ReasonPhrases.OK })
   @ApiNotFoundResponse({ description: ReasonPhrases.NOT_FOUND })
   @ApiUnauthorizedResponse({ description: ReasonPhrases.UNAUTHORIZED })
-  async getWidgetById(@Param('id', new ParseUUIDPipe({ version: '4' })) id: string): Promise<Widget> {
+  async getWidgetById(
+    @Param('id', new ParseUUIDPipe({ version: '4' })) id: string,
+    @Req() req: RequestWithUserParams,
+  ): Promise<Widget> {
     try {
-      return await this.widgetsService.getWidgetById(id);
+      return await this.widgetsService.getWidgetById(id, req.user.id);
     } catch (error) {
       handleError(error, 'getWidgetById');
     }
