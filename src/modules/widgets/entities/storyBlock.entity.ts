@@ -25,6 +25,9 @@ export class StoryBlock {
   assetUrl: string;
 
   @Column()
+  thumbnailUrl: string;
+
+  @Column()
   priority: number;
 
   @Column({ nullable: true })

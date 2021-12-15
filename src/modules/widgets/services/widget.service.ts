@@ -1,7 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindManyOptions, ILike, In, IsNull, Not, Repository } from 'typeorm';
-import Vibrant from 'node-vibrant';
+// @ts-ignore
+import * as Vibrant from 'node-vibrant';
 import { FileService } from 'src/modules/aws/services/file.service';
 import { Channel } from 'src/modules/channels/entities/channel.entity';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
@@ -205,7 +206,7 @@ export class WidgetService {
     return { thumbnail };
   }
 
-  public async addStoryMedia({ buffer, filename, mimetype }: Express.Multer.File): Promise<AddStoryMedia> {
+  public async addStoryMedia({ buffer, filename, mimetype }: Partial<Express.Multer.File>): Promise<AddStoryMedia> {
     const type = this.fileService.checkFileType(mimetype);
     const storyAssetUrl = await this.fileService.uploadRawMedia(buffer, filename, 'stories', type);
 
@@ -235,6 +236,22 @@ export class WidgetService {
             palette = await Vibrant.from(this.fileService.getImageUrl(story.assetUrl)).getPalette();
           } catch (e) {
             console.log('ERROR: failed to define background color', e.message);
+          }
+
+          try {
+            const file = await this.fileService.getFile(story.assetUrl);
+
+            const resizedImage = await this.fileService.resizeImage(file.Body as Buffer);
+
+            const resized = await this.addStoryMedia({
+              buffer: resizedImage,
+              filename: 'stories/thumbnails/' + story.assetUrl.split('/').pop(),
+              mimetype: 'image',
+            });
+
+            storyBlock.thumbnailUrl = resized.storyAssetUrl;
+          } catch (e) {
+            console.log('ERROR: failed to resize', e.message);
           }
 
           storyBlock.backgroundColor = palette ? palette.DarkMuted.getHex() : this.DEFAULT_BACKGROUND_COLOR;
@@ -492,12 +509,9 @@ export class WidgetService {
     }
 
     if (storiesToAdd?.length) {
-      await this.storyRepository
-        .createQueryBuilder('stories')
-        .leftJoin('stories.widget', 'widget')
-        .delete()
-        .where('widget.id = :widgetId', { widgetId: widget.id })
-        .execute();
+      if (widget.stories.length) {
+        await this.storyRepository.delete(widget.stories.map(story => story.id));
+      }
 
       const stories = await this.createStoryBlocks(storiesToAdd);
 
