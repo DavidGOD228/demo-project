@@ -26,6 +26,7 @@ import { StoryBlockTypeEnum, WidgetTypeEnum } from '../interfaces/widget.enum';
 import { StoryBlock } from '../entities/storyBlock.entity';
 import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 import { FirebaseService } from '../../firebase/services/firebase.service';
+import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 
 @Injectable()
 export class WidgetService {
@@ -35,6 +36,7 @@ export class WidgetService {
     @InjectRepository(Channel) private readonly channelsRepository: Repository<Channel>,
     @InjectRepository(Tag) private readonly tagsRepository: Repository<Tag>,
     @InjectRepository(StoryBlock) private readonly storyRepository: Repository<StoryBlock>,
+    @InjectRepository(UsersPromotion) private readonly usersPromotionRepository: Repository<UsersPromotion>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly fileService: FileService,
@@ -67,12 +69,17 @@ export class WidgetService {
     return Object.values(result);
   }
 
-  public serializeWidgetList(widgets: Partial<Widget>[]): Partial<Widget & { isFavorite: boolean }>[] {
+  public serializeWidgetList(
+    widgets: Partial<Widget>[],
+    usersPromotion: UsersPromotion[],
+  ): Partial<Widget & { isFavorite: boolean }>[] {
     return widgets
       .map(widget => {
         const { stories, childWidgets, channels } = widget;
 
         const scans = this.groupWidgetScans(channels);
+
+        const isScanned = !!usersPromotion.find(up => up.promotion.widget.id === widget.id);
 
         if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
           const childWidget = widget.childWidgets[0];
@@ -92,12 +99,14 @@ export class WidgetService {
                   }))
               : undefined,
             groupedScans: this.groupWidgetScans(childWidget.channels),
+            isScanned,
           };
         }
 
         return {
           ...widget,
           users: undefined,
+          isScanned,
           isFavorite: !!widget.users.length,
           feedMediaLink: this.fileService.getImageUrl(widget.feedMediaUrl),
           detailsMediaLink: this.fileService.getImageUrl(widget.detailsMediaUrl),
@@ -129,6 +138,7 @@ export class WidgetService {
                         }))
                     : undefined,
                   groupedScans: this.groupWidgetScans(childWidget.channels),
+                  isScanned: !!usersPromotion.find(up => up.promotion.widget.id === childWidget.id),
                 }))
             : undefined,
           groupedScans: scans,
@@ -137,7 +147,12 @@ export class WidgetService {
       .filter(widget => !!widget);
   }
 
-  public async getWidgetById(id: string) {
+  public async getWidgetById(id: string, userId: string) {
+    const usersPromotion = await this.usersPromotionRepository.find({
+      where: { user: userId, isConfirmed: true },
+      relations: ['promotion', 'promotion.widget'],
+    });
+
     const widget = await this.widgetsRepository.findOne({
       where: { id },
       relations: ['tags', 'stories', 'channels', 'channels.scans', 'promotion'],
@@ -148,6 +163,8 @@ export class WidgetService {
     }
 
     const scans = this.groupWidgetScans(widget.channels);
+
+    const isScanned = !!usersPromotion.find(up => up.promotion.widget.id === widget.id);
 
     return {
       ...widget,
@@ -185,6 +202,7 @@ export class WidgetService {
           }))
         : undefined,
       groupedScans: scans,
+      isScanned,
     };
   }
 
@@ -622,7 +640,12 @@ export class WidgetService {
 
     const widgets = await widgetList.getMany();
 
-    return this.serializeWidgetList(widgets);
+    const usersPromotion = await this.usersPromotionRepository.find({
+      where: { user, isConfirmed: true },
+      relations: ['promotion', 'promotion.widget'],
+    });
+
+    return this.serializeWidgetList(widgets, usersPromotion);
   }
 
   public async getCarousel(): Promise<Partial<Omit<Widget, 'childWidgets'> & { childWidgets: Partial<Widget>[] }>> {
