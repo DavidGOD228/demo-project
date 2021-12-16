@@ -22,7 +22,9 @@ export class FirebaseService {
   }
 
   public async notifyAll(message: MessagingPayload) {
-    const users = await this.usersRepository.find({ where: { deviceToken: Not(IsNull()), notificationEnabled: true } });
+    const users = await this.usersRepository.find({
+      where: { deviceToken: Not(IsNull()), notificationsEnabled: true },
+    });
 
     await this.notify(
       users.map(user => user.deviceToken),
