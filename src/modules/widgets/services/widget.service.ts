@@ -89,6 +89,7 @@ export class WidgetService {
                   .map(story => ({
                     ...story,
                     assetLink: this.fileService.getImageUrl(story.assetUrl),
+                    thumbnailLink: this.fileService.getImageUrl(story.thumbnailUrl),
                   }))
               : undefined,
             groupedScans: this.groupWidgetScans(childWidget.channels),
@@ -109,6 +110,7 @@ export class WidgetService {
                 .map(story => ({
                   ...story,
                   assetLink: this.fileService.getImageUrl(story.assetUrl),
+                  thumbnailLink: this.fileService.getImageUrl(story.thumbnailUrl),
                 }))
             : undefined,
           childWidgets: childWidgets.length
@@ -126,6 +128,7 @@ export class WidgetService {
                         .map(story => ({
                           ...story,
                           assetLink: this.fileService.getImageUrl(story.assetUrl),
+                          thumbnailLink: this.fileService.getImageUrl(story.thumbnailUrl),
                         }))
                     : undefined,
                   groupedScans: this.groupWidgetScans(childWidget.channels),
@@ -182,6 +185,7 @@ export class WidgetService {
         ? widget.stories.map(story => ({
             ...story,
             assetLink: this.fileService.getImageUrl(story.assetUrl),
+            thumbnailLink: this.fileService.getImageUrl(story.thumbnailUrl),
           }))
         : undefined,
       groupedScans: scans,
