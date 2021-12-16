@@ -70,7 +70,7 @@ export class User {
   platformOs?: string;
 
   @Column({ default: true })
-  notificationEnabled: boolean;
+  notificationsEnabled: boolean;
 
   @ManyToMany(() => Interest, interest => interest.users)
   @JoinTable({ name: 'users_interests' })

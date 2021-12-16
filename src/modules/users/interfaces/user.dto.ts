@@ -36,6 +36,11 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsBoolean()
   exclusiveSubscription?: boolean;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsBoolean()
+  notificationsEnabled?: boolean;
 }
 
 export class UpdateUserInterestsDto {
