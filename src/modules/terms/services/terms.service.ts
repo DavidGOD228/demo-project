@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TermsOfUse } from '../entities/terms.entity';
 import { CreateTermDto } from '../interfaces/terms.dto';
+import { TermsTypeEnum } from '../interfaces/interfaces';
 
 @Injectable()
 export class TermsOfUseService {
@@ -10,6 +11,16 @@ export class TermsOfUseService {
 
   public async getTermsById(id: string): Promise<TermsOfUse> {
     const term = await this.termsRepository.findOne(id);
+
+    if (!term) {
+      throw new NotFoundException();
+    }
+
+    return term;
+  }
+
+  public async getTermsByType(type: TermsTypeEnum) {
+    const term = await this.termsRepository.findOne({ where: { type } });
 
     if (!term) {
       throw new NotFoundException();
