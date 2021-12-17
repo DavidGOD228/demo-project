@@ -1,6 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { TermsTypeEnum } from '../interfaces/interfaces';
 
-@Entity({ schema: 'cmn', name: 'terms_of_use' })
+@Entity({ schema: 'cmn', name: 'terms' })
 export class TermsOfUse {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -13,4 +14,7 @@ export class TermsOfUse {
 
   @Column()
   mainText: string;
+
+  @Column({ enum: TermsTypeEnum })
+  type: TermsTypeEnum;
 }
