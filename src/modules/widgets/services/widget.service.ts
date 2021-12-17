@@ -532,7 +532,9 @@ export class WidgetService {
       widget.promotion.modalImgUrl = body.promotionModalMediaUrl;
     }
 
-    await this.promotionsRepository.save(widget.promotion);
+    if (widget.promotion) {
+      await this.promotionsRepository.save(widget.promotion);
+    }
 
     if (storiesToAdd?.length) {
       if (widget.stories.length) {
