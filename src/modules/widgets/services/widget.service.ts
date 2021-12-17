@@ -524,7 +524,7 @@ export class WidgetService {
 
     if (body.promotionCollaborationMediaUrl) {
       widget.promotion.collaborationImgUrl = body.promotionCollaborationMediaUrl;
-    } else {
+    } else if (widget.promotion) {
       widget.promotion.collaborationImgUrl = null;
     }
 
