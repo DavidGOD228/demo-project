@@ -260,7 +260,13 @@ export class PromotionsService {
     this.firebaseService
       .notify(
         usersWithDeviceTokens.map(user => user.deviceToken),
-        { notification: { title: 'Wilson', body: 'Hey, seems like you are winner ! Congrats :D' } },
+        {
+          notification: { title: 'Wilson', body: 'Hey, seems like you are winner ! Congrats :D' },
+          data: {
+            id: promotion.id,
+            type: 'promotions',
+          },
+        },
       )
       .catch(console.error);
 
