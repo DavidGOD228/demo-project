@@ -249,6 +249,7 @@ export class WidgetService {
           swipeUrl: story.swipeUrl,
           type: story.type,
           priority: story.priority,
+          updatedAt: new Date(),
         };
 
         if (story.type === StoryBlockTypeEnum.IMAGE) {
