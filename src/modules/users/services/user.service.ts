@@ -185,7 +185,7 @@ export class UserService {
 
     const favorites = await this.widgetsRepository
       .createQueryBuilder('widgets')
-      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl'])
+      .select(['widgets.id', 'widgets.title', 'widgets.thumbnailUrl', 'widgets.webViewUrl'])
       .leftJoin('widgets.users', 'user')
       .andWhere('user.id = :userId', { userId: user.id })
       .limit(limit)
