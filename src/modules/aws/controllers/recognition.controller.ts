@@ -30,7 +30,10 @@ export class RecognitionController {
     @Req() req: RequestWithUserParams,
     @Query(new ValidationPipe()) query: GetWidgetPromotionDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<{ promotions: (Promotion & { widgetId: string }) | Promotion[]; channel?: Channel }> {
+  ): Promise<{
+    promotions: (Promotion & { widgetId: string }) | (Promotion & { widgetId: string })[];
+    channel?: Channel;
+  }> {
     try {
       return this.recognitionService.getBallPromotion(query, file, req.user.id);
     } catch (error) {
