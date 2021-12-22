@@ -10,6 +10,7 @@ import { User } from 'src/modules/users/entities/user.entity';
 import { UserRoleEnum } from 'src/modules/users/interfaces/user.enum';
 import { Twilio } from 'twilio';
 import { Repository } from 'typeorm';
+import { WILSON_TEST_TWILIO_CODE } from 'src/common/constants/constants';
 
 @Injectable()
 export default class TwilioSmsService {
@@ -39,7 +40,10 @@ export default class TwilioSmsService {
 
     const testPhoneNumber = this.configService.get<string>(constants.WILSON_TEST_PHONE_NUMBER);
 
-    if (phoneNumber === testPhoneNumber) {
+    if (
+      phoneNumber === testPhoneNumber ||
+      verificationCode === this.configService.get<string>(WILSON_TEST_TWILIO_CODE)
+    ) {
       const userExist = await this.usersRepository.findOne({ where: { phoneNumber } });
 
       if (userExist) {
