@@ -145,7 +145,10 @@ export class RecognitionService {
     query: GetWidgetPromotionDto,
     file: Express.Multer.File,
     userId: string,
-  ): Promise<{ promotions: (Promotion & { widgetId: string }) | Promotion[]; channel?: Channel }> {
+  ): Promise<{
+    promotions: (Promotion & { widgetId: string }) | (Promotion & { widgetId: string })[];
+    channel?: Channel;
+  }> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const recognizeResult = await this.recognize(file);
@@ -201,17 +204,20 @@ export class RecognitionService {
         await this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]);
 
         return {
-          promotions: {
-            ...widget.promotion,
-            widgetId: widget.id,
-            imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
-            collaborationImgUrl: widget.promotion.collaborationImgUrl
-              ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
-              : undefined,
-            modalImgUrl: widget.promotion.modalImgUrl
-              ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
-              : undefined,
-          },
+          promotions: [
+            {
+              ...widget.promotion,
+              widgetId: widget.id,
+              imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
+              collaborationImgUrl: widget.promotion.collaborationImgUrl
+                ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+                : undefined,
+              modalImgUrl: widget.promotion.modalImgUrl
+                ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+                : undefined,
+            },
+          ],
+          channel: passedChannel,
         };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
