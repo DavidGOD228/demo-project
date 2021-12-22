@@ -69,27 +69,6 @@ export class RecognitionService {
     return passedChannel;
   }
 
-  public async increaseScanTimes(widget: Widget, user: User, channel: Channel): Promise<void> {
-    const existingWidgetScan = widget.scans?.find(scan => scan.channel.id === channel.id);
-    const existingUserScan = user.scans?.find(scan => scan.channel.id === channel.id);
-
-    const newScans: Scan[] = [];
-
-    newScans.push(
-      existingWidgetScan
-        ? { ...existingWidgetScan, number: existingWidgetScan.number + 1 }
-        : this.scanRepository.create({ objectId: widget.id, number: 1, channel }),
-    );
-
-    newScans.push(
-      existingUserScan
-        ? { ...existingUserScan, number: existingUserScan.number + 1 }
-        : this.scanRepository.create({ objectId: user.id, number: 1, channel }),
-    );
-
-    await this.scanRepository.save(newScans);
-  }
-
   public notifyUserWithEmail(user: User, widgets: Widget[], passedChannel: Channel): void {
     if (user.email) {
       const exclusiveWidgets = passedChannel.widgets.filter(widget => this.isWidgetExclusiveForUser(widget, user));
@@ -166,7 +145,7 @@ export class RecognitionService {
     query: GetWidgetPromotionDto,
     file: Express.Multer.File,
     userId: string,
-  ): Promise<(Promotion & { widgetId: string }) | Promotion[]> {
+  ): Promise<{ promotions: (Promotion & { widgetId: string }) | Promotion[]; channel?: Channel }> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const recognizeResult = await this.recognize(file);
@@ -199,7 +178,7 @@ export class RecognitionService {
 
       if (userPromotion && userPromotion.isConfirmed) {
         // returning empty array because this widget was already scanned by this user
-        return [];
+        return { promotions: [] };
       }
 
       const channels = await this.channelRepository.find({
@@ -214,26 +193,25 @@ export class RecognitionService {
       if (passedChannel) {
         if (!widget.promotion) {
           // throw new BadRequestException(NO_PROMOTION_ERROR);
-          return [];
+          return { promotions: [] };
         }
 
         this.notifyUserWithEmail(user, [widget], passedChannel);
 
-        await Promise.all([
-          this.increaseScanTimes(widget, user, passedChannel),
-          this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]),
-        ]);
+        await this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]);
 
         return {
-          ...widget.promotion,
-          widgetId: widget.id,
-          imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
-          collaborationImgUrl: widget.promotion.collaborationImgUrl
-            ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
-            : undefined,
-          modalImgUrl: widget.promotion.modalImgUrl
-            ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
-            : undefined,
+          promotions: {
+            ...widget.promotion,
+            widgetId: widget.id,
+            imageUrl: this.fileService.getImageUrl(widget.promotion.imageUrl),
+            collaborationImgUrl: widget.promotion.collaborationImgUrl
+              ? this.fileService.getImageUrl(widget.promotion.collaborationImgUrl)
+              : undefined,
+            modalImgUrl: widget.promotion.modalImgUrl
+              ? this.fileService.getImageUrl(widget.promotion.modalImgUrl)
+              : undefined,
+          },
         };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
@@ -271,14 +249,12 @@ export class RecognitionService {
 
         if (!promotionIds.length) {
           // throw new BadRequestException(NO_PROMOTION_ERROR);
-          return [];
+          return { promotions: [] };
         }
 
         this.notifyUserWithEmail(user, passedChannel.widgets, passedChannel);
 
         const promotionsPromises = passedChannel.widgets.map(async widget => {
-          await this.increaseScanTimes(widget, user, passedChannel);
-
           if (widget.promotion) {
             return {
               ...widget.promotion,
@@ -298,7 +274,7 @@ export class RecognitionService {
 
         await this.promotionsService.confirmUserPromotions(user.id, promotionIds);
 
-        return promotions.filter(promotion => !!promotion);
+        return { promotions: promotions.filter(promotion => !!promotion), channel: passedChannel };
       } else {
         throw new BadRequestException('Ball was not recognized for this widget');
       }

@@ -11,6 +11,7 @@ import { handleError } from '../../../common/errorHandler';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 import { GetChannelByImage } from '../interfaces/interfaces';
+import { Channel } from '../../channels/entities/channel.entity';
 
 @UseInterceptors(SentryInterceptor)
 @ApiTags('Recognition')
@@ -29,7 +30,7 @@ export class RecognitionController {
     @Req() req: RequestWithUserParams,
     @Query(new ValidationPipe()) query: GetWidgetPromotionDto,
     @UploadedFile() file: Express.Multer.File,
-  ): Promise<Promotion | Promotion[]> {
+  ): Promise<{ promotions: (Promotion & { widgetId: string }) | Promotion[]; channel?: Channel }> {
     try {
       return this.recognitionService.getBallPromotion(query, file, req.user.id);
     } catch (error) {
