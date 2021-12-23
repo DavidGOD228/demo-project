@@ -145,6 +145,7 @@ export class UserService {
       id: widget.id,
       title: widget.title,
       thumbnailUrl: widget.thumbnailUrl ? this.fileService.getImageUrl(widget.thumbnailUrl) : undefined,
+      webViewUrl: widget.webViewUrl,
     };
   }
 
