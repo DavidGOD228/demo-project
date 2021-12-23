@@ -23,14 +23,18 @@ export class ScanService {
   ) {}
 
   public async increaseScanTimes(widgetIds: string[], userId: string, channelId: string): Promise<void> {
-    const user = await this.usersRepository.findOne({ where: { id: userId } });
+    const user = await this.usersRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     if (!user) {
       throw new BadRequestException('User does not exist');
     }
 
-    const widgets = await this.widgetsRepository.findByIds(widgetIds);
+    const widgets = await this.widgetsRepository.findByIds(widgetIds, { relations: ['scans', 'scans.channel'] });
     const channel = await this.channelsRepository.findOne({ where: { id: channelId } });
+
+    if (!channel) {
+      throw new BadRequestException('This channel does not exist');
+    }
 
     const newScans: Scan[] = [];
 
