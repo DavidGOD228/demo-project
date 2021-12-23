@@ -557,15 +557,15 @@ export class WidgetService {
       stories: widget.stories,
     };
 
-    // this.firebaseService
-    //   .notifyAll({
-    //     notification: { title: 'Hey there', body: 'New widget is already live' },
-    //     data: {
-    //       id: widgetUpdated.id,
-    //       type: widgetUpdated.type,
-    //     },
-    //   })
-    //   .catch(console.error);
+    this.firebaseService
+      .notifyAll({
+        notification: { title: 'Hey there', body: 'New widget is already live' },
+        data: {
+          id: widgetUpdated.id,
+          type: widgetUpdated.type,
+        },
+      })
+      .catch(console.error);
 
     return await this.widgetsRepository.save(widgetUpdated);
   }
