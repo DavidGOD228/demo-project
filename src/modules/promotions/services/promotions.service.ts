@@ -263,7 +263,7 @@ export class PromotionsService {
         {
           notification: { title: 'Wilson', body: 'Hey, seems like you are winner ! Congrats :D' },
           data: {
-            id: promotion.id,
+            id: widget.id,
             type: 'promotions',
           },
         },
