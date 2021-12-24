@@ -627,8 +627,8 @@ export class WidgetService {
 
     widgetList
       .where('widget.parent_id IS NULL')
-      .andWhere('(widget.expires_at IS NULL OR widget.expires_at > :startDate)', { startDate: new Date() })
-      .orderBy('widget.expiresAt')
+      .andWhere('(widget.expiration_date IS NULL OR widget.expiration_date > :startDate)', { startDate: new Date() })
+      .orderBy('widget.expiration_date')
       .addOrderBy('widget.updatedAt', 'DESC')
       .leftJoinAndSelect('widget.stories', 'stories');
 
@@ -636,7 +636,7 @@ export class WidgetService {
       .leftJoinAndSelect(
         'widget.childWidgets',
         'children',
-        '(children.expires_at IS NULL OR children.expires_at > :startDate)',
+        '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
         {
           startDate: new Date(),
         },
