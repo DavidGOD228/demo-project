@@ -27,6 +27,7 @@ import { StoryBlock } from '../entities/storyBlock.entity';
 import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
 import { FirebaseService } from '../../firebase/services/firebase.service';
 import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
+import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 
 @Injectable()
 export class WidgetService {
@@ -605,7 +606,7 @@ export class WidgetService {
     return this.widgetsRepository.find(query);
   }
 
-  public async generateWidgetFeed(userId: string): Promise<Partial<Widget>[]> {
+  public async generateWidgetFeed(userId: string, { pageNumber, limit }: GetWidgetFeedDto): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const widgetList = this.widgetsRepository.createQueryBuilder('widget');
@@ -646,6 +647,10 @@ export class WidgetService {
       .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
       .leftJoinAndSelect('children.channels', 'child_channels')
       .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
+
+    if (limit && pageNumber) {
+      widgetList.skip((pageNumber - 1) * limit).take(limit);
+    }
 
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 

@@ -50,6 +50,7 @@ import { UpdateCarouselDto } from '../interfaces/updateCarousel.dto';
 import { SentryInterceptor } from '../../../common/interceptors';
 import { BaseApiCreatedResponses } from 'src/common/decorators/baseApi.decorator';
 import { FilterWidgetByTitleDto } from '../interfaces/filterWidgetByTitle.dto';
+import { GetWidgetFeedDto } from '../interfaces/getWidgetFeed.dto';
 
 @UseInterceptors(SentryInterceptor)
 @UseGuards(JwtAuthGuard)
@@ -107,9 +108,9 @@ export class WidgetController {
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Get('feed')
-  async getWidgetFeed(@Req() req: RequestWithUserParams) {
+  async getWidgetFeed(@Req() req: RequestWithUserParams, @Query() query: GetWidgetFeedDto) {
     try {
-      return this.widgetsService.generateWidgetFeed(req.user.id);
+      return this.widgetsService.generateWidgetFeed(req.user.id, query);
     } catch (error) {
       handleError(error, 'getWidgetFeed');
     }
