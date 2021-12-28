@@ -650,9 +650,13 @@ export class WidgetService {
 
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
-    // making pagination with js array method because typeorm query builder methods
-    // offset+limit/skip+take don't work with joins properly
-    const widgets = (await widgetList.getMany()).slice((pageNumber - 1) * limit, pageNumber * limit);
+    let widgets = await widgetList.getMany();
+
+    if (pageNumber && limit) {
+      // making pagination with js array method because typeorm query builder methods
+      // offset+limit/skip+take don't work with joins properly
+      widgets = widgets.slice((pageNumber - 1) * limit, pageNumber * limit);
+    }
 
     const usersPromotion = await this.usersPromotionRepository.find({
       where: { user, isConfirmed: true },
