@@ -606,13 +606,47 @@ export class WidgetService {
     return this.widgetsRepository.find(query);
   }
 
-  public async generateWidgetFeed(userId: string, { pageNumber, limit }: GetWidgetFeedDto): Promise<Partial<Widget>[]> {
+  public async generateWidgetFeed(
+    userId: string,
+    { tags, pageNumber, limit }: GetWidgetFeedDto,
+  ): Promise<Partial<Widget>[]> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const widgetList = this.widgetsRepository.createQueryBuilder('widget');
 
     if (!user.exclusiveSubscription && user.role === UserRoleEnum.USER) {
       widgetList.andWhere('widget.isExclusive = FALSE');
+    }
+
+    if (tags?.length) {
+      widgetList
+        .leftJoin('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
+          tagIds: tags,
+        })
+        .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
+          carouselType: WidgetTypeEnum.CAROUSEL,
+        })
+        .leftJoinAndSelect(
+          'widget.childWidgets',
+          'children',
+          '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
+          {
+            startDate: new Date(),
+          },
+        )
+        .leftJoin('children.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
+        .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
+          carouselType: WidgetTypeEnum.CAROUSEL,
+        });
+    } else {
+      widgetList.leftJoinAndSelect(
+        'widget.childWidgets',
+        'children',
+        '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
+        {
+          startDate: new Date(),
+        },
+      );
     }
 
     widgetList.leftJoinAndSelect('widget.channels', 'channels');
@@ -626,24 +660,14 @@ export class WidgetService {
     }
 
     widgetList
-      .where('widget.parent_id IS NULL')
+      .andWhere('widget.parent_id IS NULL')
       .andWhere('(widget.expiration_date IS NULL OR widget.expiration_date > :startDate)', { startDate: new Date() })
       .orderBy('widget.expiration_date')
       .addOrderBy('widget.updatedAt', 'DESC')
       .leftJoinAndSelect('widget.stories', 'stories');
 
     widgetList
-      .leftJoinAndSelect(
-        'widget.childWidgets',
-        'children',
-        '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
-        {
-          startDate: new Date(),
-        },
-      )
       .leftJoinAndSelect('children.stories', 'childStories')
-      .leftJoinAndSelect('widget.tags', 'tags')
-      .leftJoinAndSelect('children.tags', 'child_tags')
       .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
       .leftJoinAndSelect('children.channels', 'child_channels')
       .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
