@@ -21,6 +21,7 @@ import { UsersPromotion } from '../../users/entities/usersPromotions.entity';
 import { UserService } from '../../users/services/user.service';
 import { ExportCsvService } from 'src/modules/config/services/csvExport.service';
 import { FirebaseService } from '../../firebase/services/firebase.service';
+import { Channel } from '../../channels/entities/channel.entity';
 
 @Injectable()
 export class PromotionsService {
@@ -186,7 +187,11 @@ export class PromotionsService {
       .filter(promotion => !!promotion);
   }
 
-  public async confirmUserPromotions(userId: string, promotionIds: string[]): Promise<UsersPromotion[]> {
+  public async confirmUserPromotions(
+    userId: string,
+    promotionIds: string[],
+    channel: Channel,
+  ): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     const isProfileFilled = this.userService.isProfileFilledOut(user);
@@ -198,6 +203,7 @@ export class PromotionsService {
         message: 'User profile is not filled out',
         key: GetPromotionErrorEnum.UNFILLED_USER_DATA,
         promotions: this.getPromotionsWithImages(promotions),
+        channel,
       });
     }
 

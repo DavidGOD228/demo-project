@@ -201,7 +201,7 @@ export class RecognitionService {
 
         this.notifyUserWithEmail(user, [widget], passedChannel);
 
-        await this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id]);
+        await this.promotionsService.confirmUserPromotions(user.id, [widget.promotion.id], passedChannel);
 
         return {
           promotions: [
@@ -278,7 +278,7 @@ export class RecognitionService {
 
         const promotions = await Promise.all(promotionsPromises);
 
-        await this.promotionsService.confirmUserPromotions(user.id, promotionIds);
+        await this.promotionsService.confirmUserPromotions(user.id, promotionIds, passedChannel);
 
         return { promotions: promotions.filter(promotion => !!promotion), channel: passedChannel };
       } else {
