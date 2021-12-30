@@ -620,7 +620,7 @@ export class WidgetService {
 
     if (tags?.length) {
       widgetList
-        .leftJoin('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
+        .leftJoinAndSelect('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
           tagIds: tags,
         })
         .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
@@ -634,19 +634,22 @@ export class WidgetService {
             startDate: new Date(),
           },
         )
-        .leftJoin('children.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
+        .leftJoinAndSelect('children.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
         .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
           carouselType: WidgetTypeEnum.CAROUSEL,
         });
     } else {
-      widgetList.leftJoinAndSelect(
-        'widget.childWidgets',
-        'children',
-        '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
-        {
-          startDate: new Date(),
-        },
-      );
+      widgetList
+        .leftJoinAndSelect(
+          'widget.childWidgets',
+          'children',
+          '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
+          {
+            startDate: new Date(),
+          },
+        )
+        .leftJoinAndSelect('widget.tags', 'tags')
+        .leftJoinAndSelect('children.tags', 'child_tags');
     }
 
     widgetList.leftJoinAndSelect('widget.channels', 'channels');
