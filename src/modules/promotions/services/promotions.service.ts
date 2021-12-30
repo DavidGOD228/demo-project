@@ -190,7 +190,7 @@ export class PromotionsService {
   public async confirmUserPromotions(
     userId: string,
     promotionIds: string[],
-    channel: Channel,
+    channel?: Channel,
   ): Promise<UsersPromotion[]> {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
