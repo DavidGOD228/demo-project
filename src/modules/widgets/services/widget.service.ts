@@ -608,8 +608,8 @@ export class WidgetService {
 
   public async generateWidgetFeed(
     userId: string,
-    { tags, pageNumber, limit }: GetWidgetFeedDto,
-  ): Promise<Partial<Widget>[]> {
+    { tags, pageNumber, limit, sendLength }: GetWidgetFeedDto,
+  ): Promise<Partial<Widget>[] | { widgets: Partial<Widget>[]; length: number }> {
     const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
 
     const widgetList = this.widgetsRepository.createQueryBuilder('widget');
@@ -678,6 +678,7 @@ export class WidgetService {
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
     let widgets = await widgetList.getMany();
+    const widgetsLength = widgets.length;
 
     if (pageNumber && limit) {
       // making pagination with js array method because typeorm query builder methods
@@ -690,7 +691,9 @@ export class WidgetService {
       relations: ['promotion', 'promotion.widget'],
     });
 
-    return this.serializeWidgetList(widgets, usersPromotion);
+    return sendLength
+      ? { widgets: this.serializeWidgetList(widgets, usersPromotion), length: widgetsLength }
+      : this.serializeWidgetList(widgets, usersPromotion);
   }
 
   public async getCarousel(): Promise<Partial<Omit<Widget, 'childWidgets'> & { childWidgets: Partial<Widget>[] }>> {
