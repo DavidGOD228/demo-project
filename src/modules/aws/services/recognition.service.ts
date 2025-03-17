@@ -228,7 +228,10 @@ export class RecognitionService {
       const channels = await this.channelRepository.find({
         relations: [
           'widgets',
-          'widgets.channels'
+          'widgets.channels',
+          'widgets.promotion',
+          'widgets.promotion.userPromotions',
+          'widgets.promotion.userPromotions.user',
         ],
       });
 
@@ -237,18 +240,19 @@ export class RecognitionService {
       if (passedChannel) {
         const promotionIds = passedChannel.widgets
           .map(widget => {
-            if (widget.promotion) {
-              const userPromotion = widget?.promotion.userPromotions.find(
-                userPromotion => userPromotion.user.id === userId,
-              );
 
-              if (!userPromotion || !userPromotion.isConfirmed) {
+            if (widget.promotion) {
+              // const userPromotion = widget?.promotion.userPromotions.find(
+              //   userPromotion => userPromotion.user.id === userId,
+              // );
+              //
+              // if (!userPromotion || !userPromotion.isConfirmed) {
                 return widget.promotion.id;
-              }
+              // }
             }
           })
           .filter(id => !!id);
-
+        console.log('promotionIdspromotionIds', promotionIds);
         if (!promotionIds.length) {
           // throw new BadRequestException(NO_PROMOTION_ERROR);
           return { promotions: [] };
