@@ -11,7 +11,7 @@ export class Scan {
   @Column()
   number: number;
 
-  @Column()
+  @Column({ type: 'uuid' })
   objectId: string;
 
   @ManyToOne(() => Channel, channel => channel.scans)

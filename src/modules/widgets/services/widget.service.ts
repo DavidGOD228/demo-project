@@ -51,7 +51,7 @@ export class WidgetService {
   public groupWidgetScans(widgetChannels: Channel[] = []) {
     const channels = widgetChannels
       .map(channel => {
-        if (channel.league && channel.scans.length) {
+        if (channel.league && channel?.scans?.length) {
           return {
             league: channel.league,
             number: channel.scans.map(item => item.number).reduce((prev, next) => prev + next, 0),
@@ -82,7 +82,7 @@ export class WidgetService {
 
         const isScanned = !!usersPromotion.find(up => up.promotion.widget.id === widget.id);
 
-        if (widget.type === WidgetTypeEnum.CAROUSEL && widget.childWidgets.length === 1) {
+        if (widget.type === WidgetTypeEnum.CAROUSEL && widget?.childWidgets?.length === 1) {
           const childWidget = widget.childWidgets[0];
 
           return {
@@ -91,7 +91,7 @@ export class WidgetService {
             detailsMediaLink: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
             thumbnailLink: this.fileService.getImageUrl(childWidget.thumbnailUrl),
             storyAuthorAvatarLink: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
-            stories: childWidget.stories?.length
+            stories: childWidget?.stories?.length
               ? childWidget.stories
                   .sort((a, b) => a.priority - b.priority)
                   .map(story => ({
@@ -109,7 +109,7 @@ export class WidgetService {
           ...widget,
           users: undefined,
           isScanned,
-          isFavorite: !!widget.users.length,
+          isFavorite: !!widget?.users?.length,
           feedMediaLink: this.fileService.getImageUrl(widget.feedMediaUrl),
           detailsMediaLink: this.fileService.getImageUrl(widget.detailsMediaUrl),
           thumbnailLink: this.fileService.getImageUrl(widget.thumbnailUrl),
@@ -123,7 +123,7 @@ export class WidgetService {
                   thumbnailLink: this.fileService.getImageUrl(story.thumbnailUrl),
                 }))
             : undefined,
-          childWidgets: childWidgets.length
+          childWidgets: childWidgets?.length
             ? childWidgets
                 .sort((a, b) => a.carouselPriority - b.carouselPriority)
                 .map(childWidget => ({
@@ -132,7 +132,7 @@ export class WidgetService {
                   detailsMediaLink: this.fileService.getImageUrl(childWidget.detailsMediaUrl),
                   thumbnailLink: this.fileService.getImageUrl(childWidget.thumbnailUrl),
                   storyAuthorAvatarLink: this.fileService.getImageUrl(childWidget.storyAuthorAvatarUrl),
-                  stories: childWidget.stories?.length
+                  stories: childWidget?.stories?.length
                     ? childWidget.stories
                         .sort((a, b) => a.priority - b.priority)
                         .map(story => ({
@@ -199,7 +199,7 @@ export class WidgetService {
       storyAuthorAvatarLink: widget.storyAuthorAvatarUrl
         ? this.fileService.getImageUrl(widget.storyAuthorAvatarUrl)
         : undefined,
-      stories: widget.stories?.length
+      stories: widget?.stories?.length
         ? widget.stories.map(story => ({
             ...story,
             assetLink: this.fileService.getImageUrl(story.assetUrl),
@@ -539,7 +539,7 @@ export class WidgetService {
     }
 
     if (storiesToAdd?.length) {
-      if (widget.stories.length) {
+      if (widget?.stories?.length) {
         await this.storyRepository.delete(widget.stories.map(story => story.id));
       }
 
@@ -582,7 +582,7 @@ export class WidgetService {
   public async exportWidgetCsv(body: FilterWidgetsDto): Promise<string> {
     const widgets = await this.getFilteredWidgets(body);
 
-    if (widgets.widgets.length) {
+    if (widgets?.widgets?.length) {
       const csv = await this.csvService.exportCsv(widgets.widgets, 'Widgets');
 
       return csv;
@@ -597,7 +597,7 @@ export class WidgetService {
       take: this.MAX_FILTERED_OPTIONS,
     };
 
-    if (filterValue.trim().length) {
+    if (filterValue?.trim()?.length) {
       query.where = { type: Not(WidgetTypeEnum.CAROUSEL), title: ILike(`${filterValue.toLowerCase().trim()}%`) };
     } else {
       query.where = { type: Not(WidgetTypeEnum.CAROUSEL) };
@@ -610,7 +610,7 @@ export class WidgetService {
     userId: string,
     { tags, pageNumber, limit, sendLength }: GetWidgetFeedDto,
   ): Promise<Partial<Widget>[] | { widgets: Partial<Widget>[]; length: number }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     const widgetList = this.widgetsRepository.createQueryBuilder('widget');
 
@@ -618,43 +618,43 @@ export class WidgetService {
       widgetList.andWhere('widget.isExclusive = FALSE');
     }
 
-    if (tags?.length) {
-      widgetList
-        .leftJoinAndSelect('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
-          tagIds: tags,
-        })
-        .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
-          carouselType: WidgetTypeEnum.CAROUSEL,
-        })
-        .leftJoinAndSelect(
-          'widget.childWidgets',
-          'children',
-          '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
-          {
-            startDate: new Date(),
-          },
-        )
-        .leftJoinAndSelect('children.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
-        .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
-          carouselType: WidgetTypeEnum.CAROUSEL,
-        });
-    } else {
-      widgetList
-        .leftJoinAndSelect(
-          'widget.childWidgets',
-          'children',
-          '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
-          {
-            startDate: new Date(),
-          },
-        )
-        .leftJoinAndSelect('widget.tags', 'tags')
-        .leftJoinAndSelect('children.tags', 'child_tags');
-    }
+    // if (tags?.length) {
+    //   widgetList
+    //     .leftJoinAndSelect('widget.tags', 'tags', 'tags.id IN (:...tagIds)', {
+    //       tagIds: tags,
+    //     })
+    //     .andWhere('(widget.type = :carouselType OR tags IS NOT NULL)', {
+    //       carouselType: WidgetTypeEnum.CAROUSEL,
+    //     })
+    //     .leftJoinAndSelect(
+    //       'widget.childWidgets',
+    //       'children',
+    //       '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
+    //       {
+    //         startDate: new Date(),
+    //       },
+    //     )
+    //     .leftJoinAndSelect('children.tags', 'child_tags', 'child_tags.id IN (:...tagIds)', { tagIds: tags })
+    //     .andWhere('(widget.type != :carouselType OR child_tags IS NOT NULL)', {
+    //       carouselType: WidgetTypeEnum.CAROUSEL,
+    //     });
+    // } else {
+    //   widgetList
+    //     .leftJoinAndSelect(
+    //       'widget.childWidgets',
+    //       'children',
+    //       '(children.expiration_date IS NULL OR children.expiration_date > :startDate)',
+    //       {
+    //         startDate: new Date(),
+    //       },
+    //     )
+    //     .leftJoinAndSelect('widget.tags', 'tags')
+    //     .leftJoinAndSelect('children.tags', 'child_tags');
+    // }
 
     widgetList.leftJoinAndSelect('widget.channels', 'channels');
 
-    if (user.scans?.length) {
+    if (user?.scans?.length) {
       widgetList.andWhere('widget.isExclusive = false OR channels.id IN (:...userChannels)', {
         userChannels: user.scans.map(item => item.channel.id),
       });
@@ -669,16 +669,16 @@ export class WidgetService {
       .addOrderBy('widget.updatedAt', 'DESC')
       .leftJoinAndSelect('widget.stories', 'stories');
 
-    widgetList
-      .leftJoinAndSelect('children.stories', 'childStories')
-      .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
-      .leftJoinAndSelect('children.channels', 'child_channels')
-      .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
+    // widgetList
+    //   .leftJoinAndSelect('children.stories', 'childStories')
+    //   .leftJoinAndSelect('channels.scans', 'scans', 'scans.objectId = widget.id')
+    //   .leftJoinAndSelect('children.channels', 'child_channels')
+    //   .leftJoinAndSelect('child_channels.scans', 'child_scans', 'child_scans.objectId = children.id');
 
     widgetList.leftJoinAndSelect('widget.users', 'favorites', 'favorites.id = :userId', { userId });
 
     let widgets = await widgetList.getMany();
-    const widgetsLength = widgets.length;
+    const widgetsLength = widgets?.length;
 
     if (pageNumber && limit) {
       // making pagination with js array method because typeorm query builder methods
