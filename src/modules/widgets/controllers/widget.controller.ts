@@ -107,7 +107,7 @@ export class WidgetController {
   @ApiOkResponse({ description: 'OK' })
   @ApiNotFoundResponse({ description: 'Not Found' })
   @ApiUnauthorizedResponse({ description: 'Unauthorized' })
-  @Get('feed')
+  @Get('feed/v3')
   async getWidgetFeed(@Req() req: RequestWithUserParams, @Query() query: GetWidgetFeedDto) {
     try {
       return this.widgetsService.generateWidgetFeed(req.user.id, query);
