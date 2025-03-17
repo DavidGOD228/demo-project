@@ -149,7 +149,7 @@ export class RecognitionService {
     promotions: (Promotion & { widgetId: string }) | (Promotion & { widgetId: string })[];
     channel?: Channel;
   }> {
-    const user = await this.userRepository.findOne({ where: { id: userId }, relations: ['scans', 'scans.channel'] });
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     const recognizeResult = await this.recognize(file);
 
@@ -224,15 +224,11 @@ export class RecognitionService {
       }
     } else {
       // logic for all available promotions
+
       const channels = await this.channelRepository.find({
         relations: [
           'widgets',
-          'widgets.channels',
-          'widgets.promotion',
-          'widgets.promotion.userPromotions',
-          'widgets.promotion.userPromotions.user',
-          'widgets.scans',
-          'widgets.scans.channel',
+          'widgets.channels'
         ],
       });
 
