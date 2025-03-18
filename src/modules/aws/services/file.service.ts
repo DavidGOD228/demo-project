@@ -103,6 +103,8 @@ export class FileService {
   public getImageUrl(fileKey: string) {
     if (!fileKey) {
       return undefined;
+    } else if (fileKey.startsWith('http')) {
+      return fileKey;
     }
 
     const s3Bucket = new sdk.S3();
